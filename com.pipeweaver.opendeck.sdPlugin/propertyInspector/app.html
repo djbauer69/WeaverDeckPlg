@@ -43,13 +43,11 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
 }
 
 function requestApps() {
-  setTimeout(() => {
-    websocket?.send(JSON.stringify({
-      event: "sendToPlugin",
-      context: info.context,
-      payload: { command: "getTargets" }
-    }));
-  }, 50);
+  websocket?.send(JSON.stringify({
+    event: "sendToPlugin",
+    context: info.context,
+    payload: { command: "getTargets" }
+  }));
 }
 
 function populate(apps) {

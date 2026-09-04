@@ -18,10 +18,13 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
   context = inPropertyInspectorUUID;
   const info = JSON.parse(inActionInfo);
   settings = info.payload.settings || {};
-  websocket.onopen = () => websocket.send(JSON.stringify({
-    event: inRegisterEvent,
-    uuid: inPropertyInspectorUUID
-  }));
+  websocket.onopen = () => {
+    websocket.send(JSON.stringify({
+      event: inRegisterEvent,
+      uuid: inPropertyInspectorUUID
+    }));
+    requestLists();
+  };
   window.piInfo = info;
   window.sendSettings = function() {
     websocket.send(JSON.stringify({
@@ -39,17 +42,14 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
     } catch (_) {}
   };
   init();
-  requestLists();
 }
 
 function requestLists() {
-  setTimeout(() => {
-    websocket?.send(JSON.stringify({
-      event: "sendToPlugin",
-      context: window.piInfo.context,
-      payload: {command:"getTargets"}
-    }));
-  }, 50);
+  websocket?.send(JSON.stringify({
+    event: "sendToPlugin",
+    context: window.piInfo.context,
+    payload: {command:"getTargets"}
+  }));
 }
 
 

@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8"><title>PipeWeaver Physical Output</title><style>html,body{margin:0;padding:0;background:#1e1e1e;color:#eee;font:13px sans-serif}body{padding:12px;box-sizing:border-box}.row{display:flex;align-items:center;margin-bottom:10px;gap:8px}label{width:90px;color:#bbb}input,select{flex:1;min-width:0;box-sizing:border-box;background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:4px;padding:7px}small{color:#999}#status{margin:8px 0;color:#aaa}</style><script>
+let websocket,settings={},piInfo={},isMute=false;
+function connectElgatoStreamDeckSocket(inPort,inPropertyInspectorUUID,inRegisterEvent,inInfo,inActionInfo){
+  websocket=new WebSocket("ws://localhost:"+inPort);
+  piInfo=JSON.parse(inActionInfo); settings=piInfo.payload?.settings||{};
+  isMute=piInfo.action==="com.pipeweaver.opendeck.physmute";
+  websocket.onopen=()=>{websocket.send(JSON.stringify({event:inRegisterEvent,uuid:inPropertyInspectorUUID}));websocket.send(JSON.stringify({event:"sendToPlugin",context:piInfo.context,payload:"getDevices"}))};
+  websocket.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.event==="sendToPropertyInspector")populate(m.payload)}catch(_){}};
+  init();
+}
+function init(){document.getElementById("stepRow").style.display=isMute?"none":"flex";document.getElementById("step").value=settings.step||"5";}
+function collect(){const s=document.getElementById("device");return{deviceId:s.value,deviceName:s.options[s.selectedIndex]?.text||"",step:document.getElementById("step").value}}
+function sendSettings(){websocket?.send(JSON.stringify({event:"setSettings",context:piInfo.context,payload:collect()}))}
+function populate(d){if(d.command!=="devices")return;const s=document.getElementById("device"),old=settings.deviceId||"";s.innerHTML='<option value="">Select physical output…</option>';(d.outputs||[]).forEach(x=>{const o=document.createElement("option");o.value=x.id;o.textContent=x.name;s.appendChild(o)});s.value=old}
+function save(){sendSettings()}
+</script></head><body><div class="row"><label>Output</label><select id="device" onchange="save()"><option>Loading…</option></select></div><div class="row" id="stepRow"><label>Step %</label><input id="step" type="number" min="1" max="100" onchange="save()"></div><small id="help">Controls a physical PipeWeaver output.</small></body></html>
