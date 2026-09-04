@@ -1,9 +1,20 @@
-# PipeWeaver Control for OpenDeck 0.5.1
+# PipeWeaver Control for OpenDeck 0.6.0
 
 For OpenDeck 2.14.x on Linux.
 
 ## Important
 This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0.1:14565/api/command`. It does not call PipeWire, PulseAudio, WirePlumber, `pactl`, or `wpctl` directly.
+
+## v0.6.0 highlights
+
+- Live visual state feedback for application, source, target, route, physical-device, default-device, and PipeWeaver status actions.
+- Mute keys now show **green/live** and **red/muted** states.
+- Route keys show active vs inactive routing state.
+- Target Mix actions now visually distinguish **Mix A** and **Mix B**.
+- Set Default Device indicates when the selected device is currently active as PipeWeaver's default.
+- Volume actions continue to show the current percentage in the key title.
+- Property Inspectors now request their PipeWeaver data directly from `websocket.onopen` instead of relying on arbitrary 50 ms delays.
+- Application routing keeps the v0.5.1 device-type fix: playback applications route to PipeWeaver Sources and capture applications route to PipeWeaver Targets.
 
 ## Actions
 
@@ -12,8 +23,6 @@ This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0
 - Application Route Off / On / Toggle
 - Application Set Volume
 - Application Volume Down / Up
-
-Application routing is type-aware in v0.5.1: playback applications route to compatible PipeWeaver **Sources**, while capture/recording applications route to compatible PipeWeaver **Targets**. Route Off clears the transient route back to the system Default destination, matching PipeWeaver's API behavior.
 
 ### Physical / default devices
 - Physical Input Mute
@@ -54,18 +63,8 @@ Application routing is type-aware in v0.5.1: playback applications route to comp
 
 ## Install
 1. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
-2. Extract the v0.5.1 plugin package into OpenDeck's plugins directory.
+2. Extract the v0.6.0 plugin package into OpenDeck's plugins directory.
 3. Restart OpenDeck.
 4. Add PipeWeaver actions to Stream Deck keys and configure them in OpenDeck.
 
 Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
-
-## v0.5.1
-
-Version 0.5.1 fixes Application Route On / Off / Toggle destination selection. v0.5.0 incorrectly offered PipeWeaver Targets to playback applications, causing PipeWeaver to return `Target Type mismatch`. The property inspector now preserves the application's PipeWeaver device type and presents only compatible routing destinations.
-
-## v0.5.0
-
-Version 0.5.0 builds on the stable v0.4.8 baseline and adds exact source volume control, dedicated Mix A/B source controls, independent source A/B mute actions, live application set-volume and transient route controls, physical input volume/mute controls, and improved state feedback for routes, source mute/volume, target mix, applications, and physical devices.
-
-The plugin communicates exclusively through PipeWeaver.
