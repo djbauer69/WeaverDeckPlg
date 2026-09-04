@@ -1,0 +1,100 @@
+{
+  "Name": "PipeWeaver Control",
+  "Description": "Control PipeWeaver targets, routes and application audio from OpenDeck.",
+  "Author": "OpenAI",
+  "Version": "0.2.1",
+  "CodePathLin": "plugin.js",
+  "CodePaths": {
+    "x86_64-unknown-linux-gnu": "plugin.js",
+    "aarch64-unknown-linux-gnu": "plugin.js"
+  },
+  "Icon": "icons/plugin",
+  "Category": "PipeWeaver",
+  "OS": [
+    {
+      "Platform": "linux"
+    }
+  ],
+  "Actions": [
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Volume Up",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Increase a PipeWeaver target volume.",
+      "UUID": "com.pipeweaver.opendeck.volumeup",
+      "PropertyInspectorPath": "propertyInspector/volume.html"
+    },
+    {
+      "Icon": "icons/volumeDown",
+      "Name": "Volume Down",
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Decrease a PipeWeaver target volume.",
+      "UUID": "com.pipeweaver.opendeck.volumedown",
+      "PropertyInspectorPath": "propertyInspector/volume.html"
+    },
+    {
+      "Icon": "icons/mute",
+      "Name": "Toggle Target Mute",
+      "States": [
+        {
+          "Image": "icons/mute"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle mute on a PipeWeaver target.",
+      "UUID": "com.pipeweaver.opendeck.mute",
+      "PropertyInspectorPath": "propertyInspector/mute.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Toggle Route",
+      "States": [
+        {
+          "Image": "icons/route"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle a PipeWeaver source-to-target route.",
+      "UUID": "com.pipeweaver.opendeck.route",
+      "PropertyInspectorPath": "propertyInspector/route.html"
+    },
+    {
+      "Icon": "icons/app",
+      "Name": "Application Mute",
+      "States": [
+        {
+          "Image": "icons/app"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle mute for a PipeWeaver-managed application.",
+      "UUID": "com.pipeweaver.opendeck.appmute",
+      "PropertyInspectorPath": "propertyInspector/app.html"
+    }
+  ]
+}
