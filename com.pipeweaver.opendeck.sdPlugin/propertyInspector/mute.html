@@ -1,0 +1,72 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>PipeWeaver Mute</title>
+<style>
+html,body { margin:0; padding:0; background:#1e1e1e; color:#eee; font:13px sans-serif; }
+body { padding:12px; box-sizing:border-box; }
+.row { display:flex; align-items:center; margin-bottom:10px; gap:8px; }
+label { width:90px; color:#bbb; }
+input,select { flex:1; min-width:0; box-sizing:border-box; background:#2a2a2a; color:#fff; border:1px solid #555; border-radius:4px; padding:7px; }
+small { color:#999; }
+</style>
+<script>
+let websocket;
+let context;
+let settings = {};
+
+function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegisterEvent, inInfo, inActionInfo) {
+  websocket = new WebSocket("ws://localhost:" + inPort);
+  context = inPropertyInspectorUUID;
+  const info = JSON.parse(inActionInfo);
+  settings = info.payload.settings || {};
+  websocket.onopen = () => websocket.send(JSON.stringify({
+    event: inRegisterEvent,
+    uuid: inPropertyInspectorUUID
+  }));
+  window.piInfo = info;
+  window.sendSettings = function() {
+    websocket.send(JSON.stringify({
+      event: "setSettings",
+      context: info.context,
+      payload: collect()
+    }));
+  };
+  websocket.onmessage = (ev) => {
+    try {
+      const msg = JSON.parse(ev.data);
+      if (msg.event === "sendToPropertyInspector" && msg.payload?.command === "targets") {
+        window.populate(msg.payload);
+      }
+    } catch (_) {}
+  };
+  init();
+  requestLists();
+}
+
+function requestLists() {
+  setTimeout(() => {
+    websocket?.send(JSON.stringify({
+      event: "sendToPlugin",
+      context: window.piInfo.context,
+      payload: {command:"getTargets"}
+    }));
+  }, 50);
+}
+
+
+function init() {
+  document.getElementById("target").value = settings.targetName || "";
+}
+function collect() { return {targetName: document.getElementById("target").value}; }
+function populate(data) {
+  const s=document.getElementById("target"), old=s.value;
+  s.innerHTML='<option value="">Select PipeWeaver target…</option>';
+  (data.targets||[]).forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;s.appendChild(o);});
+  s.value=old||settings.targetName||"";
+}
+function save(){sendSettings();}
+
+</script></head><body>PipeWeaver Mute
+
+<div class="row"><label>Target</label><select id="target" onchange="save()"><option>Selecting…</option></select></div>
+<small>Toggle target mute through PipeWeaver.</small>
+</body></html>
