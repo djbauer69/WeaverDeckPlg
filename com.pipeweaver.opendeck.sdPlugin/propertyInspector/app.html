@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PipeWeaver Application</title>
+<style>
+html,body{margin:0;padding:0;background:#1e1e1e;color:#eee;font:13px sans-serif}
+body{padding:12px;box-sizing:border-box}
+.row{display:flex;align-items:center;margin-bottom:10px;gap:8px}
+label{width:90px;color:#bbb}
+input,select{flex:1;min-width:0;box-sizing:border-box;background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:4px;padding:7px}
+small{color:#999}
+#status{margin-top:10px;color:#999}
+</style>
+<script>
+let websocket, info, settings = {};
+
+function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegisterEvent, inInfo, inActionInfo) {
+  websocket = new WebSocket("ws://localhost:" + inPort);
+  info = JSON.parse(inActionInfo);
+  settings = info.payload?.settings || {};
+
+  websocket.onopen = () => {
+    websocket.send(JSON.stringify({
+      event: inRegisterEvent,
+      uuid: inPropertyInspectorUUID
+    }));
+    requestApps();
+  };
+
+  websocket.onmessage = ev => {
+    try {
+      const msg = JSON.parse(ev.data);
+      if (msg.event === "sendToPropertyInspector" &&
+          msg.payload?.command === "targets") {
+        populate(msg.payload.applications || []);
+      }
+    } catch (_) {}
+  };
+
+  document.getElementById("app").value = settings.name || "";
+  document.getElementById("process").value = settings.process || "";
+}
+
+function requestApps() {
+  setTimeout(() => {
+    websocket?.send(JSON.stringify({
+      event: "sendToPlugin",
+      context: info.context,
+      payload: { command: "getTargets" }
+    }));
+  }, 50);
+}
+
+function populate(apps) {
+  const select = document.getElementById("app");
+  const currentName = settings.name || "";
+  const currentProcess = settings.process || "";
+
+  select.innerHTML = '<option value="">Select PipeWeaver application…</option>';
+
+  for (const a of apps) {
+    const o = document.createElement("option");
+    o.value = JSON.stringify({name: a.name || "", process: a.process || ""});
+    o.textContent = a.process
+      ? `${a.name} — ${a.process}`
+      : a.name;
+    select.appendChild(o);
+  }
+
+  const match = apps.find(a => a.name === currentName &&
+                               (!currentProcess || a.process === currentProcess));
+  if (match) {
+    select.value = JSON.stringify({name: match.name || "", process: match.process || ""});
+  }
+
+  document.getElementById("status").textContent =
+    apps.length ? `${apps.length} application(s) found in PipeWeaver.` :
+                  "No applications currently reported by PipeWeaver.";
+}
+
+function save() {
+  let name = "", process = "";
+  try {
+    const a = JSON.parse(document.getElementById("app").value);
+    name = a.name || "";
+    process = a.process || "";
+  } catch (_) {}
+
+  document.getElementById("process").value = process;
+  websocket?.send(JSON.stringify({
+    event: "setSettings",
+    context: info.context,
+    payload: { name, process }
+  }));
+}
+</script>
+</head>
+<body>
+<div class="row">
+  <label>Application</label>
+  <select id="app" onchange="save()">
+    <option value="">Loading PipeWeaver applications…</option>
+  </select>
+</div>
+<input id="process" type="hidden">
+<div id="status">Querying PipeWeaver…</div>
+<small>Application mute is controlled through PipeWeaver only.</small>
+</body>
+</html>
