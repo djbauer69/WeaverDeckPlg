@@ -11,13 +11,21 @@
 const http = require("http");
 
 const PIPEWEAVER_URL = process.env.PIPEWEAVER_URL || "http://127.0.0.1:14565/api/command";
-const STATUS_INTERVAL_MS = 1500;
+const STATUS_INTERVAL_MS = 3000;
+const PIPEWEAVER_TIMEOUT_MS = 4000;
 const DEFAULT_STEP = 5;
+const RECONNECT_INITIAL_MS = 1000;
+const RECONNECT_MAX_MS = 30000;
 
 let port = null;
 let pluginUUID = null;
 let ws = null;
 let lastStatus = null;
+let statusRefreshInFlight = false;
+let statusTimer = null;
+let reconnectTimer = null;
+let reconnectDelay = RECONNECT_INITIAL_MS;
+let socketGeneration = 0;
 const instances = new Map();
 
 function argValue(name) {
@@ -70,7 +78,7 @@ function pipeCommand(data) {
         "Content-Length": Buffer.byteLength(body),
         "Accept": "application/json"
       },
-      timeout: 1200
+      timeout: PIPEWEAVER_TIMEOUT_MS
     }, res => {
       let text = "";
       res.setEncoding("utf8");
@@ -316,23 +324,34 @@ function updateAll() {
 }
 
 async function refreshStatus() {
+  // Never allow background polling and a button-triggered refresh to overlap.
+  if (statusRefreshInFlight) return lastStatus;
+  statusRefreshInFlight = true;
   try {
     const response = await getStatus();
     const status = unwrapStatus(response);
     if (!status) throw new Error("PipeWeaver status response not recognised");
     lastStatus = status;
     updateAll();
-    for (const inst of instanceListForAction(instances.size ? [...instances.values()][0]?.action : "")) {
-      void inst;
-    }
     return status;
   } catch (e) {
+    console.error("PipeWeaver status refresh failed:", e.message);
     if (lastStatus !== null) {
       lastStatus = null;
       updateAll();
     }
     return null;
+  } finally {
+    statusRefreshInFlight = false;
   }
+}
+
+function scheduleStatusRefresh() {
+  if (statusTimer) clearTimeout(statusTimer);
+  statusTimer = setTimeout(async () => {
+    await refreshStatus();
+    scheduleStatusRefresh();
+  }, STATUS_INTERVAL_MS);
 }
 
 async function volumeStep(inst, delta) {
@@ -490,6 +509,19 @@ async function handleMessage(msg) {
   }
 }
 
+function scheduleReconnect(generation) {
+  if (generation !== socketGeneration) return;
+  if (reconnectTimer) return;
+
+  const delay = reconnectDelay;
+  console.error(`PipeWeaver Control: reconnecting to OpenDeck in ${delay}ms`);
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    reconnectDelay = Math.min(reconnectDelay * 2, RECONNECT_MAX_MS);
+    connect();
+  }, delay);
+}
+
 function connect() {
   const WebSocket = globalThis.WebSocket;
   if (!WebSocket) {
@@ -497,15 +529,23 @@ function connect() {
     process.exit(3);
   }
 
-  ws = new WebSocket(`ws://127.0.0.1:${port}`);
+  if (ws && (ws.readyState === 0 || ws.readyState === 1)) return;
 
-  ws.onopen = () => {
+  const generation = ++socketGeneration;
+  const socket = new WebSocket(`ws://127.0.0.1:${port}`);
+  ws = socket;
+
+  socket.onopen = () => {
+    if (generation !== socketGeneration) return;
+    reconnectDelay = RECONNECT_INITIAL_MS;
     console.error(`PipeWeaver Control: connected to OpenDeck on ${port}`);
     send({event: "registerPlugin", uuid: pluginUUID});
-    refreshStatus();
+    void refreshStatus();
+    scheduleStatusRefresh();
   };
 
-  ws.onmessage = async (ev) => {
+  socket.onmessage = async (ev) => {
+    if (generation !== socketGeneration) return;
     try {
       const msg = JSON.parse(typeof ev.data === "string" ? ev.data : ev.data.toString());
       await handleMessage(msg);
@@ -514,12 +554,27 @@ function connect() {
     }
   };
 
-  ws.onerror = (e) => console.error("OpenDeck websocket error:", e?.message || e);
-  ws.onclose = () => {
-    console.error("PipeWeaver Control: OpenDeck connection closed; retrying");
-    setTimeout(connect, 1000);
+  socket.onerror = (e) => {
+    if (generation === socketGeneration) {
+      console.error("OpenDeck websocket error:", e?.message || e);
+    }
+  };
+
+  socket.onclose = () => {
+    if (generation !== socketGeneration) return;
+    if (ws === socket) ws = null;
+    console.error("PipeWeaver Control: OpenDeck connection closed");
+    scheduleReconnect(generation);
   };
 }
 
-setInterval(() => refreshStatus(), STATUS_INTERVAL_MS);
+process.on("uncaughtException", err => {
+  console.error("PipeWeaver Control: uncaught exception:", err?.stack || err);
+});
+
+process.on("unhandledRejection", reason => {
+  console.error("PipeWeaver Control: unhandled rejection:", reason);
+});
+
 connect();
+scheduleStatusRefresh();
