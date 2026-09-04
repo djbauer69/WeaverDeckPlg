@@ -1,4 +1,4 @@
-# PipeWeaver Control for OpenDeck 0.2.1
+# PipeWeaver Control for OpenDeck 0.2.2
 
 For OpenDeck 2.14.x on Linux.
 
@@ -28,3 +28,10 @@ It does not call PipeWire, PulseAudio, WirePlumber, pactl, or wpctl directly.
 
 The plugin log should appear at:
 `~/.local/share/opendeck/logs/plugins/com.pipeweaver.opendeck.log`
+
+## 0.2.2 reliability improvements
+- Serialized status polling to prevent overlapping PipeWeaver requests.
+- Increased API timeout to 4 seconds.
+- Self-scheduling status polling at 3-second intervals.
+- More defensive OpenDeck WebSocket reconnect handling with exponential backoff.
+- Logging for status failures, socket failures, uncaught exceptions, and unhandled rejections.
