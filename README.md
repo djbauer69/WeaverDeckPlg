@@ -1,20 +1,37 @@
-# PipeWeaver Control for OpenDeck 0.6.0
+# PipeWeaver Control for OpenDeck 0.7.0
 
 For OpenDeck 2.14.x on Linux.
 
 ## Important
 This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0.1:14565/api/command`. It does not call PipeWire, PulseAudio, WirePlumber, `pactl`, or `wpctl` directly.
 
-## v0.6.0 highlights
+## v0.7.0 highlights
 
-- Live visual state feedback for application, source, target, route, physical-device, default-device, and PipeWeaver status actions.
-- Mute keys now show **green/live** and **red/muted** states.
-- Route keys show active vs inactive routing state.
-- Target Mix actions now visually distinguish **Mix A** and **Mix B**.
-- Set Default Device indicates when the selected device is currently active as PipeWeaver's default.
-- Volume actions continue to show the current percentage in the key title.
-- Property Inspectors now request their PipeWeaver data directly from `websocket.onopen` instead of relying on arbitrary 50 ms delays.
-- Application routing keeps the v0.5.1 device-type fix: playback applications route to PipeWeaver Sources and capture applications route to PipeWeaver Targets.
+- Replaces the raw JSON-only Scene Property Inspector with a structured **Scene Builder**.
+- A scene can contain multiple ordered steps and each step can control multiple PipeWeaver channels.
+- Source mute/unmute supports independent **A/B** channel selection and multiple sources at once.
+- Target mute/unmute supports multiple targets at once.
+- Source Set Volume supports multiple sources with A/B selection.
+- Target Set Volume supports multiple targets.
+- Target Mix A/B supports multiple targets.
+- Route On/Off supports multiple sources and multiple targets in one scene step.
+- Scene steps can be added, removed, and reordered from the Property Inspector.
+- Scene operations use explicit states rather than toggles, so repeatedly running a scene produces the same result.
+- Existing legacy JSON scenes continue to run until they are replaced with structured scene steps.
+- Keeps all v0.6.0 live visual-state feedback and the v0.5.1 application-routing type fix.
+
+## Scene Builder
+
+The **PipeWeaver Scene** action now supports these structured operations:
+
+- Source Mute / Unmute — select one or more sources, Mix A or B, and the desired mute state.
+- Target Mute / Unmute — select one or more targets and the desired mute state.
+- Source Set Volume — select one or more sources, Mix A or B, and an exact 0–100% volume.
+- Target Set Volume — select one or more targets and an exact 0–100% volume.
+- Target Mix A / B — select one or more targets and the desired mix.
+- Route On / Off — select one or more sources and targets and explicitly enable or disable all selected route combinations.
+
+Steps run from top to bottom. A single scene can therefore mute several sources, unmute several targets, set volumes, switch mixes, and change routes with one key press.
 
 ## Actions
 
@@ -63,7 +80,7 @@ This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0
 
 ## Install
 1. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
-2. Extract the v0.6.0 plugin package into OpenDeck's plugins directory.
+2. Extract the v0.7.0 plugin package into OpenDeck's plugins directory.
 3. Restart OpenDeck.
 4. Add PipeWeaver actions to Stream Deck keys and configure them in OpenDeck.
 
