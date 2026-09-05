@@ -1,4 +1,4 @@
-# PipeWeaver Control for OpenDeck 0.15.0
+# PipeWeaver Control for OpenDeck 0.15.1
 
 For OpenDeck 2.14.x on Linux.
 
@@ -6,99 +6,116 @@ For OpenDeck 2.14.x on Linux.
 
 This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0.1:14565/api/command`. It does not call PipeWire, PulseAudio, WirePlumber, `pactl`, or `wpctl` directly.
 
-## v0.15.0 highlights
+## v0.15.1 highlights
 
-- Adds a **native Scene Library** shared by every WeaverDeck Scene action.
-- Scene Library entries are stored outside the embedded Property Inspector browser at `~/.local/share/weaverdeck/scene-library-v1.json` by default, or under `$XDG_DATA_HOME/weaverdeck/` when configured.
-- Scene Library management includes **Load, Save Current As, Update Selected, Rename, Duplicate, Delete, and Refresh**.
-- Loading a library Scene copies it into the selected Stream Deck Scene action. The button therefore remains deterministic even if the library entry is edited later.
-- Scene names continue to appear on the Stream Deck key. v0.15.0 also briefly flashes a success or failure marker after Scene execution without changing the stable Scene executor.
-- Reduces Scene Property Inspector application polling from every 2.5 seconds to every 10 seconds, pauses it while the inspector is hidden, and refreshes when the inspector regains focus.
-- Keeps v0.14.2 native Scene-file saving and WebView file loading.
-- Keeps Capture Scope and browser-local presets for compatibility.
-- Keeps the proven v0.11.2 Scene execution/control engine unchanged; audio control still goes exclusively through PipeWeaver.
-- Keeps v0.12.x dynamic Linux application artwork and optional Button Text.
+- Adds **Source Volume Link Toggle**, a dedicated OpenDeck action for PipeWeaver Source A/B volume linking.
+- The key shows the selected Source and live **LINKED / UNLINKED** state.
+- Linking uses PipeWeaver's native `SetSourceVolumeLinked` API and preserves PipeWeaver's current A/B ratio semantics.
+- Existing **Source A/B Volume Up/Down** and **Source Set Volume** actions are unchanged. When a Source is linked, PipeWeaver itself applies the linked A/B behavior.
+- Adds a structured Scene operation: **Source Volume Link / Unlink**.
+- **Capture Current State** now records Source volume-link state as part of the Sources capture category.
+- Captured Scenes temporarily unlink known Source pairs before restoring independent A/B volumes, then reapply the captured linked state. This prevents a pre-existing link ratio from corrupting deterministic A/B volume restoration.
+- Retains the v0.15.0 native Scene Library, Scene execution tick/failure feedback, quieter application polling, Capture Scope, portable Scene files, and browser-local presets.
+
+## Source Volume Link Toggle
+
+Add **Source Volume Link Toggle** to an OpenDeck key and choose a PipeWeaver Source in the Property Inspector.
+
+The button state is:
+
+- **UNLINKED** — A and B volume sliders are independent.
+- **LINKED** — PipeWeaver stores the current B:A volume ratio and applies that ratio when either A or B is changed.
+
+Pressing the key toggles between the two states.
+
+The existing A/B volume actions continue sending the same `SetSourceVolume` commands as before. WeaverDeck does not duplicate or override PipeWeaver's link mathematics; PipeWeaver remains responsible for moving the paired channel while linked.
+
+## Source link state in Scenes
+
+Scene Builder now includes **Source Volume Link / Unlink**. Select one or more Sources and choose **Linked** or **Unlinked**.
+
+Scene validation checks that every referenced Source exists and that the link state is valid before execution.
+
+### Deterministic capture behavior
+
+When **Sources** is included in Capture Scope, Capture Current State records:
+
+- Source A mute
+- Source B mute
+- Source A volume
+- Source B volume
+- Source A/B volume-link state
+
+For deterministic volume restoration, a captured Scene intentionally inserts an **Unlink** operation before the Source volume operations. After the A/B values have been restored independently, it adds a final **Linked** operation for every Source that was linked at capture time. Sources captured as unlinked remain unlinked.
+
+This affects captured Scene ordering only. Normal Source volume buttons continue to follow PipeWeaver's live linked/unlinked behavior.
 
 ## Native Scene Library
 
-The Scene Library is intended for reusable named configurations such as `Gaming`, `Streaming`, `Headphones`, or `Speakers`.
+The Scene Library remains shared by every WeaverDeck Scene action and is stored outside the embedded Property Inspector browser.
 
-The default library file is:
+Default location:
 
 `~/.local/share/weaverdeck/scene-library-v1.json`
 
-If `XDG_DATA_HOME` is set, WeaverDeck uses:
+With `XDG_DATA_HOME` configured:
 
 `$XDG_DATA_HOME/weaverdeck/scene-library-v1.json`
 
-The file uses a versioned WeaverDeck-specific JSON schema and is written atomically by the native Node.js plugin process.
+Library management includes **Load, Save Current As, Update Selected, Rename, Duplicate, Delete, and Refresh**.
 
-### Scene Library workflow
-
-1. Build or capture a Scene in any **PipeWeaver Scene** action.
-2. Click **Save Current As…** and give it a library name.
-3. Open another PipeWeaver Scene action and choose the same library entry.
-4. Click **Load** to copy that Scene into the button.
-5. Use **Update Selected**, **Rename**, **Duplicate**, or **Delete** to manage library entries.
-
-Loading copies the Scene document into the button's own settings rather than creating a live reference. This keeps Stream Deck execution deterministic and prevents later library edits from silently changing existing buttons.
+Loading copies a Scene into the selected Stream Deck action rather than creating a live reference, keeping Scene execution deterministic.
 
 ## Scene key feedback
 
-The stable control engine already keeps the Scene name visible on the key. v0.15.0 adds an isolated visual layer that briefly shows:
+Scene names remain visible on the key. After execution WeaverDeck briefly shows:
 
-- `✓` after a successful Scene execution
-- `!` after a failed Scene execution
+- `✓` after success
+- `!` after failure
 
-The original Scene name is restored automatically after the short feedback interval.
-
-## Application polling cleanup
-
-The Scene Builder previously requested live application data every 2.5 seconds while open. v0.15.0 changes that behavior to:
-
-- refresh every 10 seconds while visible
-- pause polling while the Property Inspector is hidden
-- refresh immediately when the inspector becomes visible or regains focus
-- retain manual **Refresh Channels / Apps** behavior
-
-This reduces background PipeWeaver/OpenDeck traffic and makes plugin logs substantially easier to read without removing live application discovery.
+The original Scene name is restored automatically.
 
 ## Capture Scope
 
-Before pressing **Capture Current State**, choose any combination of Sources, Targets, Routes, Physical devices, Default devices, and Applications. When every category is selected, behavior remains compatible with the pre-scope full-capture path.
+Before pressing **Capture Current State**, choose any combination of:
 
-Validated capture categories include:
+- Sources — now includes Source A/B link state
+- Targets
+- Routes
+- Physical devices
+- Default devices
+- Applications
 
-- Everything
-- Routes only
-- Applications only
-- Physical devices only
-- Default devices only
-- Sources + Targets
+When every category is selected, the complete current state is captured.
 
 ## Scene files
 
-Portable Scene files keep the existing format:
+Portable Scene files retain the existing WeaverDeck Scene format:
 
 - `format: "WeaverDeckScene"`
 - `formatVersion: 1`
 - `sceneVersion: 1`
 - Scene name
-- structured Scene operations
+- structured Scene operations, including `sourceVolumeLink` in v0.15.1+
 
-**Save Scene File** writes directly to the user's Linux Downloads directory through the native plugin process. Existing files are preserved by allocating numbered filenames such as `Scene-2.weaverdeck-scene.json`.
+**Save Scene File** writes natively to the Linux Downloads directory and preserves existing files with numbered names such as `Scene-2.weaverdeck-scene.json`.
 
-**Load Scene File** uses the OpenDeck WebView file picker, which has been validated independently from the save path.
+**Load Scene File** uses the OpenDeck WebView file picker.
 
-## Browser-local presets
+## Application polling
 
-The v0.14.x localStorage preset system remains available as **Browser-local Presets** for compatibility. The native Scene Library is preferred for durable reusable Scenes because it does not depend on embedded browser storage.
+Scene Builder continues the v0.15.0 polling cleanup:
+
+- refresh live applications every 10 seconds while visible
+- pause while the Property Inspector is hidden
+- refresh immediately when visible or focused again
+- retain manual **Refresh Channels / Apps**
 
 ## Validation and execution
 
-Scene validation/preflight remains unchanged. Validation errors prevent execution. Missing applications remain warnings and are skipped safely when appropriate.
+Scene validation/preflight remains mandatory before execution. Validation errors prevent execution. Missing applications remain warnings and are skipped safely when appropriate.
 
-The Scene execution engine remains the proven v0.11.2 control engine. v0.15.0 adds only isolated wrapper layers around it for library persistence, file I/O, and visual feedback.
+v0.15.1 extends the existing PipeWeaver control engine only where required for Source volume-link state. Existing Source A/B volume action behavior is unchanged.
 
 ## Requirements
 
@@ -108,7 +125,7 @@ The Scene execution engine remains the proven v0.11.2 control engine. v0.15.0 ad
 
 ## Install
 
-1. Download `pipeweaver-opendeck-plugin-v0.15.0.zip` from the v0.15.0 GitHub Release.
+1. Download `pipeweaver-opendeck-plugin-v0.15.1.zip` from the v0.15.1 GitHub Release.
 2. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
 3. Extract the plugin package into OpenDeck's plugins directory.
 4. Restart OpenDeck.
@@ -117,6 +134,6 @@ Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
 ## Release
 
-The v0.15.0 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
+The v0.15.1 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
 
-`f49784f72d92009ab642fba3068ee33de4d7c3679053436348ecc969e72cdfce`
+`08c09702e1ba8f1213b96f3510452bdae1cab593873aabd888cd062f8cb283e2`
