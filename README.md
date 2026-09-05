@@ -1,4 +1,4 @@
-# PipeWeaver Control for OpenDeck 0.14.1
+# PipeWeaver Control for OpenDeck 0.14.2
 
 For OpenDeck 2.14.x on Linux.
 
@@ -6,27 +6,26 @@ For OpenDeck 2.14.x on Linux.
 
 This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0.1:14565/api/command`. It does not call PipeWire, PulseAudio, WirePlumber, `pactl`, or `wpctl` directly.
 
-## v0.14.1 highlights
+## v0.14.2 highlights
 
-- Fixes **Capture Scope** so scoped captures operate on the Scene Builder's actual internal operation list rather than an inaccessible iframe property.
-- Uses the existing Scene JSON export/import controls as the safe bridge for scoped capture, Scene files, and local presets.
-- Adds **Capture Scope** to the Scene Builder. Sources, Targets, Routes, Physical devices, Default devices, and Applications can be included or excluded independently when using Capture Current State.
-- All Capture Scope categories are enabled by default, preserving the existing full-state capture behavior.
-- Adds **Download Scene File** and **Load Scene File** for portable `*.weaverdeck-scene.json` backups and sharing.
-- Adds **Local Scene Presets** that can be saved, loaded, and deleted by name in OpenDeck's Property Inspector storage.
-- Keeps the proven v0.13.0 Scene Builder intact inside a thin v0.14.0 Property Inspector wrapper; the stable Scene execution/control engine is unchanged.
-- Keeps v0.13.0 portable JSON import/export, validation, Capture Current State semantics, application/physical-device Scene support, and route idempotency.
+- Fixes **Save Scene File** on OpenDeck Linux. The embedded Property Inspector WebView did not reliably honor browser-style `<a download>` requests in v0.14.1.
+- Scene files are now written by the native Node.js plugin process directly to the user's Linux Downloads directory. The Property Inspector reports the exact saved path after a successful write.
+- Existing files are never silently overwritten. Repeated saves use `-2`, `-3`, and so on before `.weaverdeck-scene.json`.
+- The portable Scene JSON format remains unchanged: `WeaverDeckScene`, `formatVersion: 1`, `sceneVersion: 1`.
+- **Load Scene File** remains browser/WebView-based for now so its separate file-picker capability can be tested independently.
+- Keeps the proven v0.14.1 Capture Scope bridge and Local Scene Presets behavior.
+- Keeps the stable v0.11.2 Scene execution/control engine unchanged; audio control still goes exclusively through PipeWeaver.
 - Keeps v0.12.2 large application artwork, dynamic titles, and optional Button Text.
 
 ## Capture Scope
 
 Before pressing **Capture Current State**, choose any combination of Sources, Targets, Routes, Physical devices, Default devices, and Applications. When every category is selected, behavior is identical to v0.13.0. With a narrower scope, the captured Scene is filtered to only the corresponding structured operation types.
 
-This makes focused snapshots such as routing-only, application-only, or source-mix-only Scenes practical without manually deleting unrelated steps afterward.
+Scoped capture has been validated for Routes, Applications, Physical devices, Default devices, and mixed Sources + Targets. The all-category capture path remains available as the compatibility baseline.
 
 ## Scene files
 
-The existing v0.13.0 JSON format remains unchanged:
+The existing v0.13.0 portable JSON format remains unchanged:
 
 - `format: "WeaverDeckScene"`
 - `formatVersion: 1`
@@ -34,7 +33,11 @@ The existing v0.13.0 JSON format remains unchanged:
 - Scene name
 - structured Scene operations
 
-**Download Scene File** serializes the current Scene as `<scene-name>.weaverdeck-scene.json`. **Load Scene File** reads the same portable format and applies the same format/version checks before replacing the current Scene.
+**Save Scene File** serializes the current Scene and sends it through the existing OpenDeck Property Inspector connection to the plugin process. The plugin writes `<scene-name>.weaverdeck-scene.json` to the Linux Downloads directory resolved from `XDG_DOWNLOAD_DIR`, `~/.config/user-dirs.dirs`, or `~/Downloads` as a fallback.
+
+The save path is returned to the Property Inspector and displayed after the write succeeds. Existing files are preserved by choosing the next available numbered filename.
+
+**Load Scene File** reads the same portable format and applies the existing format/version checks before replacing the current Scene. The file-picker path is intentionally kept separate from the native save path so OpenDeck WebView upload support can be tested independently.
 
 The existing copy/paste **Export Scene JSON** and **Import Scene JSON** controls remain available in the underlying Scene Builder.
 
@@ -62,7 +65,7 @@ Application actions retain the large dynamic Linux artwork from v0.12.x. Leaving
 
 ## Install
 
-1. Download `pipeweaver-opendeck-plugin-v0.14.1.zip` from the v0.14.1 GitHub Release.
+1. Download `pipeweaver-opendeck-plugin-v0.14.2.zip` from the v0.14.2 GitHub Release.
 2. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
 3. Extract the plugin package into OpenDeck's plugins directory.
 4. Restart OpenDeck.
@@ -71,6 +74,6 @@ Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
 ## Release
 
-The v0.14.1 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
+The v0.14.2 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
 
-`912e790169baa60b2542c25f08d40a67d7e299e0edae26f6d918a15ba3030ff4`
+`c2a682fa87980df1d15c77bf567448c78da0ccfcfe5f78c5b3bc28460852571d`
