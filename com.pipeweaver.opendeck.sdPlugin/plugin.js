@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 "use strict";
 
-/* PipeWeaver Control for OpenDeck v0.12.2
- * v0.12.2 keeps the proven v0.11.2 control engine intact and adds an isolated
+/* PipeWeaver Control for OpenDeck v0.13.0
+ * v0.13.0 keeps the proven v0.11.2 control engine intact and adds an isolated
  * application-artwork layer around its OpenDeck WebSocket connection.
  * Audio control still goes exclusively through PipeWeaver's HTTP API.
  */
@@ -19,7 +19,7 @@ if(!NativeWebSocket){
 // engine lives in plugin-core.js unchanged.
 for(const method of ["log","error","warn"]){
   const original=console[method].bind(console);
-  console[method]=(...args)=>original(...args.map(v=>typeof v==="string"?v.replace(/\[v0\.11\.2\]/g,"[v0.12.2]"):v));
+  console[method]=(...args)=>original(...args.map(v=>typeof v==="string"?v.replace(/\[v0\.11\.2\]/g,"[v0.13.0]"):v));
 }
 
 const visualLayer=installApplicationVisuals();
@@ -33,7 +33,7 @@ class WeaverVisualWebSocket {
       if(this._onopen)this._onopen(ev);
     };
     this._ws.onmessage=(ev)=>{
-      try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.12.2] application visuals inbound error:",e?.stack||e)}
+      try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.13.0] application visuals inbound error:",e?.stack||e)}
       if(this._onmessage)return this._onmessage(ev);
     };
     this._ws.onerror=(ev)=>{if(this._onerror)this._onerror(ev)};
@@ -78,5 +78,5 @@ for(const key of ["CONNECTING","OPEN","CLOSING","CLOSED"]){
 }
 
 globalThis.WebSocket=WeaverVisualWebSocket;
-console.error("[v0.12.2] application artwork layer enabled");
+console.error("[v0.13.0] application artwork layer enabled");
 require("./plugin-core");
