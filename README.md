@@ -1,4 +1,4 @@
-# PipeWeaver Control for OpenDeck 0.13.0
+# PipeWeaver Control for OpenDeck 0.14.0
 
 For OpenDeck 2.14.x on Linux.
 
@@ -6,61 +6,51 @@ For OpenDeck 2.14.x on Linux.
 
 This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0.1:14565/api/command`. It does not call PipeWire, PulseAudio, WirePlumber, `pactl`, or `wpctl` directly.
 
-Linux desktop files and icon-theme assets are read only to improve Stream Deck button artwork. They are never used for audio control.
+## v0.14.0 highlights
 
-## v0.13.0 highlights
+- Adds **Capture Scope** to the Scene Builder. Sources, Targets, Routes, Physical devices, Default devices, and Applications can be included or excluded independently when using Capture Current State.
+- All Capture Scope categories are enabled by default, preserving the existing full-state capture behavior.
+- Adds **Download Scene File** and **Load Scene File** for portable `*.weaverdeck-scene.json` backups and sharing.
+- Adds **Local Scene Presets** that can be saved, loaded, and deleted by name in OpenDeck's Property Inspector storage.
+- Keeps the proven v0.13.0 Scene Builder intact inside a thin v0.14.0 Property Inspector wrapper; the stable Scene execution/control engine is unchanged.
+- Keeps v0.13.0 portable JSON import/export, validation, Capture Current State semantics, application/physical-device Scene support, and route idempotency.
+- Keeps v0.12.2 large application artwork, dynamic titles, and optional Button Text.
 
-- Adds **Scene Import / Export / Share** to the structured Scene Builder.
-- **Export Scene JSON** serializes the current scene into a portable, human-readable `WeaverDeckScene` JSON document and attempts to copy it to the clipboard.
-- **Import Scene JSON** accepts exported/shared scene JSON, checks the scene format/version, confirms before replacing an existing scene, saves it to the key, and prompts validation against the current PipeWeaver setup.
-- Exported scenes contain the scene name, format version, scene version, and structured operations. They do not contain OpenDeck context IDs or transient runtime state.
-- Imported application descriptors, physical-device descriptors, configured source/target names, routes, volumes, mute states and default-device steps retain the same semantics as locally built scenes.
-- Existing **Validate Scene** remains the compatibility/preflight check after importing a scene onto another system.
-- Keeps v0.12.2 large application artwork, dynamic titles and optional Button Text.
-- Keeps the proven PipeWeaver-only control engine and all Scene validation, Capture Current State, application, physical-device, and route-idempotency behavior.
+## Capture Scope
 
-## Sharing a Scene
+Before pressing **Capture Current State**, choose any combination of Sources, Targets, Routes, Physical devices, Default devices, and Applications. When every category is selected, behavior is identical to v0.13.0. With a narrower scope, the captured Scene is filtered to only the corresponding structured operation types.
 
-1. Open a PipeWeaver Scene action in OpenDeck.
-2. Build or capture the scene normally.
-3. Select **Export Scene JSON**.
-4. Copy/save the JSON text and share it.
-5. On another Scene action, paste the JSON into **Scene Import / Export** and select **Import Scene JSON**.
-6. Select **Validate Scene** before running it. Device names and application identities must exist or be compatible with the receiving PipeWeaver setup; missing running applications remain warnings and are skipped according to existing Scene behavior.
+This makes focused snapshots such as routing-only, application-only, or source-mix-only Scenes practical without manually deleting unrelated steps afterward.
 
-Export format example:
+## Scene files
 
-```json
-{
-  "format": "WeaverDeckScene",
-  "formatVersion": 1,
-  "name": "Gaming",
-  "sceneVersion": 1,
-  "operations": [
-    {
-      "type": "targetVolume",
-      "targets": ["Desktop"],
-      "volume": 50
-    }
-  ]
-}
-```
+The existing v0.13.0 JSON format remains unchanged:
 
-## Application artwork and Button Text
+- `format: "WeaverDeckScene"`
+- `formatVersion: 1`
+- `sceneVersion: 1`
+- Scene name
+- structured Scene operations
 
-Application actions retain the large icon presentation introduced in v0.12.1. Leaving **Button Text** blank uses the normal dynamic title; setting Button Text uses that persistent custom label. Linux `.desktop` and icon-theme discovery remains visual-only.
+**Download Scene File** serializes the current Scene as `<scene-name>.weaverdeck-scene.json`. **Load Scene File** reads the same portable format and applies the same format/version checks before replacing the current Scene.
 
-## Scene validation
+The existing copy/paste **Export Scene JSON** and **Import Scene JSON** controls remain available in the underlying Scene Builder.
 
-The Scene Builder includes **Validate Scene**, and structured Scenes are validated automatically immediately before execution. Validation checks source/target selections and availability, volume ranges, physical devices, default devices, application descriptors and route destinations, and unsupported/malformed operations. Validation errors abort the whole Scene before execution. Missing applications are warnings and their steps are skipped safely.
+## Local Scene Presets
 
-## Capture Current State
+**Save Current as Preset** stores the current portable Scene document under a chosen name. Presets can be selected and loaded into another Scene action or deleted later.
 
-Capture Current State records Source A/B volume and mute state, Target volume/mute/mix, the complete Source-to-Target route matrix, application mute/volume/routing state when available, physical input/output volume and mute state, and current default input/output devices.
+Presets live in OpenDeck's local Property Inspector browser storage. Use Scene files or exported JSON for durable backups and sharing across systems.
 
-## Actions
+## Validation and execution
 
-Application controls include Mute, Route Off/On/Toggle, Set Volume, and Volume Down/Up. Physical/default controls include physical input/output mute and volume plus Set Default Device. Source/Target controls include routing, Source A/B volume and mute, Target volume/mute and Mix A/B. Utility actions include PipeWeaver Scene and PipeWeaver Status.
+Imported files and presets retain the same v0.13.0 validation/preflight behavior. Use **Validate Scene** after loading a Scene onto another configuration. Missing applications remain warnings and are skipped safely; validation errors prevent the Scene from executing.
+
+The PipeWeaver control engine remains unchanged and audio control continues to go exclusively through PipeWeaver.
+
+## Application artwork
+
+Application actions retain the large dynamic Linux artwork from v0.12.x. Leaving **Button Text** blank uses the dynamic application title; setting Button Text uses the persistent custom label.
 
 ## Requirements
 
@@ -70,7 +60,7 @@ Application controls include Mute, Route Off/On/Toggle, Set Volume, and Volume D
 
 ## Install
 
-1. Download `pipeweaver-opendeck-plugin-v0.13.0.zip` from the v0.13.0 GitHub Release.
+1. Download `pipeweaver-opendeck-plugin-v0.14.0.zip` from the v0.14.0 GitHub Release.
 2. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
 3. Extract the plugin package into OpenDeck's plugins directory.
 4. Restart OpenDeck.
@@ -79,6 +69,6 @@ Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
 ## Release
 
-The v0.13.0 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
+The v0.14.0 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
 
-`b2fed6c6d965ed6ceeb09e72427a37e9ad5442596bcc14dad0f038bf2e2aea0d`
+`b10edbf5d73859aa724a5835be04ae561e61bf473bb5751f7dbcafd371627624`
