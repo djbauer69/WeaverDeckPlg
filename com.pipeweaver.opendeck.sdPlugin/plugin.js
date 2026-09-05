@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-/* PipeWeaver Control for OpenDeck v0.7.1
+/* PipeWeaver Control for OpenDeck v0.8.0
  * IMPORTANT: this plugin talks only to PipeWeaver's HTTP API.
  * It does not call PipeWire, PulseAudio, WirePlumber, pactl, wpctl, etc.
  */
@@ -31,7 +31,7 @@ let pluginUUID=process.argv[process.argv.indexOf("-pluginUUID")+1];
 if(!port||!pluginUUID){console.error("PipeWeaver Control: missing -port or -pluginUUID");process.exit(2);}
 let ws=null,lastStatus=null,statusRefreshInFlight=false,statusTimer=null,reconnectTimer=null,reconnectDelay=RECONNECT_INITIAL_MS,socketGeneration=0;
 const instances=new Map();
-const DIAG_PREFIX="[v0.7.1]";
+const DIAG_PREFIX="[v0.8.0]";
 function diag(label, value){
   try {
     const text = typeof value === "string" ? value : JSON.stringify(value);
@@ -113,6 +113,18 @@ function findNamedSourceByName(s,n){return findNamedSource(s,n)}
 function routeEnabled(s,sourceName,targetName){const src=findNamedSource(s,sourceName),tgt=findNamedTarget(s,targetName),sid=deviceId(src),tid=deviceId(tgt);if(!sid||!tid)return null;const r=s?.audio?.profile?.routes?.[sid];return Array.isArray(r)?r.includes(tid):null}
 function appForSettings(s,st){return applications(s).find(x=>x.name===st.name&&(!st.process||x.process===st.process)&&(!st.deviceType||String(x.deviceType).toLowerCase()===String(st.deviceType).toLowerCase()))||null}
 function appDestination(s,a,name){if(!a||!name)return null;return String(a.deviceType).toLowerCase()==="target"?findNamedTarget(s,name):findNamedSource(s,name)}
+function sceneData(s){
+  const sources=namedDevices(s,"source").map(d=>({name:deviceName(d),id:deviceId(d),volumeA:sourceVolume(d,"A"),volumeB:sourceVolume(d,"B"),mutedA:sourceMuted(d,"A"),mutedB:sourceMuted(d,"B")})).filter(x=>x.name&&x.id);
+  const targets=namedDevices(s,"target").map(d=>({name:deviceName(d),id:deviceId(d),volume:targetVolume(d),muted:targetMuted(d),mix:targetMix(d)})).filter(x=>x.name&&x.id);
+  const routeMap=s?.audio?.profile?.routes||{};
+  const routes=[];
+  for(const src of sources){
+    const raw=routeMap?.[src.id];
+    const ids=Array.isArray(raw)?raw:(raw&&typeof raw==="object"?Object.values(raw):[]);
+    for(const tgt of targets) routes.push({source:src.name,target:tgt.name,enabled:ids.includes(tgt.id)});
+  }
+  return {sources,targets,routes};
+}
 
 function updateInstance(i){
   if(!lastStatus){setState(i.context,1);setTitle(i.context,"PW\nOFF");return}
@@ -346,7 +358,7 @@ async function handleMessage(m) {
     diag("sendToPlugin instance found",String(!!i));
     if(!i) return;
     let s=lastStatus;
-    if(["getTargets","getApplications","getDevices"].includes(p.command)) s=s||await refreshStatus();
+    if(p.command==="getSceneData") s=await refreshStatus(); else if(["getTargets","getApplications","getDevices"].includes(p.command)) s=s||await refreshStatus();
     if(p.command==="getTargets"){
       const payload={command:"targets",targets:names(s,"target"),sources:names(s,"source"),applications:appsForPI(s)};
       diag("getTargets reply",payload);
@@ -360,6 +372,12 @@ async function handleMessage(m) {
     else if(p.command==="getDevices"){
       const payload={command:"devices",outputs:physicalDevices(s,"output").map(d=>({id:deviceId(d),name:deviceName(d),volume:d.volume,muted:targetMuted(d)})),inputs:physicalDevices(s,"input").map(d=>({id:deviceId(d),name:deviceName(d),volume:d.volume,muted:targetMuted(d)}))};
       diag("getDevices reply",payload);
+      send({event:"sendToPropertyInspector",context:m.context,payload});
+    }
+    else if(p.command==="getSceneData"){
+      const snapshot=sceneData(s);
+      const payload={command:"sceneData",...snapshot};
+      diag("getSceneData reply",{sources:snapshot.sources.length,targets:snapshot.targets.length,routes:snapshot.routes.length});
       send({event:"sendToPropertyInspector",context:m.context,payload});
     }
   }
