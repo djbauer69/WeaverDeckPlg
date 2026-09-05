@@ -8,6 +8,7 @@ This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0
 
 ## v0.15.1 highlights
 
+- **Prerelease capture hotfix:** Source-only and full Scene capture now explicitly inject Source A/B link-state operations through the Scene JSON bridge before Capture Scope filtering. This fixes captures that showed “Sources + Link State” in the UI but saved only Source mute/volume operations.
 - Adds **Source Volume Link Toggle**, a dedicated OpenDeck action for PipeWeaver Source A/B volume linking.
 - The key shows the selected Source and live **LINKED / UNLINKED** state.
 - Linking uses PipeWeaver's native `SetSourceVolumeLinked` API and preserves PipeWeaver's current A/B ratio semantics.
@@ -136,4 +137,4 @@ Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
 The v0.15.1 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
 
-`08c09702e1ba8f1213b96f3510452bdae1cab593873aabd888cd062f8cb283e2`
+`e4113171b2cf6c3d2e61c97ec64ccf06254b53b5408363d2ed4c2c935d1fa1b1`
