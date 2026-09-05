@@ -73,4 +73,4 @@ Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
 The v0.14.1 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
 
-`f487e5d17914ab3713a75083faaaaf5c3a63402ae52656835e0ca2559919a368`
+`912e790169baa60b2542c25f08d40a67d7e299e0edae26f6d918a15ba3030ff4`
