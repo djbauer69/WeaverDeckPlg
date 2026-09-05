@@ -185,4 +185,4 @@ Runtime testing in OpenDeck/PipeWeaver is still required before the release shou
 
 The v0.16.0 release ZIP SHA-256 is:
 
-`d4f23d2be31c24e3ed83020da3442f505c120dc8e094f38751a9e4a70afb0f03`
+`2e92c5bc4ea3a5aaa5c21cc6f6131c0d1f9549e1116ae40c9ccb20c034d43b5c`
