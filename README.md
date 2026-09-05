@@ -1,4 +1,4 @@
-# PipeWeaver Control for OpenDeck 0.12.0
+# PipeWeaver Control for OpenDeck 0.12.1
 
 For OpenDeck 2.14.x on Linux.
 
@@ -8,18 +8,14 @@ This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0
 
 Linux desktop files and icon-theme assets are read only to improve Stream Deck button artwork. They are never used for audio control.
 
-## v0.12.0 highlights
+## v0.12.1 highlights
 
-- Adds dynamic **application artwork** to Application Mute, Volume, Set Volume, and Route actions.
-- Resolves installed Linux application icons from `.desktop` files and icon themes, including common system, user, and Flatpak export locations.
-- Matches applications using the PipeWeaver-provided application name, process name, and title metadata.
-- Adds a built-in application catalogue and aliases for common applications such as Spotify, Discord, Firefox, Brave, Steam, OBS Studio, VLC, Chromium, Google Chrome, Slack, Zoom, and Microsoft Teams.
-- Includes bundled Spotify and Discord fallback marks; other known or unknown applications fall back to generated labelled badges if a local icon is unavailable.
-- Application Mute buttons use the resolved app artwork with **green when live/unmuted** and **red when muted**.
-- Application Route buttons use active/inactive visual treatments while retaining the application artwork.
-- Application Volume buttons retain the application artwork and display the current volume percentage.
-- Keeps the proven v0.11.2 control engine isolated in `plugin-core.js`; v0.12.0 adds the artwork resolver as a separate visual layer so audio-control behavior remains unchanged.
-- Keeps all v0.11.2 Scene validation, capture, physical-device, application-scene, and route-idempotency functionality.
+- Enlarges dynamic application icons so they use substantially more of the Stream Deck key area.
+- Suppresses the normal OpenDeck/core text title on application-artwork buttons so dynamic text no longer obscures the application icon.
+- Keeps compact state information inside the artwork itself: mute state, route state, and current volume percentage remain visible without covering the icon.
+- Retains v0.12.0 Linux `.desktop` and icon-theme discovery, common application aliases, bundled fallbacks, and generated fallback badges.
+- Keeps the proven v0.11.2 PipeWeaver control engine unchanged; v0.12.1 remains a visual-layer update only.
+- Keeps all Scene validation, capture, physical-device, application-scene, and route-idempotency functionality.
 
 ## Application icon resolution
 
@@ -43,9 +39,11 @@ This means newly installed applications can acquire their native Linux icon with
 
 ## Application visual states
 
-- **Application Mute:** app icon on green when unmuted/live; app icon on red with a mute marker when muted.
-- **Application Volume / Set Volume:** app icon on a neutral background with the current percentage.
-- **Application Route On / Off / Toggle:** app icon with active/inactive route treatment and route marker.
+- **Application Mute:** large app icon on green when unmuted/live; red when muted, with a compact mute marker.
+- **Application Volume / Set Volume:** large app icon on a neutral background with a small current-percentage badge.
+- **Application Route On / Off / Toggle:** large app icon with active/inactive route treatment and a compact route marker.
+
+The core text title is intentionally hidden on these application actions because the visual layer already carries the useful state information and the title otherwise overlaps the artwork.
 
 If an application is not currently running, the normal generic action artwork is restored until PipeWeaver reports the application again.
 
@@ -53,27 +51,13 @@ If an application is not currently running, the normal generic action artwork is
 
 The Scene Builder includes **Validate Scene**. Structured Scenes are also validated automatically immediately before execution.
 
-Validation checks include:
-
-- Source and Target selections and availability
-- Source and Target volume ranges
-- Physical input/output availability
-- Default-device selections
-- Application descriptors and compatible route destinations
-- Unsupported or malformed Scene operations
+Validation checks include Source and Target availability, volume ranges, physical devices, default-device selections, application descriptors and compatible route destinations, and unsupported or malformed Scene operations.
 
 A validation **error** prevents the entire Scene from executing. Missing applications are warnings and their application steps are skipped safely.
 
 ## Capture Current State
 
-Capture Current State records editable structured operations for:
-
-- Source A/B volume and mute state
-- Target volume, mute state, and Mix A/B
-- Source-to-Target routes, both enabled and disabled
-- Application mute, volume, and routing state when available
-- Physical input/output volume and mute state
-- Current default input and output
+Capture Current State records editable structured operations for Source A/B volume and mute state, Target volume/mute/Mix A/B, the complete route matrix, application state, physical input/output state, and current default input/output.
 
 ## Actions
 
@@ -123,18 +107,18 @@ Capture Current State records editable structured operations for:
 
 ## Install
 
-1. Download `pipeweaver-opendeck-plugin-v0.12.0.zip` from the v0.12.0 GitHub Release.
+1. Download `pipeweaver-opendeck-plugin-v0.12.1.zip` from the v0.12.1 GitHub Release.
 2. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
 3. Extract the plugin package into OpenDeck's plugins directory.
 4. Restart OpenDeck.
-5. Add or re-open application actions so WeaverDeck can resolve their live PipeWeaver application metadata and artwork.
+5. Re-open or reselect application actions if needed so WeaverDeck can resolve live PipeWeaver metadata and artwork.
 
 Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
-For v0.12.0, useful artwork diagnostics begin with `[v0.12.0]`, including the desktop-entry count and the selected icon source for each resolved application.
+For v0.12.1, artwork diagnostics begin with `[v0.12.1]`.
 
 ## Release
 
-The v0.12.0 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
+The v0.12.1 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
 
-`85358f0b432fd161195c12e3adc86ddb15305c832c74aac5ee542217ffa655a7`
+`565a2840b51c5695eb2a96abbf8eb600a4676900cbacd1757b44f9b329239e7a`
