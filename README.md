@@ -1,4 +1,4 @@
-# PipeWeaver Control for OpenDeck 0.14.0
+# PipeWeaver Control for OpenDeck 0.14.1
 
 For OpenDeck 2.14.x on Linux.
 
@@ -6,8 +6,10 @@ For OpenDeck 2.14.x on Linux.
 
 This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0.1:14565/api/command`. It does not call PipeWire, PulseAudio, WirePlumber, `pactl`, or `wpctl` directly.
 
-## v0.14.0 highlights
+## v0.14.1 highlights
 
+- Fixes **Capture Scope** so scoped captures operate on the Scene Builder's actual internal operation list rather than an inaccessible iframe property.
+- Uses the existing Scene JSON export/import controls as the safe bridge for scoped capture, Scene files, and local presets.
 - Adds **Capture Scope** to the Scene Builder. Sources, Targets, Routes, Physical devices, Default devices, and Applications can be included or excluded independently when using Capture Current State.
 - All Capture Scope categories are enabled by default, preserving the existing full-state capture behavior.
 - Adds **Download Scene File** and **Load Scene File** for portable `*.weaverdeck-scene.json` backups and sharing.
@@ -60,7 +62,7 @@ Application actions retain the large dynamic Linux artwork from v0.12.x. Leaving
 
 ## Install
 
-1. Download `pipeweaver-opendeck-plugin-v0.14.0.zip` from the v0.14.0 GitHub Release.
+1. Download `pipeweaver-opendeck-plugin-v0.14.1.zip` from the v0.14.1 GitHub Release.
 2. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
 3. Extract the plugin package into OpenDeck's plugins directory.
 4. Restart OpenDeck.
@@ -69,6 +71,6 @@ Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
 ## Release
 
-The v0.14.0 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
+The v0.14.1 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
 
-`b10edbf5d73859aa724a5835be04ae561e61bf473bb5751f7dbcafd371627624`
+`f487e5d17914ab3713a75083faaaaf5c3a63402ae52656835e0ca2559919a368`
