@@ -31,7 +31,7 @@ let pluginUUID=process.argv[process.argv.indexOf("-pluginUUID")+1];
 if(!port||!pluginUUID){console.error("PipeWeaver Control: missing -port or -pluginUUID");process.exit(2);}
 let ws=null,lastStatus=null,statusRefreshInFlight=false,statusTimer=null,reconnectTimer=null,reconnectDelay=RECONNECT_INITIAL_MS,socketGeneration=0;
 const instances=new Map();
-const DIAG_PREFIX="[v0.9.2]";
+const DIAG_PREFIX="[v0.11.0]";
 function diag(label, value){
   try {
     const text = typeof value === "string" ? value : JSON.stringify(value);
@@ -71,6 +71,10 @@ function targetMix(t){const m=t?.mix;return m==="A"||m==="B"?m:null}
 function defaultDeviceId(s,type){const d=s?.audio?.defaults_id||s?.audio?.defaultsId||{};const key=type==="input"?"Source":"Target";return d?.[key]??d?.[key.toLowerCase()]??null}
 function physicalDevices(s,type){return (s?.audio?.devices?.[type==="input"?"Source":"Target"]||s?.audio?.devices?.[type==="input"?"source":"target"]||[]).filter(d=>deviceId(d)&&deviceName(d)&&d.is_usable!==false)}
 function physicalTargets(s){return physicalDevices(s,"output")}
+function physicalDescriptor(d,type){return d?{id:String(deviceId(d)||""),name:String(deviceName(d)||""),deviceType:type}:null}
+function scenePhysicalDescriptor(v,type){if(!v||typeof v!=="object")return null;const id=String(v.id||"").trim(),name=String(v.name||"").trim();return (id||name)?{id,name,deviceType:type}:null}
+function findScenePhysical(s,type,descriptor){const d=scenePhysicalDescriptor(descriptor,type);if(!d)return null;const list=physicalDevices(s,type);return (d.id&&list.find(x=>String(deviceId(x))===d.id))||(d.name&&list.find(x=>deviceName(x)===d.name))||null}
+function scenePhysicalLabel(d){return d?.name||d?.id||"Physical device"}
 function applications(s){
   const out=[],seen=new Set();
   const root=s?.audio?.applications;
@@ -138,7 +142,10 @@ function sceneData(s){
     const routed=compatible.find(d=>deviceId(d)===a.targetId);
     return {...a,targetName:routed?deviceName(routed):null};
   });
-  return {sources,targets,routes,applications};
+  const physicalInputs=physicalDevices(s,"input").map(d=>({id:String(deviceId(d)),name:deviceName(d),volume:targetVolume(d),muted:targetMuted(d)}));
+  const physicalOutputs=physicalDevices(s,"output").map(d=>({id:String(deviceId(d)),name:deviceName(d),volume:targetVolume(d),muted:targetMuted(d)}));
+  const defaults={inputId:defaultDeviceId(s,"input"),outputId:defaultDeviceId(s,"output")};
+  return {sources,targets,routes,applications,physicalInputs,physicalOutputs,defaults};
 }
 
 function updateInstance(i){
@@ -205,6 +212,56 @@ function sceneAppDescriptor(v){
 function sceneApps(v){return Array.isArray(v)?v.map(sceneAppDescriptor).filter(Boolean):[]}
 function sceneAppMatches(a,d){return !!(a&&d&&a.name===d.name&&(!d.process||a.process===d.process)&&(!d.deviceType||String(a.deviceType).toLowerCase()===String(d.deviceType).toLowerCase()))}
 function sceneAppLabel(d){return `${d?.name||"Application"}${d?.process?` (${d.process})`:""}${d?.deviceType?` [${d.deviceType}]`:""}`}
+function validateSceneOperations(ops,status){
+  const errors=[],warnings=[];
+  const add=(kind,idx,type,message)=>kind.push({step:idx+1,type:type||"unknown",message});
+  if(!Array.isArray(ops)||!ops.length){errors.push({step:0,type:"scene",message:"Scene has no structured operations"});return {ok:false,errors,warnings}}
+  for(let idx=0;idx<ops.length;idx++){
+    const op=ops[idx],type=String(op?.type||"");
+    if(!op||typeof op!=="object"){add(errors,idx,type,"Invalid scene operation");continue}
+    const sources=sceneNames(op.sources),targets=sceneNames(op.targets),vol=()=>{const n=Number(op.volume);return String(op.volume??"").trim()!==""&&Number.isFinite(n)&&n>=0&&n<=100};
+    if(["sourceMute","sourceVolume"].includes(type)){
+      if(!sources.length)add(errors,idx,type,"No sources selected");
+      for(const name of sources)if(!findNamedSource(status,name))add(errors,idx,type,`Source not found: ${name}`);
+      if(type==="sourceVolume"&&!vol())add(errors,idx,type,"Volume must be a number from 0 to 100");
+    }else if(["targetMute","targetVolume","targetMix"].includes(type)){
+      if(!targets.length)add(errors,idx,type,"No targets selected");
+      for(const name of targets)if(!findNamedTarget(status,name))add(errors,idx,type,`Target not found: ${name}`);
+      if(type==="targetVolume"&&!vol())add(errors,idx,type,"Volume must be a number from 0 to 100");
+    }else if(type==="route"){
+      if(!sources.length)add(errors,idx,type,"No sources selected");if(!targets.length)add(errors,idx,type,"No targets selected");
+      for(const name of sources)if(!findNamedSource(status,name))add(errors,idx,type,`Source not found: ${name}`);
+      for(const name of targets)if(!findNamedTarget(status,name))add(errors,idx,type,`Target not found: ${name}`);
+    }else if(["physicalInputMute","physicalInputVolume","physicalOutputMute","physicalOutputVolume"].includes(type)){
+      const dt=type.startsWith("physicalInput")?"input":"output";
+      if(!scenePhysicalDescriptor(op.device,dt))add(errors,idx,type,`No physical ${dt} selected`);
+      else if(!findScenePhysical(status,dt,op.device))add(errors,idx,type,`Physical ${dt} not available: ${scenePhysicalLabel(op.device)}`);
+      if(type.endsWith("Volume")&&!vol())add(errors,idx,type,"Volume must be a number from 0 to 100");
+    }else if(type==="defaultDevice"){
+      const dt=op.deviceType==="input"?"input":"output";
+      if(!scenePhysicalDescriptor(op.device,dt))add(errors,idx,type,`No default ${dt} device selected`);
+      else if(!findScenePhysical(status,dt,op.device))add(errors,idx,type,`Default ${dt} device not available: ${scenePhysicalLabel(op.device)}`);
+    }else if(["applicationMute","applicationVolume","applicationRoute"].includes(type)){
+      const ds=sceneApps(op.applications);
+      if(!ds.length)add(errors,idx,type,"No applications selected");
+      if(type==="applicationVolume"&&!vol())add(errors,idx,type,"Volume must be a number from 0 to 100");
+      for(const d of ds){
+        const live=applications(status).filter(a=>sceneAppMatches(a,d));
+        if(!live.length)add(warnings,idx,type,`Application not running; step will be skipped: ${sceneAppLabel(d)}`);
+        if(type==="applicationRoute"&&op.state!=="off"){
+          const targetName=String(op.targetName||"").trim();
+          if(!targetName)add(errors,idx,type,`No route destination selected for ${sceneAppLabel(d)}`);
+          else {
+            const dtype=String(d.deviceType||live[0]?.deviceType||"").toLowerCase();
+            const dest=dtype==="target"?findNamedTarget(status,targetName):dtype==="source"?findNamedSource(status,targetName):(live[0]?appDestination(status,live[0],targetName):null);
+            if(!dest)add(errors,idx,type,`Compatible route destination not found for ${sceneAppLabel(d)}: ${targetName}`);
+          }
+        }
+      }
+    }else add(errors,idx,type,`Unsupported scene operation: ${type||"(missing type)"}`);
+  }
+  return {ok:errors.length===0,errors,warnings};
+}
 async function executeSceneOperation(op,status){
   if(!op||typeof op!=="object")throw new Error("Invalid scene operation");
   const type=String(op.type||"");
@@ -250,6 +307,29 @@ async function executeSceneOperation(op,status){
   if(type==="route"){
     const sources=sceneNames(op.sources),targets=sceneNames(op.targets),enabled=op.state!=="off";
     for(const source of sources){if(!findNamedSource(status,source))throw new Error(`Scene source not found: ${source}`);for(const target of targets){if(!findNamedTarget(status,target))throw new Error(`Scene target not found: ${target}`);const r=await pipeCommand({Pipewire:{SetRouteByNames:[source,target,enabled]}});if(!isOk(r))throw new Error(`${source} → ${target}: ${JSON.stringify(r)}`)}}
+    return;
+  }
+  if(type==="physicalInputMute"||type==="physicalOutputMute"){
+    const deviceType=type==="physicalInputMute"?"input":"output",muted=op.state!=="unmuted",d=findScenePhysical(status,deviceType,op.device);
+    if(!d)throw new Error(`Scene physical ${deviceType} not found: ${scenePhysicalLabel(op.device)}`);
+    if(targetMuted(d)===muted)return;
+    const r=await pipeCommand({Pipewire:{SetPhysicalDeviceMute:[deviceId(d),muted]}});if(!isOk(r))throw new Error(`${scenePhysicalLabel(op.device)}: ${JSON.stringify(r)}`);
+    return;
+  }
+  if(type==="physicalInputVolume"||type==="physicalOutputVolume"){
+    const deviceType=type==="physicalInputVolume"?"input":"output",v=sceneVolume(op.volume),d=findScenePhysical(status,deviceType,op.device);
+    if(v===null)throw new Error("Invalid physical device volume");
+    if(!d)throw new Error(`Scene physical ${deviceType} not found: ${scenePhysicalLabel(op.device)}`);
+    if(targetVolume(d)===v)return;
+    const r=await pipeCommand({Pipewire:{SetPhysicalDeviceVolume:[deviceId(d),v]}});if(!isOk(r))throw new Error(`${scenePhysicalLabel(op.device)}: ${JSON.stringify(r)}`);
+    return;
+  }
+  if(type==="defaultDevice"){
+    const deviceType=op.deviceType==="input"?"input":"output",d=findScenePhysical(status,deviceType,op.device);
+    if(!d)throw new Error(`Scene default ${deviceType} not found: ${scenePhysicalLabel(op.device)}`);
+    if(String(defaultDeviceId(status,deviceType)||"")===String(deviceId(d)))return;
+    const cmd=deviceType==="input"?{SetDefaultInput:deviceId(d)}:{SetDefaultOutput:deviceId(d)};
+    const r=await pipeCommand({Pipewire:cmd});if(!isOk(r))throw new Error(`${scenePhysicalLabel(op.device)}: ${JSON.stringify(r)}`);
     return;
   }
   if(type==="applicationMute"){
@@ -298,6 +378,11 @@ function sceneOperationDescription(op){
   if(type==="targetVolume")return `Target volume ${sceneVolume(op?.volume)}%: ${list(targets)}`;
   if(type==="targetMix")return `Target mix ${op?.mix==="B"?"B":"A"}: ${list(targets)}`;
   if(type==="route")return `Route ${op?.state==="off"?"off":"on"}: ${list(sources)} -> ${list(targets)}`;
+  if(type==="physicalInputMute")return `Physical input ${op?.state==="unmuted"?"unmute":"mute"}: ${scenePhysicalLabel(op?.device)}`;
+  if(type==="physicalOutputMute")return `Physical output ${op?.state==="unmuted"?"unmute":"mute"}: ${scenePhysicalLabel(op?.device)}`;
+  if(type==="physicalInputVolume")return `Physical input volume ${sceneVolume(op?.volume)}%: ${scenePhysicalLabel(op?.device)}`;
+  if(type==="physicalOutputVolume")return `Physical output volume ${sceneVolume(op?.volume)}%: ${scenePhysicalLabel(op?.device)}`;
+  if(type==="defaultDevice")return `Default ${op?.deviceType==="input"?"input":"output"}: ${scenePhysicalLabel(op?.device)}`;
   if(type==="applicationMute")return `Application ${op?.state==="unmuted"?"unmute":"mute"}: ${sceneApps(op?.applications).map(sceneAppLabel).join(", ")||"(none)"}`;
   if(type==="applicationVolume")return `Application volume ${sceneVolume(op?.volume)}%: ${sceneApps(op?.applications).map(sceneAppLabel).join(", ")||"(none)"}`;
   if(type==="applicationRoute")return `Application route ${op?.state==="off"?"Default":`→ ${op?.targetName||"(none)"}`}: ${sceneApps(op?.applications).map(sceneAppLabel).join(", ")||"(none)"}`;
@@ -313,6 +398,12 @@ async function runScene(i){
     try{
       let status=await refreshStatus();
       if(!status)throw new Error("PipeWeaver status unavailable");
+      console.log(`[Scene] VALIDATION START name=${JSON.stringify(sceneName)} operations=${ops.length}`);
+      const validation=validateSceneOperations(ops,status);
+      for(const v of validation.errors)console.error(`[Scene] VALIDATION ERROR step=${v.step} type=${v.type} reason=${JSON.stringify(v.message)}`);
+      for(const v of validation.warnings)console.warn(`[Scene] VALIDATION WARNING step=${v.step} type=${v.type} reason=${JSON.stringify(v.message)}`);
+      if(!validation.ok){console.error(`[Scene] VALIDATION FAILED errors=${validation.errors.length} warnings=${validation.warnings.length}`);throw new Error(`Scene validation failed with ${validation.errors.length} error(s)`)}
+      console.log(`[Scene] VALIDATION OK errors=0 warnings=${validation.warnings.length}`);
       for(let idx=0;idx<ops.length;idx++){
         activeStep=idx+1;
         const desc=sceneOperationDescription(ops[idx]);
@@ -425,7 +516,7 @@ async function handleMessage(m) {
     diag("sendToPlugin instance found",String(!!i));
     if(!i) return;
     let s=lastStatus;
-    if(["getSceneData","getTargets","getApplications","getDevices"].includes(p.command)) s=await refreshStatus();
+    if(["getSceneData","getTargets","getApplications","getDevices","validateScene"].includes(p.command)) s=await refreshStatus();
     if(p.command==="getTargets"){
       const payload={
         command:"targets",
@@ -433,6 +524,8 @@ async function handleMessage(m) {
         sources:names(s,"source"),
         sceneTargets:sceneConfiguredDevices(s,"target").map(deviceName).filter(Boolean).sort((a,b)=>a.localeCompare(b)),
         sceneSources:sceneConfiguredDevices(s,"source").map(deviceName).filter(Boolean).sort((a,b)=>a.localeCompare(b)),
+        physicalInputs:physicalDevices(s,"input").map(d=>({id:String(deviceId(d)),name:deviceName(d),volume:targetVolume(d),muted:targetMuted(d)})),
+        physicalOutputs:physicalDevices(s,"output").map(d=>({id:String(deviceId(d)),name:deviceName(d),volume:targetVolume(d),muted:targetMuted(d)})),
         applications:appsForPI(s)
       };
       diag("getTargets reply",payload);
@@ -448,10 +541,16 @@ async function handleMessage(m) {
       diag("getDevices reply",payload);
       send({event:"sendToPropertyInspector",context:m.context,payload});
     }
+    else if(p.command==="validateScene"){
+      const ops=Array.isArray(p.operations)?p.operations:(Array.isArray(i.settings.operations)?i.settings.operations:[]);
+      const result=validateSceneOperations(ops,s);
+      diag("validateScene reply",{ok:result.ok,errors:result.errors.length,warnings:result.warnings.length});
+      send({event:"sendToPropertyInspector",context:m.context,payload:{command:"sceneValidation",...result}});
+    }
     else if(p.command==="getSceneData"){
       const snapshot=sceneData(s);
       const payload={command:"sceneData",...snapshot};
-      diag("getSceneData reply",{sources:snapshot.sources.length,targets:snapshot.targets.length,routes:snapshot.routes.length,applications:snapshot.applications.length});
+      diag("getSceneData reply",{sources:snapshot.sources.length,targets:snapshot.targets.length,routes:snapshot.routes.length,physicalInputs:snapshot.physicalInputs.length,physicalOutputs:snapshot.physicalOutputs.length,applications:snapshot.applications.length});
       send({event:"sendToPropertyInspector",context:m.context,payload});
     }
   }
