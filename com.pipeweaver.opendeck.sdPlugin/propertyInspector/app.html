@@ -40,6 +40,7 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
 
   document.getElementById("app").value = settings.name || "";
   document.getElementById("process").value = settings.process || "";
+  document.getElementById("buttonText").value = settings.buttonText || "";
 }
 
 function requestApps() {
@@ -89,7 +90,7 @@ function save() {
   websocket?.send(JSON.stringify({
     event: "setSettings",
     context: info.context,
-    payload: { name, process }
+    payload: { name, process, buttonText: document.getElementById("buttonText").value }
   }));
 }
 </script>
@@ -102,6 +103,7 @@ function save() {
   </select>
 </div>
 <input id="process" type="hidden">
+<div class="row"><label>Button Text</label><input id="buttonText" type="text" placeholder="Blank = dynamic text" onchange="save()"></div>
 <div id="status">Querying PipeWeaver…</div>
 <small>Application mute is controlled through PipeWeaver only.</small>
 </body>

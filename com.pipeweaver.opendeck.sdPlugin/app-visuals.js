@@ -1,6 +1,6 @@
 "use strict";
 
-/* v0.12.1 visual-only application icon resolver.
+/* v0.12.2 visual-only application icon resolver.
  * This module reads Linux desktop/icon metadata only for artwork. It never
  * manipulates PipeWire, PulseAudio or WirePlumber. Live application state is
  * read from PipeWeaver's HTTP API.
@@ -127,7 +127,7 @@ function installApplicationVisuals(){
       }
     }
     desktopEntries=out;
-    console.error(`[v0.12.1] application icon desktop entries: ${out.length}`);
+    console.error(`[v0.12.2] application icon desktop entries: ${out.length}`);
     return out;
   }
   function builtinFor(app){
@@ -170,7 +170,7 @@ function installApplicationVisuals(){
     const key=`${app?.process||""}|${app?.name||""}|${app?.title||""}`;if(iconCache.has(key))return iconCache.get(key);
     const desktop=desktopFor(app),local=desktop?fileData(findIconFile(desktop.icon)):null,builtin=builtinFor(app),bundled=builtin?.asset?fileData(path.join(__dirname,builtin.asset)):null;
     const result={data:local||bundled||null,builtin,source:local?"desktop":bundled?"builtin":"generated",desktop:desktop?.file||null};iconCache.set(key,result);
-    console.error(`[v0.12.1] application icon resolved: ${app?.name||app?.process||"Application"} source=${result.source}${result.desktop?` desktop=${result.desktop}`:""}${builtin?` builtin=${builtin.id}`:""}`);
+    console.error(`[v0.12.2] application icon resolved: ${app?.name||app?.process||"Application"} source=${result.source}${result.desktop?` desktop=${result.desktop}`:""}${builtin?` builtin=${builtin.id}`:""}`);
     return result;
   }
   function badge(app,builtin){
@@ -201,7 +201,7 @@ function installApplicationVisuals(){
         const mode=modeFor(ctx.action),state=stateFor(status,app,ctx),key=`${mode}|${state}|${app.volume}|${app.process}|${app.name}|${ctx.settings.targetName||""}`;
         if(imageKeys.get(context)===key)continue;imageKeys.set(context,key);setImage(ws,context,artwork(app,mode,state));
       }
-    }catch(e){console.error("[v0.12.1] application visuals refresh failed:",e?.message||e)}finally{refreshing=false}
+    }catch(e){console.error("[v0.12.2] application visuals refresh failed:",e?.message||e)}finally{refreshing=false}
   }
   function schedule(){if(refreshTimer)clearTimeout(refreshTimer);refreshTimer=setTimeout(async()=>{const ws=[...sockets].find(x=>x.readyState===1);if(ws)await refresh(ws);schedule()},REFRESH_MS)}
   function attachSocket(ws){sockets.add(ws);schedule()}
@@ -214,7 +214,11 @@ function installApplicationVisuals(){
     else if(m.event==="keyDown"&&contexts.has(m.context)){setTimeout(()=>refresh(ws),180)}
   }
   function ownsContext(context){return contexts.has(context)}
-  return {attachSocket,detachSocket,handleIncoming,ownsContext};
+  function customTitleFor(context){
+    const value=contexts.get(context)?.settings?.buttonText;
+    return typeof value==="string"?value.trim():"";
+  }
+  return {attachSocket,detachSocket,handleIncoming,ownsContext,customTitleFor};
 }
 
 module.exports={installApplicationVisuals};

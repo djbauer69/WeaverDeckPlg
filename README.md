@@ -1,4 +1,4 @@
-# PipeWeaver Control for OpenDeck 0.12.1
+# PipeWeaver Control for OpenDeck 0.12.2
 
 For OpenDeck 2.14.x on Linux.
 
@@ -8,13 +8,14 @@ This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0
 
 Linux desktop files and icon-theme assets are read only to improve Stream Deck button artwork. They are never used for audio control.
 
-## v0.12.1 highlights
+## v0.12.2 highlights
 
-- Enlarges dynamic application icons so they use substantially more of the Stream Deck key area.
-- Suppresses the normal OpenDeck/core text title on application-artwork buttons so dynamic text no longer obscures the application icon.
-- Keeps compact state information inside the artwork itself: mute state, route state, and current volume percentage remain visible without covering the icon.
+- Keeps the larger v0.12.1 application icons.
+- Restores the normal dynamic application title by default instead of forcing the OpenDeck title blank.
+- Adds an optional **Button Text** field to all normal Application action property inspectors. When set, it replaces the dynamic title with the user's custom label. Leaving it blank keeps the normal dynamic title.
+- Keeps compact state information inside the artwork itself: mute state, route state, and current volume percentage remain visible.
 - Retains v0.12.0 Linux `.desktop` and icon-theme discovery, common application aliases, bundled fallbacks, and generated fallback badges.
-- Keeps the proven v0.11.2 PipeWeaver control engine unchanged; v0.12.1 remains a visual-layer update only.
+- Keeps the proven v0.11.2 PipeWeaver control engine unchanged; v0.12.2 remains a visual-layer update only.
 - Keeps all Scene validation, capture, physical-device, application-scene, and route-idempotency functionality.
 
 ## Application icon resolution
@@ -43,7 +44,7 @@ This means newly installed applications can acquire their native Linux icon with
 - **Application Volume / Set Volume:** large app icon on a neutral background with a small current-percentage badge.
 - **Application Route On / Off / Toggle:** large app icon with active/inactive route treatment and a compact route marker.
 
-The core text title is intentionally hidden on these application actions because the visual layer already carries the useful state information and the title otherwise overlaps the artwork.
+The normal dynamic application title is restored by default. Each Application action also includes an optional **Button Text** field; when set, that custom label replaces the dynamic title while the larger application artwork remains unchanged.
 
 If an application is not currently running, the normal generic action artwork is restored until PipeWeaver reports the application again.
 
@@ -107,7 +108,7 @@ Capture Current State records editable structured operations for Source A/B volu
 
 ## Install
 
-1. Download `pipeweaver-opendeck-plugin-v0.12.1.zip` from the v0.12.1 GitHub Release.
+1. Download `pipeweaver-opendeck-plugin-v0.12.2.zip` from the v0.12.2 GitHub Release.
 2. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
 3. Extract the plugin package into OpenDeck's plugins directory.
 4. Restart OpenDeck.
@@ -115,10 +116,8 @@ Capture Current State records editable structured operations for Source A/B volu
 
 Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
-For v0.12.1, artwork diagnostics begin with `[v0.12.1]`.
+For v0.12.2, artwork diagnostics begin with `[v0.12.2]`.
 
 ## Release
 
-The v0.12.1 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
-
-`565a2840b51c5695eb2a96abbf8eb600a4676900cbacd1757b44f9b329239e7a`
+The v0.12.2 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is documented with the GitHub Release asset.
