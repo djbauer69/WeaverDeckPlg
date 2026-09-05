@@ -42,6 +42,11 @@ Mute (Browser, A, Muted). Existing source mute steps use the configured destinat
 
 ## Engine behaviour
 
+Runtime testing confirmed that Brave may pause after an engine restart or buffer
+change. Clicking Play restores audio immediately. Engine recovery does not mean
+application playback resumes automatically. Missing application streams can still
+cause Scene application steps to be skipped under the existing behaviour.
+
 Restart and buffer changes briefly interrupt audio. The plugin sends the daemon
 command once, then polls for recovery for approximately 30 seconds, requiring two
 successful status responses. Buffer changes additionally verify the selected
@@ -87,7 +92,9 @@ Volume, and Target Mix Toggle keep related actions together.
 
 Requires an OpenDeck-compatible Node runtime with global WebSocket support and
 PipeWeaver commands listed below. Runtime-tested v0.17 was used on OpenDeck 2.14.x.
-v0.18 is a **prerelease pending real OpenDeck/PipeWeaver tests**.
+v0.18 is a **prerelease with its principal new controls runtime-tested**.
+See [the runtime test record](releases/v0.18.0.md) for passed checks, log evidence,
+playback behaviour, and remaining tests.
 
 Start with an unmuted source. Test Mute To Set on slot B with one target, compare
 PipeWeaver’s dropdown, then test Toggle and All. Test slot A separately. Build a
@@ -111,7 +118,8 @@ selections, buffer enum validation, transient engine failures, recovery timeout,
 no duplicate restart after an uncertain acknowledgement, composed core compilation,
 application identity regression, shared status requests, manifest paths/order,
 and Scene editor script integration/import-export. Editor integration is exercised
-with a DOM test harness; real OpenDeck WebView rendering remains a runtime check.
+with a DOM test harness. Subsequent live tests exercised the new Scene controls;
+see the runtime test record for the precise coverage.
 
 The build script writes sorted ZIP entries with fixed timestamps and explicit
 file modes and verifies every entry against the source. This avoids the earlier
