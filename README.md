@@ -1,4 +1,41 @@
-# PipeWeaver Control for OpenDeck — v0.19.0 prerelease
+# PipeWeaver Control for OpenDeck — v0.19.1 prerelease
+
+## v0.19.1: Button text and volume badges
+
+Every action now has a **Button Text** selector with **Dynamic Text** and
+**Manual Input**. Dynamic Text keeps the action's live status title. Manual Input
+uses your label (including line breaks); a blank manual label hides the title.
+Existing custom Application labels are retained as Manual Input on upgrade.
+Switching back to Dynamic Text retains the manual label for later use.
+
+All existing Volume Down, Volume Up, and Set Volume actions display the current
+volume percentage at the bottom right, independently of the text mode.
+Application artwork retains its existing badge. Sources follow their selected
+mix (fixed A/B actions keep their fixed mix), targets show actual current volume,
+and physical input/output buttons follow the configured device. Set Volume shows
+the live volume, not merely the configured setpoint. Unavailable non-application
+volume readings show `?`; unavailable applications retain their existing offline
+artwork behavior. The new non-application badges reuse the core status refresh.
+
+The common inspector preserves each action's existing controls and Scene editor
+bridges. Action UUIDs, functional grouping, and alphabetical order are unchanged.
+
+Validation: 23 automated tests pass, including text policies for all actions,
+nested inspector settings preservation, badge values/mixes/offline handling,
+composed core compilation, and existing Smart Scene/startup regressions.
+ZIP integrity, packaged source bytes, manifest references, and executable modes
+are checked during packaging. Hardware validation of v0.19.1 remains pending.
+
+Suggested OpenDeck checks:
+1. Set a Source, Target, Physical Input, and Physical Output volume button to
+   Manual Input; change volume and confirm only its percentage changes.
+2. Check Source A/B independently, and change a Set Volume target externally:
+   its badge should track the current volume before the key is pressed.
+3. Switch a button back to Dynamic Text; confirm live titles return.
+4. Give a Scene, Scene Startup, mute, route, and audio action manual labels.
+   Save their settings and restart OpenDeck; labels and existing actions should
+   remain intact. Check that an existing custom Application label is preserved.
+
 
 ## v0.19.0: Startup Scene
 
