@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-/* PipeWeaver Control for OpenDeck v0.11.1
+/* PipeWeaver Control for OpenDeck v0.11.2
  * IMPORTANT: this plugin talks only to PipeWeaver's HTTP API.
  * It does not call PipeWire, PulseAudio, WirePlumber, pactl, wpctl, etc.
  */
@@ -31,7 +31,7 @@ let pluginUUID=process.argv[process.argv.indexOf("-pluginUUID")+1];
 if(!port||!pluginUUID){console.error("PipeWeaver Control: missing -port or -pluginUUID");process.exit(2);}
 let ws=null,lastStatus=null,statusRefreshInFlight=false,statusTimer=null,reconnectTimer=null,reconnectDelay=RECONNECT_INITIAL_MS,socketGeneration=0;
 const instances=new Map();
-const DIAG_PREFIX="[v0.11.1]";
+const DIAG_PREFIX="[v0.11.2]";
 function diag(label, value){
   try {
     const text = typeof value === "string" ? value : JSON.stringify(value);
@@ -306,7 +306,7 @@ async function executeSceneOperation(op,status){
   }
   if(type==="route"){
     const sources=sceneNames(op.sources),targets=sceneNames(op.targets),enabled=op.state!=="off";
-    for(const source of sources){if(!findNamedSource(status,source))throw new Error(`Scene source not found: ${source}`);for(const target of targets){if(!findNamedTarget(status,target))throw new Error(`Scene target not found: ${target}`);const r=await pipeCommand({Pipewire:{SetRouteByNames:[source,target,enabled]}});if(!isOk(r))throw new Error(`${source} → ${target}: ${JSON.stringify(r)}`)}}
+    for(const source of sources){if(!findNamedSource(status,source))throw new Error(`Scene source not found: ${source}`);for(const target of targets){if(!findNamedTarget(status,target))throw new Error(`Scene target not found: ${target}`);const current=routeEnabled(status,source,target);if(current===enabled)continue;const r=await pipeCommand({Pipewire:{SetRouteByNames:[source,target,enabled]}});if(!isOk(r)){const text=JSON.stringify(r);if(!text.includes("Requested route change already set"))throw new Error(`${source} → ${target}: ${text}`)}}}
     return;
   }
   if(type==="physicalInputMute"||type==="physicalOutputMute"){
