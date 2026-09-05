@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Startup Scene</title>
+<style>body{background:#1e1e1e;color:#eee;font:13px sans-serif;padding:12px}label{display:block;margin:12px 0 6px}input[type=text],input[type=number]{box-sizing:border-box;width:100%;background:#292929;color:#fff;border:1px solid #555;padding:8px;border-radius:4px}button{margin:12px 6px 0 0;padding:7px;background:#343434;color:#eee;border:1px solid #666;border-radius:4px}.hint{color:#bbb;line-height:1.5;margin-top:14px}#status{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:12px;color:#9dc6e8}</style>
+<script src="startup-scene.js"></script></head><body>
+<label><input id="enabled" type="checkbox"> Run saved Scene at startup</label>
+<label for="filePath">Local Scene file path</label><input id="filePath" type="text" placeholder="~/Downloads/Browser.weaverdeck-scene.json" spellcheck="false">
+<label for="settleSeconds">Delay after PipeWeaver is ready (seconds)</label><input id="settleSeconds" type="number" min="0" max="60" step="1" value="2">
+<button id="check" onclick="check019()" disabled>Check file</button><button id="save" onclick="save019()" disabled>Save startup settings</button>
+<div id="status">Connecting…</div>
+<div class="hint">This is one shared startup setting for the plugin. Save applies it to the next OpenDeck/plugin launch. The plugin waits for PipeWeaver, validates the saved Scene, then runs it once. Reconnecting does not run it again. Disabling and saving cancels a pending startup run.</div>
+<div class="hint">The file is read from disk at each launch. Keep it at this path. Press this deck button to run the saved file manually. It works even if startup is disabled.</div>
+<div class="hint">Engine readiness does not mean every application is playing audio. A short delay can help applications appear, but absent application steps retain their normal skip behaviour. Scenes containing engine restarts may require you to resume playback manually.</div>
+</body></html>

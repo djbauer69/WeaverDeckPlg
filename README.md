@@ -1,136 +1,249 @@
-# PipeWeaver Control for OpenDeck 0.17.0
+# PipeWeaver Control for OpenDeck — v0.19.1 prerelease
 
-For OpenDeck 2.14.x on Linux.
+## v0.19.1: Button text and volume badges
 
-## Important
+Every action now has a **Button Text** selector with **Dynamic Text** and
+**Manual Input**. Dynamic Text keeps the action's live status title. Manual Input
+uses your label (including line breaks); a blank manual label hides the title.
+Existing custom Application labels are retained as Manual Input on upgrade.
+Switching back to Dynamic Text retains the manual label for later use.
 
-This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0.1:14565/api/command`. It does not call PipeWire, PulseAudio, WirePlumber, `pactl`, or `wpctl` directly.
+All existing Volume Down, Volume Up, and Set Volume actions display the current
+volume percentage at the bottom right, independently of the text mode.
+Application artwork retains its existing badge. Sources follow their selected
+mix (fixed A/B actions keep their fixed mix), targets show actual current volume,
+and physical input/output buttons follow the configured device. Set Volume shows
+the live volume, not merely the configured setpoint. Unavailable non-application
+volume readings show `?`; unavailable applications retain their existing offline
+artwork behavior. The new non-application badges reuse the core status refresh.
 
-## v0.17.0 highlights — resilient applications
+The common inspector preserves each action's existing controls and Scene editor
+bridges. Action UUIDs, functional grouping, and alphabetical order are unchanged.
 
-v0.17.0 builds on the runtime-validated v0.16.0 Smart Scene release and focuses on application identity, transient application handling, and reducing redundant discovery traffic.
+Validation: 23 automated tests pass, including text policies for all actions,
+nested inspector settings preservation, badge values/mixes/offline handling,
+composed core compilation, and existing Smart Scene/startup regressions.
+ZIP integrity, packaged source bytes, manifest references, and executable modes
+are checked during packaging. Hardware validation of v0.19.1 remains pending.
 
-- **Resilient application identity** is now shared across direct Application actions, application artwork, Smart Scene application steps, and Smart Scene conditions.
-- Linux process names are normalized by removing a trailing ` (deleted)` marker and by comparing executable basenames when a full path is reported.
-- Exact `name + process + deviceType` remains the strongest match.
-- If one part changes after an application restart, WeaverDeck can fall back to an unambiguous same-process or same-name match.
-- Ambiguous fallback matches are deliberately rejected instead of controlling an arbitrary application.
-- Direct Application Property Inspectors now preserve the configured application when it is not currently running instead of silently clearing the selection.
-- Application settings now retain `deviceType` where available, improving playback/capture disambiguation while remaining backward-compatible with older saved buttons.
-- Scene application selectors also preserve configured-but-not-running descriptors.
-- Repeated `getApplications` requests from Property Inspectors use the plugin's recent status snapshot for up to 3.5 seconds. This allows the core 3-second status refresh to service bursts from multiple Scene Property Inspectors without issuing redundant PipeWeaver status requests.
-- Existing Smart Scene conditions, Wait / Delay, failure policy, Source Volume Link / Unlink, Scene Library, Scene files, Capture Scope, application artwork, and PipeWeaver-only control semantics are retained.
+Suggested OpenDeck checks:
+1. Set a Source, Target, Physical Input, and Physical Output volume button to
+   Manual Input; change volume and confirm only its percentage changes.
+2. Check Source A/B independently, and change a Set Volume target externally:
+   its badge should track the current volume before the key is pressed.
+3. Switch a button back to Dynamic Text; confirm live titles return.
+4. Give a Scene, Scene Startup, mute, route, and audio action manual labels.
+   Save their settings and restart OpenDeck; labels and existing actions should
+   remain intact. Check that an existing custom Application label is preserved.
 
-## Application identity resolution
 
-A saved application descriptor uses:
+## v0.19.0: Startup Scene
 
-- `name`
-- `process`
-- `deviceType` when available (`Source` for playback, `Target` for capture)
+A new **Scene Startup** action configures one local Scene file to execute after
+OpenDeck connects and PipeWeaver responds successfully. It is disabled by default.
 
-Matching is scored in this order:
+1. Add Scene Startup to a deck key and open its settings.
+2. Enter the absolute path of a saved .weaverdeck-scene.json file, or use
+   `~/Downloads/Your-Scene.weaverdeck-scene.json`.
+3. Use **Check file** to validate it against PipeWeaver without applying anything.
+4. Enable **Run saved Scene at startup**, choose a settle delay (default 2 seconds),
+   and press **Save startup settings**.
+5. Restart OpenDeck to test automatic execution. Press the deck key to run the saved
+   file manually, including when automatic startup is disabled.
 
-1. exact normalized name + process + compatible device type,
-2. exact normalized process + compatible device type,
-3. exact normalized name + compatible device type.
+The setting is shared across all Scene Startup keys and stored natively under
+`$XDG_DATA_HOME/weaverdeck/startup-scene-v1.json`, defaulting to
+`~/.local/share/weaverdeck/startup-scene-v1.json`. It is independent of the active
+deck page and survives plugin-folder replacement. The local file is read at each
+launch; moving/deleting it causes a logged failure. No file contents are cached
+as a substitute.
 
-Fallback is accepted only when the best-scoring live candidates resolve to one logical application identity. Multiple PipeWire nodes belonging to that same logical identity are not treated as ambiguous.
+The controller waits for two successful PipeWeaver status responses, applies the
+settle delay (0–60 seconds), then checks readiness again before running the Scene.
+If PipeWeaver starts later, it keeps waiting. Saving disabled cancels a pending
+run; saving enabled applies to the next launch, rather than executing immediately.
 
-This means a saved `Brave / brave (deleted) / Source` descriptor can match a later `Brave / brave / Source` instance, while two unrelated same-name applications with different processes will not be chosen arbitrarily.
+Execution occurs once per plugin process launch, which normally accompanies
+OpenDeck startup. Reloading/restarting the plugin can also trigger it. Ordinary
+OpenDeck socket reconnects or PipeWeaver restarts within that process do not replay
+the startup Scene. A failed/partly executed Scene is not automatically retried.
+Manual execution cancels a pending automatic run to avoid duplicate application.
 
-## Transient / disappearing applications
+Uses the existing Scene preflight validation, conditions and Stop/Continue failure
+policies. Check file never applies audio changes. Engine readiness does not imply
+that every application has an active stream: absent application operations retain
+their normal skip behaviour. Engine-restart steps can require manually resuming
+playback, as observed with Brave. Startup does not control application playback.
 
-Application buttons and Scene steps keep their saved descriptor even when the application disappears.
+Diagnostics use `[Startup Scene]` plus the normal `[Scene]` execution records.
 
-- Direct Application Property Inspectors show the saved selection as **Configured … — not running** when it is absent.
-- Smart Scene application selectors preserve the configured descriptor the same way.
-- Direct key presses still alert when no unambiguous live application can be resolved.
-- Scene application operations keep the existing v0.16 behaviour: a missing application is skipped rather than turning a transient disappearance into a Scene failure.
-- Application-running / application-not-running conditions use the same resilient identity resolver.
+Validation: all 18 automated tests pass, including delayed readiness, readiness
+loss during settling, reconnect suppression, disabling, missing/invalid files,
+current-file reads, manual runs, and accurate runner success/failure reporting.
+All JS/inline scripts compile. The ZIP is verified byte-for-byte against package
+source with executable modes preserved. Live OpenDeck startup testing is pending.
 
-## Cached application discovery
+v0.19.0 ZIP SHA-256:
+`61ebdc0c6efcc748e92a1e1e3a9f72a5f304073628e3e7cd7d3f036812e9df70`
 
-The core already refreshes PipeWeaver status every 3 seconds. v0.17.0 records the timestamp of that shared status snapshot.
+Run checks with `node --test tests/*.test.js`; build with
+`python3 tools/build-release.py`.
 
-`getApplications` Property Inspector requests reuse a snapshot that is at most 3.5 seconds old. This is intended to reduce duplicate `GetStatus` calls when several Scene Property Inspectors refresh applications close together while still keeping discovery responsive.
 
-Commands that require a deliberately fresh preflight snapshot, such as Scene validation, Capture Current State, channel/device discovery, and runtime actions, continue to refresh PipeWeaver directly as before.
+## v0.18.1: Scene file names
+
+Save Scene File now uses the currently selected Browser-local Preset name for
+both the filename and exported Scene name. It saves the current Scene contents.
+With no valid preset selected, it falls back to the Scene name. Filename
+sanitization and numbered suffixes for existing files remain unchanged.
+
+Verified preset selection and fallback cases; all nine existing automated tests
+pass. This small fix is pending confirmation in OpenDeck.
+
+v0.18.1 ZIP SHA-256:
+`b676d23d7fd83314b6269708690fd90b8e4f335f5bc646c1fc8c7c46a7c778b2`
+
+The v0.18.0 feature and testing notes below remain applicable.
+
+
+Linux OpenDeck plugin controlling **PipeWeaver only**, through its HTTP API at
+`http://127.0.0.1:14565/api/command`. No direct PipeWire, PulseAudio, system service,
+`pactl`, or `wpctl` commands are used.
+
+## New button actions
+
+- **Audio Buffer Size** — select PipeWire configured/default or an explicit sample count.
+- **Audio Engine Restart** — invoke PipeWeaver’s Restart Audio Engine operation.
+- **Source Mute To Add / All / Remove / Set / Toggle** — configure the destination
+  dropdown for a source’s A or B mute slot.
+
+Mute To changes the destination selection; it does not activate source mute.
+Set replaces the selection with one target. Add, Remove and Toggle match membership
+in PipeWeaver’s dropdown. All clears the selection, which PipeWeaver represents as
+Mute to All. Removing the final selected destination also restores All.
+**PipeWeaver may unmute the affected slot when changing its destinations.** This
+matches PipeWeaver’s UI behaviour. Use a Source Mute button or a later Scene mute
+step when you want the source muted after changing its destination selection.
+
+The destination list contains configured PipeWeaver targets, including configured
+physical targets. It excludes unrelated raw hardware devices.
 
 ## Smart Scenes
 
-The v0.16.0 Smart Scene feature set remains available:
+New step types:
 
-- per-step **Always**, **Application running**, and **Application not running** conditions
-- **Wait / Delay** from 0 to 60,000 ms
-- per-step **Stop Scene** / **Continue Scene** runtime failure policy
-- logged condition `SKIP`
-- `COMPLETE WITH ERRORS` when failures are continued
-- Source Volume Link / Unlink with deterministic Linked / Unlinked state
-- deterministic Capture Current State
-- Scene JSON import/export
-- native Scene files
-- browser-local presets
-- native Scene Library
+- **Audio Buffer Size**
+- **Audio Engine Restart**
+- **Source Mute To Destinations** — select one or more sources, mute slot A/B,
+  and Set/Add/Remove selected targets or Mute to All. Set supports multiple targets.
 
-## Source Volume Link Toggle
+All new steps retain Always / Application running / Application not running
+conditions and Stop Scene / Continue Scene failure policy. Scene JSON, native
+Scene files and Scene Library preserve the new steps. Capture Current State
+retains its existing scope; it does not automatically add engine restarts or
+capture the new buffer/destination settings.
 
-The standalone **Source Volume Link Toggle** action remains unchanged. PipeWeaver owns the A:B ratio semantics when a source is linked.
+Example: Source Mute To Destinations (Browser, A, Set Headphones), then Source
+Mute (Browser, A, Muted). Existing source mute steps use the configured destinations.
 
-Scene Builder uses deterministic **Source Volume Link / Unlink** steps rather than toggles so repeated Scene execution stays idempotent.
+## Engine behaviour
 
-## Native Scene Library
+Runtime testing confirmed that Brave may pause after an engine restart or buffer
+change. Clicking Play restores audio immediately. Engine recovery does not mean
+application playback resumes automatically. Missing application streams can still
+cause Scene application steps to be skipped under the existing behaviour.
 
-Default location:
+Restart and buffer changes briefly interrupt audio. The plugin sends the daemon
+command once, then polls for recovery for approximately 30 seconds, requiring two
+successful status responses. Buffer changes additionally verify the selected
+setting before reporting success. A current-value buffer selection is a no-op.
+The next Scene step waits for recovery; a timeout follows the configured failure
+policy. A transport failure while sending a restart is reported without blindly
+retrying a command that may already have been accepted.
 
-`~/.local/share/weaverdeck/scene-library-v1.json`
+Restart uses PipeWeaver’s API, so it requires the daemon/API to accept requests.
+It cannot recover a stopped daemon or bypass PipeWeaver’s HTTP 503 manager guard.
+Scenes retain preflight validation before changes, so an unavailable initial
+status still prevents Scene execution.
 
-With `XDG_DATA_HOME` configured:
+Supported buffer sizes (samples): 8, 16, 32, 64, 128, 256, 512, 768, 1024, 1280,
+1536, 1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3840, 4096, or PipeWire configured.
 
-`$XDG_DATA_HOME/weaverdeck/scene-library-v1.json`
+## Existing functionality
 
-Library management includes Load, Save Current As, Update Selected, Rename, Duplicate, Delete, and Refresh.
+Resilient application matching from v0.17 is retained across direct actions,
+artwork, Scene application steps and conditions. It normalizes trailing
+` (deleted)` markers and executable basenames, accepts unambiguous name/process
+fallback, rejects ambiguous matches, and preserves configured offline applications.
+Application discovery retains its 3.5-second status cache.
 
-## Requirements
+Concurrent status refresh callers now await the same pending request instead of
+receiving an old/null snapshot. This addresses a possible source of first-press
+recovery failures; the previously observed intermittent Mute double-press has not
+been conclusively diagnosed.
 
-- OpenDeck 2.14.x
-- Node.js 20+
-- PipeWeaver API available on port 14565
+Source A/B controls, Source Link, Smart Scene delays and failure policies, Scene
+Library, native Scene files, capture, and prior application/device/routing controls
+remain. Existing action UUIDs are preserved. Action names and Scene operation
+choices are alphabetized by function; names such as Route Toggle, Target Set
+Volume, and Target Mix Toggle keep related actions together.
 
-## Install
+## Install and test
 
-1. Download `pipeweaver-opendeck-plugin-v0.17.0.zip` from the v0.17.0 GitHub prerelease.
-2. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
-3. Extract the plugin package into OpenDeck's plugins directory.
-4. Restart OpenDeck.
+1. Back up your OpenDeck profile and current plugin folder; fully quit OpenDeck.
+2. Move the old `com.pipeweaver.opendeck.sdPlugin` outside the plugins directory.
+3. Extract the v0.18.0 ZIP into the plugins directory. On the tested installation:
+   `~/.config/opendeck/plugins/`.
+4. Restart OpenDeck with PipeWeaver running; confirm `[v0.18.0]` in the plugin log.
 
-Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
+Requires an OpenDeck-compatible Node runtime with global WebSocket support and
+PipeWeaver commands listed below. Runtime-tested v0.17 was used on OpenDeck 2.14.x.
+v0.18 is a **prerelease with its principal new controls runtime-tested**.
+See [the runtime test record](releases/v0.18.0.md) for passed checks, log evidence,
+playback behaviour, and remaining tests.
 
-## Pre-release validation performed
+Start with an unmuted source. Test Mute To Set on slot B with one target, compare
+PipeWeaver’s dropdown, then test Toggle and All. Test slot A separately. Build a
+Scene setting destinations followed by Source Mute, and verify only the selected
+destinations are affected according to PipeWeaver’s native mute semantics.
 
-The v0.17.0 candidate has passed local/package validation for:
+Record the existing buffer setting; try 512 samples, confirm PipeWeaver’s setting,
+then restore the original. Test Restart separately. Finally run a Scene containing
+Restart followed by a normal source/application operation and confirm recovery
+before the second step. Retest existing controls and an idle period afterward.
 
-- JavaScript syntax for the plugin entrypoint, application visuals, v0.17 runtime patch, shared application identity helper, and Smart Scene v0.17 wrapper
-- manifest JSON validity
-- guarded v0.17 core patch compilation against the stable `plugin-core.js`
-- patched-core verification for direct Application Volume/Mute resolver use, Smart Scene resolver use, condition resolver use, and cached `getApplications` handling
-- direct Property Inspector inline-script syntax
-- Smart Scene injected-script syntax
-- exact application identity matching
-- `brave (deleted)` → `brave` normalization
-- executable path basename normalization
-- unambiguous process-change fallback
-- unambiguous name-change fallback
-- device-type mismatch rejection
-- ambiguous same-name fallback rejection
-- multiple-node same-logical-application handling
-- configured-but-not-running UI preservation in direct Application and Scene selectors
-- ZIP integrity and executable plugin entrypoint mode
+## Verification and reproducible build
 
-Real OpenDeck/PipeWeaver runtime testing is still required before v0.17.0 should be promoted from prerelease to stable.
+```bash
+node --test tests/features-v018.test.js
+python3 tools/build-release.py
+```
 
-## Release
+Tests cover exact API envelopes, mute-slot isolation and idempotence, missing
+selections, buffer enum validation, transient engine failures, recovery timeout,
+no duplicate restart after an uncertain acknowledgement, composed core compilation,
+application identity regression, shared status requests, manifest paths/order,
+and Scene editor script integration/import-export. Editor integration is exercised
+with a DOM test harness. Subsequent live tests exercised the new Scene controls;
+see the runtime test record for the precise coverage.
 
-The v0.17.0 prerelease ZIP SHA-256 is:
+The build script writes sorted ZIP entries with fixed timestamps and explicit
+file modes and verifies every entry against the source. This avoids the earlier
+v0.17 source/package mismatch.
 
-`57a8810ad8a6761ad59b106e5bab39a2f9b324bca798b950bc9ad54d49877102`
+## API references
+
+Verified against PipeWeaver commit `23e90c3c0d5d2dd3f761c259a8a16ad106009361`:
+
+- [Command schema](https://github.com/pipeweaver/pipeweaver/blob/23e90c3c0d5d2dd3f761c259a8a16ad106009361/ipc/src/commands/mod.rs)
+- [Settings UI](https://github.com/pipeweaver/pipeweaver/blob/23e90c3c0d5d2dd3f761c259a8a16ad106009361/web/src/views/Settings.vue)
+- [Mute destination UI](https://github.com/pipeweaver/pipeweaver/blob/23e90c3c0d5d2dd3f761c259a8a16ad106009361/web/src/views/desktop/channels/MuteTargetSelector.vue)
+- [Mute destination side effects](https://github.com/pipeweaver/pipeweaver/blob/23e90c3c0d5d2dd3f761c259a8a16ad106009361/daemon/src/handler/pipewire/components/mute.rs)
+
+Envelopes: `{"Daemon":"ResetAudio"}`, `{"Daemon":{"SetAudioQuantum":"Quantum512"}}`,
+`{"Daemon":{"SetAudioQuantum":null}}`, and `{"Pipewire":{"AddMuteTargetNode":[sourceId,"TargetB",targetId]}}`
+(with corresponding DelMuteTargetNode and ClearMuteTargetNodes commands).
+
+v0.18.0 install ZIP SHA-256:
+
+`a9007120acddad56a51f88443c8d8f758f7edc8e6110676a1be1d44067895827`

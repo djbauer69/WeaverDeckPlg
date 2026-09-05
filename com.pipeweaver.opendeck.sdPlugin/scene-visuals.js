@@ -17,7 +17,7 @@ function installSceneVisuals() {
 
   function nameFor(context) { return contexts.get(context)?.name || "SCENE"; }
   function rawTitle(socket, context, title) {
-    try { socket._ws.send(JSON.stringify({ event: "setTitle", context, payload: { title } })); } catch (_) {}
+    try { socket.send(JSON.stringify({ event: "setTitle", context, payload: { title } })); } catch (_) {}
   }
   function flash(socket, context, ok) {
     if (!contexts.has(context)) return;
