@@ -47,7 +47,7 @@ test('disconnect while a readiness request is pending cannot start a Scene',asyn
 test('composed runner reports success, validation failure and continued failure accurately',async t=>{
  const x=fixture(t,false),nativeRequire=createRequire(root+'/plugin-core.js');
  const logs=[];const c=vm.createContext({require:n=>n==='./startup-scene'?{create:api=>create(api,{configFile:x.configFile})}:nativeRequire(n),process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},console:{log:s=>logs.push(s),error:s=>logs.push(s),warn:s=>logs.push(s)},setTimeout,clearTimeout,Buffer,URL});
- let s=require(root+'/core-v019').build();s=s.slice(0,s.indexOf('diag("startup",'));vm.runInContext(s,c);vm.runInContext('getStatus=async()=>({Status:{audio:{profile:{}}}})',c);
+ let s=require(root+'/core-v020').build();s=s.slice(0,s.indexOf('diag("startup",'));vm.runInContext(s,c);vm.runInContext('getStatus=async()=>({Status:{audio:{profile:{}}}})',c);
  assert.equal(await vm.runInContext('runScene({context:"weaverdeck-startup",settings:{operations:[{type:"wait",milliseconds:0}]}})',c),true);
  assert.equal(await vm.runInContext('runScene({context:"weaverdeck-startup",settings:{operations:[{type:"bad"}]}})',c),false);
  vm.runInContext('executeSceneOperation=async()=>{throw new Error("test failure")}',c);

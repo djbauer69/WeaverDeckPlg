@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/layout.json",
+  "id": "weaverdeck-volume",
+  "items": [
+    {
+      "key": "label",
+      "type": "text",
+      "rect": [
+        10,
+        5,
+        180,
+        25
+      ],
+      "font": {
+        "size": 15,
+        "weight": 600
+      },
+      "alignment": "left"
+    },
+    {
+      "key": "value",
+      "type": "text",
+      "rect": [
+        100,
+        33,
+        90,
+        32
+      ],
+      "font": {
+        "size": 25,
+        "weight": 600
+      },
+      "alignment": "right"
+    },
+    {
+      "key": "status",
+      "type": "text",
+      "rect": [
+        10,
+        40,
+        88,
+        22
+      ],
+      "font": {
+        "size": 14,
+        "weight": 600
+      },
+      "alignment": "left"
+    },
+    {
+      "key": "indicator",
+      "type": "bar",
+      "rect": [
+        10,
+        77,
+        180,
+        12
+      ],
+      "value": 0,
+      "subtype": 4,
+      "border_w": 0
+    }
+  ]
+}

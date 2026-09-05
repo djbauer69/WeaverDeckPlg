@@ -2,7 +2,7 @@
   "Name": "PipeWeaver Control",
   "Description": "PipeWeaver application controls, audio engine restart, buffer size, source mute destinations, and Smart Scenes.",
   "Author": "OpenAI",
-  "Version": "0.19.1",
+  "Version": "0.20.0",
   "CodePathLin": "plugin.js",
   "CodePaths": {
     "x86_64-unknown-linux-gnu": "plugin.js",
@@ -110,6 +110,31 @@
       "Tooltip": "Set a live PipeWeaver application to an exact volume.",
       "UUID": "com.pipeweaver.opendeck.appsetvolume",
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.appvolumedial",
+      "Name": "Application Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
     },
     {
       "Icon": "icons/volumeDown",
@@ -220,6 +245,31 @@
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
     },
     {
+      "UUID": "com.pipeweaver.opendeck.physinvolumedial",
+      "Name": "Physical Input Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
+    },
+    {
       "Icon": "icons/volumeDown",
       "Name": "Physical Input Volume Down",
       "States": [
@@ -275,6 +325,31 @@
       "Tooltip": "Toggle mute on a physical PipeWeaver output.",
       "UUID": "com.pipeweaver.opendeck.physmute",
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.physvolumedial",
+      "Name": "Physical Output Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
     },
     {
       "Icon": "icons/volumeDown",
@@ -648,6 +723,31 @@
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
     },
     {
+      "UUID": "com.pipeweaver.opendeck.sourcevolumedial",
+      "Name": "Source Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
+    },
+    {
       "Icon": "icons/volumeDown",
       "Name": "Source Volume Down",
       "States": [
@@ -846,6 +946,31 @@
       "Tooltip": "Set a PipeWeaver target to an exact volume.",
       "UUID": "com.pipeweaver.opendeck.setvolume",
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.targetvolumedial",
+      "Name": "Target Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
     },
     {
       "Icon": "icons/volumeDown",

@@ -41,6 +41,7 @@ function patchWindow(win){
 }
 window.connectElgatoStreamDeckSocket=function(...args){
   const info=JSON.parse(args[4]);context=info.context;adopt(info.payload?.settings||{});
+  if(info.action.endsWith('volumedial'))document.getElementById('help').textContent='Turn to adjust by Step % per tick. Press or tap to mute. The strip shows live volume and mute state in either text mode; labels use one line.';
   const original=window.buttonInspectors[info.action];
   if(!original){document.getElementById('help').textContent='Unknown action inspector';return}
   frame.onload=()=>{
