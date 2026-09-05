@@ -185,7 +185,12 @@ function installApplicationVisuals(){
     const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144"><rect width="144" height="144" rx="26" fill="${bg}"/><image href="${esc(src)}" x="10" y="8" width="124" height="124" preserveAspectRatio="xMidYMid meet"/>${mark?`<rect x="84" y="101" width="52" height="34" rx="12" fill="#111820" fill-opacity=".90"/><text x="110" y="124" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="${mark.length>2?15:22}" fill="${accent}">${esc(mark)}</text>`:""}</svg>`;
     return dataUri("image/svg+xml",svg);
   }
-  function matchApp(app,settings){return app&&app.name===settings.name&&(!settings.process||app.process===settings.process)&&(!settings.deviceType||String(app.deviceType).toLowerCase()===String(settings.deviceType).toLowerCase())}
+  function appNameKey(v){return String(v??"").trim().toLowerCase()}
+  function appProcessKey(v){let s=String(v??"").trim().replace(/\s+\(deleted\)$/i,"").replace(/\\/g,"/");if(s.includes("/"))s=s.split("/").pop();return s.toLowerCase()}
+  function appTypeKey(v){return String(v??"").trim().toLowerCase()}
+  function appIdentityScore(app,settings){if(!app||!settings)return -1;const dt=appTypeKey(settings.deviceType),at=appTypeKey(app.deviceType);if(dt&&at&&dt!==at)return -1;const an=appNameKey(app.name),dn=appNameKey(settings.name),ap=appProcessKey(app.process),dp=appProcessKey(settings.process),nameEq=!!(an&&dn&&an===dn),procEq=!!(ap&&dp&&ap===dp);if(nameEq&&procEq)return 100;if(procEq)return 80;if(nameEq)return 60;return -1}
+  function appIdentityKey(app){return `${appTypeKey(app?.deviceType)}|${appProcessKey(app?.process)}|${appNameKey(app?.name)}`}
+  function resolveApp(list,settings){const rows=(list||[]).map(a=>({a,score:appIdentityScore(a,settings)})).filter(x=>x.score>=0);if(!rows.length)return null;const best=Math.max(...rows.map(x=>x.score)),top=rows.filter(x=>x.score===best),groups=new Map();for(const row of top){const k=appIdentityKey(row.a);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(row.a)}if(groups.size!==1)return null;return [...groups.values()][0][0]||null}
   function modeFor(action){if(action==="com.pipeweaver.opendeck.appmute")return "mute";if(action.includes("approute"))return "route";return "volume"}
   function stateFor(status,app,ctx){
     const mode=modeFor(ctx.action);if(mode==="mute")return app.muted;if(mode==="volume")return app.volume;
@@ -196,7 +201,7 @@ function installApplicationVisuals(){
     try{
       const status=await getStatus();if(!status)return;const apps=applications(status);
       for(const [context,ctx] of contexts){
-        const app=apps.find(a=>matchApp(a,ctx.settings));
+        const app=resolveApp(apps,ctx.settings);
         if(!app){if(imageKeys.has(context)){imageKeys.delete(context);setImage(ws,context,null)}continue}
         const mode=modeFor(ctx.action),state=stateFor(status,app,ctx),key=`${mode}|${state}|${app.volume}|${app.process}|${app.name}|${ctx.settings.targetName||""}`;
         if(imageKeys.get(context)===key)continue;imageKeys.set(context,key);setImage(ws,context,artwork(app,mode,state));
