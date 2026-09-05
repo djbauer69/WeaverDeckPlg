@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-/* PipeWeaver Control for OpenDeck v0.8.0
+/* PipeWeaver Control for OpenDeck v0.9.2
  * IMPORTANT: this plugin talks only to PipeWeaver's HTTP API.
  * It does not call PipeWire, PulseAudio, WirePlumber, pactl, wpctl, etc.
  */
@@ -31,7 +31,7 @@ let pluginUUID=process.argv[process.argv.indexOf("-pluginUUID")+1];
 if(!port||!pluginUUID){console.error("PipeWeaver Control: missing -port or -pluginUUID");process.exit(2);}
 let ws=null,lastStatus=null,statusRefreshInFlight=false,statusTimer=null,reconnectTimer=null,reconnectDelay=RECONNECT_INITIAL_MS,socketGeneration=0;
 const instances=new Map();
-const DIAG_PREFIX="[v0.8.0]";
+const DIAG_PREFIX="[v0.9.2]";
 function diag(label, value){
   try {
     const text = typeof value === "string" ? value : JSON.stringify(value);
@@ -113,9 +113,19 @@ function findNamedSourceByName(s,n){return findNamedSource(s,n)}
 function routeEnabled(s,sourceName,targetName){const src=findNamedSource(s,sourceName),tgt=findNamedTarget(s,targetName),sid=deviceId(src),tid=deviceId(tgt);if(!sid||!tid)return null;const r=s?.audio?.profile?.routes?.[sid];return Array.isArray(r)?r.includes(tid):null}
 function appForSettings(s,st){return applications(s).find(x=>x.name===st.name&&(!st.process||x.process===st.process)&&(!st.deviceType||String(x.deviceType).toLowerCase()===String(st.deviceType).toLowerCase()))||null}
 function appDestination(s,a,name){if(!a||!name)return null;return String(a.deviceType).toLowerCase()==="target"?findNamedTarget(s,name):findNamedSource(s,name)}
+function sceneConfiguredDevices(status,type){
+  const profile=status?.audio?.profile?.devices||{};
+  const container=deviceCollection(status,type,profile);
+  if(!container)return [];
+  const raw=[container.virtual_devices,container.virtualDevices,container.VirtualDevices].flatMap(asList);
+  const out=[],seen=new Set();
+  for(const d of raw){const n=deviceName(d),id=deviceId(d);if(n&&id&&!seen.has(id)){seen.add(id);out.push(d)}}
+  return out;
+}
 function sceneData(s){
-  const sources=namedDevices(s,"source").map(d=>({name:deviceName(d),id:deviceId(d),volumeA:sourceVolume(d,"A"),volumeB:sourceVolume(d,"B"),mutedA:sourceMuted(d,"A"),mutedB:sourceMuted(d,"B")})).filter(x=>x.name&&x.id);
-  const targets=namedDevices(s,"target").map(d=>({name:deviceName(d),id:deviceId(d),volume:targetVolume(d),muted:targetMuted(d),mix:targetMix(d)})).filter(x=>x.name&&x.id);
+  const sourceDevices=sceneConfiguredDevices(s,"source"),targetDevices=sceneConfiguredDevices(s,"target");
+  const sources=sourceDevices.map(d=>({name:deviceName(d),id:deviceId(d),volumeA:sourceVolume(d,"A"),volumeB:sourceVolume(d,"B"),mutedA:sourceMuted(d,"A"),mutedB:sourceMuted(d,"B")})).filter(x=>x.name&&x.id);
+  const targets=targetDevices.map(d=>({name:deviceName(d),id:deviceId(d),volume:targetVolume(d),muted:targetMuted(d),mix:targetMix(d)})).filter(x=>x.name&&x.id);
   const routeMap=s?.audio?.profile?.routes||{};
   const routes=[];
   for(const src of sources){
@@ -123,7 +133,12 @@ function sceneData(s){
     const ids=Array.isArray(raw)?raw:(raw&&typeof raw==="object"?Object.values(raw):[]);
     for(const tgt of targets) routes.push({source:src.name,target:tgt.name,enabled:ids.includes(tgt.id)});
   }
-  return {sources,targets,routes};
+  const applications=appsForPI(s).map(a=>{
+    const compatible=String(a.deviceType).toLowerCase()==="target"?targetDevices:sourceDevices;
+    const routed=compatible.find(d=>deviceId(d)===a.targetId);
+    return {...a,targetName:routed?deviceName(routed):null};
+  });
+  return {sources,targets,routes,applications};
 }
 
 function updateInstance(i){
@@ -182,6 +197,14 @@ async function physicalMuteTyped(i,type){const s=await refreshStatus(),d=physica
 async function setDefault(i){const s=await refreshStatus(),d=physicalDevices(s,i.settings.type||"output").find(x=>deviceId(x)===i.settings.deviceId);if(!d){showAlert(i.context);return}try{const cmd=i.settings.type==="input"?{SetDefaultInput:deviceId(d)}:{SetDefaultOutput:deviceId(d)};const r=await pipeCommand({Pipewire:cmd});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Default device command failed:",e.message);showAlert(i.context)}}
 function sceneNames(v){return Array.isArray(v)?v.map(x=>String(x||"").trim()).filter(Boolean):[]}
 function sceneVolume(v){const n=Math.round(Number(v));return Number.isFinite(n)?Math.max(0,Math.min(100,n)):null}
+function sceneAppDescriptor(v){
+  if(!v||typeof v!=="object")return null;
+  const name=String(v.name||"").trim(),process=String(v.process||"").trim(),deviceType=String(v.deviceType||"").trim();
+  return name?{name,process,deviceType}:null;
+}
+function sceneApps(v){return Array.isArray(v)?v.map(sceneAppDescriptor).filter(Boolean):[]}
+function sceneAppMatches(a,d){return !!(a&&d&&a.name===d.name&&(!d.process||a.process===d.process)&&(!d.deviceType||String(a.deviceType).toLowerCase()===String(d.deviceType).toLowerCase()))}
+function sceneAppLabel(d){return `${d?.name||"Application"}${d?.process?` (${d.process})`:""}${d?.deviceType?` [${d.deviceType}]`:""}`}
 async function executeSceneOperation(op,status){
   if(!op||typeof op!=="object")throw new Error("Invalid scene operation");
   const type=String(op.type||"");
@@ -213,12 +236,53 @@ async function executeSceneOperation(op,status){
   }
   if(type==="targetMix"){
     const mix=op.mix==="B"?"B":"A";
-    for(const name of sceneNames(op.targets)){const t=findNamedTarget(status,name),id=deviceId(t);if(!id)throw new Error(`Scene target not found: ${name}`);const r=await pipeCommand({Pipewire:{SetTargetMix:[id,mix]}});if(!isOk(r))throw new Error(`${name}: ${JSON.stringify(r)}`)}
+    for(const name of sceneNames(op.targets)){
+      const t=findNamedTarget(status,name),id=deviceId(t);if(!id)throw new Error(`Scene target not found: ${name}`);
+      if(targetMix(t)===mix)continue;
+      const r=await pipeCommand({Pipewire:{SetTargetMix:[id,mix]}});
+      if(!isOk(r)){
+        const text=JSON.stringify(r);
+        if(!text.includes("Nothing to Do, Mixes Match"))throw new Error(`${name}: ${text}`);
+      }
+    }
     return;
   }
   if(type==="route"){
     const sources=sceneNames(op.sources),targets=sceneNames(op.targets),enabled=op.state!=="off";
     for(const source of sources){if(!findNamedSource(status,source))throw new Error(`Scene source not found: ${source}`);for(const target of targets){if(!findNamedTarget(status,target))throw new Error(`Scene target not found: ${target}`);const r=await pipeCommand({Pipewire:{SetRouteByNames:[source,target,enabled]}});if(!isOk(r))throw new Error(`${source} → ${target}: ${JSON.stringify(r)}`)}}
+    return;
+  }
+  if(type==="applicationMute"){
+    const muted=op.state!=="unmuted",descriptors=sceneApps(op.applications);
+    if(!descriptors.length)throw new Error("No applications selected");
+    for(const d of descriptors){
+      const matches=applications(status).filter(a=>sceneAppMatches(a,d));
+      if(!matches.length){console.log(`[Scene] application not running; skipped ${sceneAppLabel(d)}`);continue;}
+      for(const a of matches){if(a.muted===muted)continue;const r=await pipeCommand({Pipewire:{SetApplicationMute:[a.nodeId,muted]}});if(!isOk(r))throw new Error(`${sceneAppLabel(d)}: ${JSON.stringify(r)}`)}
+    }
+    return;
+  }
+  if(type==="applicationVolume"){
+    const v=sceneVolume(op.volume),descriptors=sceneApps(op.applications);if(v===null)throw new Error("Invalid application volume");
+    if(!descriptors.length)throw new Error("No applications selected");
+    for(const d of descriptors){
+      const matches=applications(status).filter(a=>sceneAppMatches(a,d));
+      if(!matches.length){console.log(`[Scene] application not running; skipped ${sceneAppLabel(d)}`);continue;}
+      for(const a of matches){const r=await pipeCommand({Pipewire:{SetApplicationVolume:[a.nodeId,v]}});if(!isOk(r))throw new Error(`${sceneAppLabel(d)}: ${JSON.stringify(r)}`)}
+    }
+    return;
+  }
+  if(type==="applicationRoute"){
+    const descriptors=sceneApps(op.applications),enabled=op.state!=="off",targetName=String(op.targetName||"").trim();
+    if(!descriptors.length)throw new Error("No applications selected");
+    for(const d of descriptors){
+      const matches=applications(status).filter(a=>sceneAppMatches(a,d));
+      if(!matches.length){console.log(`[Scene] application not running; skipped ${sceneAppLabel(d)}`);continue;}
+      for(const a of matches){
+        if(enabled){const destination=appDestination(status,a,targetName);if(!destination)throw new Error(`Compatible application route target not found for ${sceneAppLabel(d)}: ${targetName||"(none)"}`);const r=await pipeCommand({Pipewire:{SetTransientApplicationRouteByName:[a.nodeId,targetName]}});if(!isOk(r))throw new Error(`${sceneAppLabel(d)} → ${targetName}: ${JSON.stringify(r)}`)}
+        else {const r=await pipeCommand({Pipewire:{ClearTransientApplicationRoute:a.nodeId}});if(!isOk(r))throw new Error(`${sceneAppLabel(d)} → Default: ${JSON.stringify(r)}`)}
+      }
+    }
     return;
   }
   throw new Error(`Unsupported scene operation: ${type||"(missing type)"}`);
@@ -234,6 +298,9 @@ function sceneOperationDescription(op){
   if(type==="targetVolume")return `Target volume ${sceneVolume(op?.volume)}%: ${list(targets)}`;
   if(type==="targetMix")return `Target mix ${op?.mix==="B"?"B":"A"}: ${list(targets)}`;
   if(type==="route")return `Route ${op?.state==="off"?"off":"on"}: ${list(sources)} -> ${list(targets)}`;
+  if(type==="applicationMute")return `Application ${op?.state==="unmuted"?"unmute":"mute"}: ${sceneApps(op?.applications).map(sceneAppLabel).join(", ")||"(none)"}`;
+  if(type==="applicationVolume")return `Application volume ${sceneVolume(op?.volume)}%: ${sceneApps(op?.applications).map(sceneAppLabel).join(", ")||"(none)"}`;
+  if(type==="applicationRoute")return `Application route ${op?.state==="off"?"Default":`→ ${op?.targetName||"(none)"}`}: ${sceneApps(op?.applications).map(sceneAppLabel).join(", ")||"(none)"}`;
   return `Unsupported operation: ${type}`;
 }
 async function runScene(i){
@@ -358,9 +425,16 @@ async function handleMessage(m) {
     diag("sendToPlugin instance found",String(!!i));
     if(!i) return;
     let s=lastStatus;
-    if(p.command==="getSceneData") s=await refreshStatus(); else if(["getTargets","getApplications","getDevices"].includes(p.command)) s=s||await refreshStatus();
+    if(["getSceneData","getTargets","getApplications","getDevices"].includes(p.command)) s=await refreshStatus();
     if(p.command==="getTargets"){
-      const payload={command:"targets",targets:names(s,"target"),sources:names(s,"source"),applications:appsForPI(s)};
+      const payload={
+        command:"targets",
+        targets:names(s,"target"),
+        sources:names(s,"source"),
+        sceneTargets:sceneConfiguredDevices(s,"target").map(deviceName).filter(Boolean).sort((a,b)=>a.localeCompare(b)),
+        sceneSources:sceneConfiguredDevices(s,"source").map(deviceName).filter(Boolean).sort((a,b)=>a.localeCompare(b)),
+        applications:appsForPI(s)
+      };
       diag("getTargets reply",payload);
       send({event:"sendToPropertyInspector",context:m.context,payload});
     }
@@ -377,7 +451,7 @@ async function handleMessage(m) {
     else if(p.command==="getSceneData"){
       const snapshot=sceneData(s);
       const payload={command:"sceneData",...snapshot};
-      diag("getSceneData reply",{sources:snapshot.sources.length,targets:snapshot.targets.length,routes:snapshot.routes.length});
+      diag("getSceneData reply",{sources:snapshot.sources.length,targets:snapshot.targets.length,routes:snapshot.routes.length,applications:snapshot.applications.length});
       send({event:"sendToPropertyInspector",context:m.context,payload});
     }
   }
