@@ -1,4 +1,4 @@
-# PipeWeaver Control for OpenDeck 0.15.1
+# PipeWeaver Control for OpenDeck 0.16.0
 
 For OpenDeck 2.14.x on Linux.
 
@@ -6,54 +6,103 @@ For OpenDeck 2.14.x on Linux.
 
 This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0.1:14565/api/command`. It does not call PipeWire, PulseAudio, WirePlumber, `pactl`, or `wpctl` directly.
 
-## v0.15.1 highlights
+## v0.16.0 highlights — Smart Scenes
 
-- **Prerelease capture hotfix:** Source-only and full Scene capture now explicitly inject Source A/B link-state operations through the Scene JSON bridge before Capture Scope filtering. This fixes captures that showed “Sources + Link State” in the UI but saved only Source mute/volume operations.
-- Adds **Source Volume Link Toggle**, a dedicated OpenDeck action for PipeWeaver Source A/B volume linking.
-- The key shows the selected Source and live **LINKED / UNLINKED** state.
-- Linking uses PipeWeaver's native `SetSourceVolumeLinked` API and preserves PipeWeaver's current A/B ratio semantics.
-- Existing **Source A/B Volume Up/Down** and **Source Set Volume** actions are unchanged. When a Source is linked, PipeWeaver itself applies the linked A/B behavior.
-- Adds a structured Scene operation: **Source Volume Link / Unlink**.
-- **Capture Current State** now records Source volume-link state as part of the Sources capture category.
-- Captured Scenes temporarily unlink known Source pairs before restoring independent A/B volumes, then reapply the captured linked state. This prevents a pre-existing link ratio from corrupting deterministic A/B volume restoration.
-- Retains the v0.15.0 native Scene Library, Scene execution tick/failure feedback, quieter application polling, Capture Scope, portable Scene files, and browser-local presets.
+v0.16.0 adds a declarative Smart Scene layer while retaining the validated v0.15.1 Source A/B volume-link support and the existing deterministic Scene engine.
+
+- Each Scene step can run **Always**, **when an application is running**, or **when an application is not running**.
+- Adds an explicit **Wait / Delay** Scene operation from 0 to 60,000 ms.
+- Adds per-step **On failure** policy: **Stop Scene** (default) or **Continue Scene**.
+- Conditions use application descriptors (`name`, `process`, `deviceType`) rather than transient PipeWire node IDs.
+- A condition that is not met produces a logged **SKIP** and is not a Scene failure.
+- A runtime command failure with **Continue Scene** proceeds to later steps, but the Scene finishes with an alert and logs **COMPLETE WITH ERRORS**.
+- Validation errors still block the entire Scene before execution. Failure policy does not bypass preflight validation.
+- **Capture Current State remains deterministic and unconditional**. Captured operations do not receive conditions automatically.
+- Scene JSON, Scene files, browser-local presets, and the native Scene Library preserve Smart Scene fields without changing the Scene file format version.
+
+## Smart Scene conditions
+
+Every structured Scene operation now has a **Condition** selector:
+
+- **Always** — run the step normally. This is the default and matches pre-v0.16 behavior.
+- **Application running** — run only if the configured application is currently present.
+- **Application not running** — run only if the configured application is currently absent.
+
+Application conditions store a stable descriptor containing the application's name, process, and PipeWeaver device type. They do not store the transient node ID.
+
+If an application condition evaluates false at execution time, the step is skipped and the Scene continues normally. The plugin logs `SKIP condition not met` with the condition description.
+
+## Wait / Delay
+
+Choose **Wait / Delay** as a Scene step to pause execution before the next step.
+
+- Minimum: `0 ms`
+- Maximum: `60000 ms`
+- UI step size: `50 ms`
+- Default when added: `250 ms`
+
+Waits are useful when PipeWeaver or an application needs a short settling interval between routing, mix, volume, or application operations.
+
+## Per-step failure policy
+
+Normal Scene operations expose an **On failure** selector:
+
+- **Stop Scene** — default. A runtime command failure stops execution immediately and the Scene shows failure feedback.
+- **Continue Scene** — log the failed step and continue with later steps. If any step failed this way, the Scene completes with an alert rather than a success tick.
+
+This applies only to runtime execution failures. Scene validation remains all-or-nothing and runs before any operation is changed.
+
+## Example Smart Scene
+
+A Scene can now express logic such as:
+
+```text
+1. If Brave is running:
+     Route Brave → Browser
+2. Wait 250 ms
+3. Set Browser A volume → 80%
+4. If Discord is not running:
+     Mute Voice B
+```
+
+The implementation is intentionally declarative. WeaverDeck does not execute arbitrary JavaScript from Scene files.
 
 ## Source Volume Link Toggle
 
-Add **Source Volume Link Toggle** to an OpenDeck key and choose a PipeWeaver Source in the Property Inspector.
+v0.15.1 Source A/B linking remains available unchanged.
 
-The button state is:
+Add **Source Volume Link Toggle** to an OpenDeck key and choose a PipeWeaver Source. The key displays the Source and live **LINKED / UNLINKED** state.
 
-- **UNLINKED** — A and B volume sliders are independent.
-- **LINKED** — PipeWeaver stores the current B:A volume ratio and applies that ratio when either A or B is changed.
-
-Pressing the key toggles between the two states.
-
-The existing A/B volume actions continue sending the same `SetSourceVolume` commands as before. WeaverDeck does not duplicate or override PipeWeaver's link mathematics; PipeWeaver remains responsible for moving the paired channel while linked.
+When linked, PipeWeaver preserves its native A:B volume ratio. Existing Source A/B Volume Up/Down and Set Volume actions continue sending their normal commands; PipeWeaver applies linked behavior itself.
 
 ## Source link state in Scenes
 
-Scene Builder now includes **Source Volume Link / Unlink**. Select one or more Sources and choose **Linked** or **Unlinked**.
+Scene Builder includes **Source Volume Link / Unlink** and Capture Current State records link state when Sources are included.
 
-Scene validation checks that every referenced Source exists and that the link state is valid before execution.
+For deterministic restoration, captured Scenes:
 
-### Deterministic capture behavior
+1. unlink known Sources,
+2. restore A and B volumes independently,
+3. re-link the Sources that were linked when captured.
 
-When **Sources** is included in Capture Scope, Capture Current State records:
+This behavior is preserved in v0.16.0 and can itself be combined with Smart Scene conditions when configured manually.
 
-- Source A mute
-- Source B mute
-- Source A volume
-- Source B volume
-- Source A/B volume-link state
+## Capture Current State
 
-For deterministic volume restoration, a captured Scene intentionally inserts an **Unlink** operation before the Source volume operations. After the A/B values have been restored independently, it adds a final **Linked** operation for every Source that was linked at capture time. Sources captured as unlinked remain unlinked.
+Capture Scope categories remain:
 
-This affects captured Scene ordering only. Normal Source volume buttons continue to follow PipeWeaver's live linked/unlinked behavior.
+- Sources + link state
+- Targets
+- Routes
+- Physical devices
+- Default devices
+- Applications
+
+Capture continues to represent the current PipeWeaver state deterministically. It does **not** infer conditions, waits, or failure policy; those are added manually where desired.
 
 ## Native Scene Library
 
-The Scene Library remains shared by every WeaverDeck Scene action and is stored outside the embedded Property Inspector browser.
+The shared Scene Library remains stored outside the embedded Property Inspector browser.
 
 Default location:
 
@@ -63,60 +112,42 @@ With `XDG_DATA_HOME` configured:
 
 `$XDG_DATA_HOME/weaverdeck/scene-library-v1.json`
 
-Library management includes **Load, Save Current As, Update Selected, Rename, Duplicate, Delete, and Refresh**.
+Library management includes **Load, Save Current As, Update Selected, Rename, Duplicate, Delete, and Refresh**. Loading copies a Scene into the selected button rather than creating a live reference.
 
-Loading copies a Scene into the selected Stream Deck action rather than creating a live reference, keeping Scene execution deterministic.
+## Scene files and presets
 
-## Scene key feedback
-
-Scene names remain visible on the key. After execution WeaverDeck briefly shows:
-
-- `✓` after success
-- `!` after failure
-
-The original Scene name is restored automatically.
-
-## Capture Scope
-
-Before pressing **Capture Current State**, choose any combination of:
-
-- Sources — now includes Source A/B link state
-- Targets
-- Routes
-- Physical devices
-- Default devices
-- Applications
-
-When every category is selected, the complete current state is captured.
-
-## Scene files
-
-Portable Scene files retain the existing WeaverDeck Scene format:
+Portable Scene files retain:
 
 - `format: "WeaverDeckScene"`
 - `formatVersion: 1`
 - `sceneVersion: 1`
 - Scene name
-- structured Scene operations, including `sourceVolumeLink` in v0.15.1+
+- structured operations
 
-**Save Scene File** writes natively to the Linux Downloads directory and preserves existing files with numbered names such as `Scene-2.weaverdeck-scene.json`.
+Smart fields such as `condition`, `milliseconds`, and `onFailure` live inside operations and are preserved by export/import, native Scene files, the Scene Library, and browser-local presets.
 
-**Load Scene File** uses the OpenDeck WebView file picker.
+## Scene feedback and logging
+
+Scene key feedback remains:
+
+- `✓` after a fully successful Scene
+- `!` after a stopped Scene or a Scene that completed with continued runtime failures
+
+v0.16.0 adds explicit logging for:
+
+- condition evaluation skips
+- Wait steps and elapsed time
+- continued failures
+- `COMPLETE WITH ERRORS`
 
 ## Application polling
 
-Scene Builder continues the v0.15.0 polling cleanup:
+The v0.15 polling cleanup remains:
 
-- refresh live applications every 10 seconds while visible
-- pause while the Property Inspector is hidden
-- refresh immediately when visible or focused again
+- refresh live applications every 10 seconds while the Scene Property Inspector is visible
+- pause polling while hidden
+- refresh immediately when visible or focused
 - retain manual **Refresh Channels / Apps**
-
-## Validation and execution
-
-Scene validation/preflight remains mandatory before execution. Validation errors prevent execution. Missing applications remain warnings and are skipped safely when appropriate.
-
-v0.15.1 extends the existing PipeWeaver control engine only where required for Source volume-link state. Existing Source A/B volume action behavior is unchanged.
 
 ## Requirements
 
@@ -126,15 +157,32 @@ v0.15.1 extends the existing PipeWeaver control engine only where required for S
 
 ## Install
 
-1. Download `pipeweaver-opendeck-plugin-v0.15.1.zip` from the v0.15.1 GitHub Release.
+1. Download `pipeweaver-opendeck-plugin-v0.16.0.zip` from the v0.16.0 GitHub Release.
 2. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
 3. Extract the plugin package into OpenDeck's plugins directory.
 4. Restart OpenDeck.
 
 Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
+## Validation performed before release testing
+
+The v0.16.0 build was checked for:
+
+- JavaScript syntax across the plugin entrypoint and Smart Scene runtime extension
+- Property Inspector inline-script syntax
+- manifest JSON validity
+- ZIP integrity
+- Smart Scene mock execution with application-running and application-not-running conditions
+- Wait execution
+- Continue-on-failure execution and final alert behavior
+- Stop-on-failure behavior
+- malformed condition / wait / failure-policy validation
+- v0.15.1 Source Volume Link Scene regression
+
+Runtime testing in OpenDeck/PipeWeaver is still required before the release should be promoted from prerelease to stable.
+
 ## Release
 
-The v0.15.1 source tree, manifest, README, and release ZIP are intended to remain synchronized. The release ZIP SHA-256 is:
+The v0.16.0 release ZIP SHA-256 is:
 
-`e4113171b2cf6c3d2e61c97ec64ccf06254b53b5408363d2ed4c2c935d1fa1b1`
+`d4f23d2be31c24e3ed83020da3442f505c120dc8e094f38751a9e4a70afb0f03`
