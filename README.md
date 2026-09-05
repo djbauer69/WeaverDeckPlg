@@ -1,62 +1,95 @@
-# PipeWeaver Control for OpenDeck 0.8.0
+# PipeWeaver Control for OpenDeck 0.11.2
 
 For OpenDeck 2.14.x on Linux.
 
 ## Important
 This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0.1:14565/api/command`. It does not call PipeWire, PulseAudio, WirePlumber, `pactl`, or `wpctl` directly.
 
-## v0.8.0 highlights
+## v0.11.2 highlights
 
-- Adds **Capture Current State** to the structured Scene Builder.
-- Captures Source Mix A and B volumes and mute states.
-- Captures Target volume, mute state, and Mix A/B selection.
-- Captures the complete Source-to-Target routing matrix, including routes that are currently off, so captured scenes restore a deterministic routing state.
-- Captured state is converted into normal editable structured scene steps; individual operations can be removed, reordered, or changed before use.
-- Existing scene steps are protected by a confirmation prompt before capture replaces them.
-- Keeps the detailed scene execution logging introduced in v0.7.1.
-- Keeps all existing live visual-state feedback and application-routing behavior.
+- Adds Scene validation and all-or-nothing runtime preflight before structured Scene execution.
+- Validates configured Sources, Targets, physical devices, application route destinations, selections, and volume values before a Scene runs.
+- Missing applications are warnings rather than fatal errors; their application steps are safely skipped while the rest of the Scene can continue.
+- Restores configured PipeWeaver physical Sources and Targets to normal Scene Source/Target lists.
+- Makes Scene route execution idempotent: routes already in the requested state are treated as successful no-ops.
+- Keeps application controls inside Scenes, including mute, volume, and transient routing.
+- Keeps physical input/output volume and mute controls and default-device selection inside Scenes.
+- Keeps Capture Current State for Sources, Targets, routes, applications, physical devices, and defaults.
+- Keeps detailed Scene execution and validation diagnostics in the plugin log.
+- Keeps live visual-state feedback for normal actions.
+
+## Scene validation
+
+The Scene Builder includes **Validate Scene**. Structured Scenes are also validated automatically immediately before execution.
+
+Validation checks include:
+
+- Source and Target selections and availability
+- Source and Target volume ranges
+- Physical input/output availability
+- Default-device selections
+- Application descriptors and compatible route destinations
+- Unsupported or malformed Scene operations
+
+A validation **error** prevents the entire Scene from executing. This is an all-or-nothing preflight: no earlier valid step is executed when any step contains a fatal validation error.
+
+An application that is not currently running produces a **warning**, not an error. The corresponding application operation is skipped at execution time.
 
 ## Capture Current State
 
-Arrange PipeWeaver exactly as desired, open the **PipeWeaver Scene** property inspector, and choose **Capture Current State**. The plugin requests a fresh PipeWeaver status snapshot and generates structured operations for the current Sources, Targets, and routes.
+Arrange PipeWeaver exactly as desired, open the **PipeWeaver Scene** property inspector, and choose **Capture Current State**. The plugin requests a fresh PipeWeaver status snapshot and generates editable structured operations representing the current state.
 
-Capture currently includes:
+Capture includes:
 
-- Source A volume and mute state
-- Source B volume and mute state
-- Target volume and mute state
-- Target Mix A/B
+- Source A/B volume and mute state
+- Target volume, mute state, and Mix A/B
 - Source-to-Target routes, both enabled and disabled
+- Application mute, volume, and routing state when available
+- Physical input/output volume and mute state
+- Current default input and output
 
-Disabled routes are deliberately captured. This means a scene can turn off routes that were enabled after the scene was created, rather than only enabling the routes that were active at capture time.
-
-After capture, the generated operations remain fully editable in the Scene Builder. Remove any steps for state you do not want the scene to control.
+Disabled routes are deliberately captured so a Scene can restore a deterministic routing matrix rather than only enabling routes that happened to be active when it was captured.
 
 ## Scene Builder
 
-The **PipeWeaver Scene** action supports these structured operations:
+The **PipeWeaver Scene** action supports structured operations for:
 
-- Source Mute / Unmute — select one or more sources, Mix A or B, and the desired mute state.
-- Target Mute / Unmute — select one or more targets and the desired mute state.
-- Source Set Volume — select one or more sources, Mix A or B, and an exact 0–100% volume.
-- Target Set Volume — select one or more targets and an exact 0–100% volume.
-- Target Mix A / B — select one or more targets and the desired mix.
-- Route On / Off — select one or more sources and targets and explicitly enable or disable all selected route combinations.
+- Source Mute / Unmute — one or more Sources, Mix A or B
+- Target Mute / Unmute — one or more Targets
+- Source Set Volume — one or more Sources, Mix A or B, 0–100%
+- Target Set Volume — one or more Targets, 0–100%
+- Target Mix A / B — one or more Targets
+- Route On / Off — one or more Sources and Targets
+- Application Mute / Unmute
+- Application Set Volume
+- Application Route On / Off
+- Physical Input Mute / Unmute
+- Physical Input Set Volume
+- Physical Output Mute / Unmute
+- Physical Output Set Volume
+- Set Default Input / Output
 
-Steps run from top to bottom. A single scene can therefore mute several sources, unmute several targets, set volumes, switch mixes, and change routes with one key press.
+Steps execute from top to bottom after the complete Scene passes preflight validation.
 
 ## Scene diagnostics
 
-Structured scenes log scene start, each operation start/result, failures, completion, scene name, operation count, context, and execution duration. Failed steps identify the exact step number and a human-readable operation description.
+Structured Scenes log validation, Scene start, each operation start/result, failures, completion, Scene name, operation count, context, and execution duration.
 
-Example successful entries:
+Typical validation entries include:
+
+- `[Scene] VALIDATION START name="Gaming" operations=5`
+- `[Scene] VALIDATION OK errors=0 warnings=0`
+- `[Scene] VALIDATION ERROR step=2 type=sourceMute reason="No sources selected"`
+- `[Scene] VALIDATION FAILED errors=1 warnings=0`
+
+Execution entries include:
 
 - `[Scene] START name="Gaming" operations=5 ...`
 - `[Scene] STEP 1/5 START Source A mute: Browser, Music`
 - `[Scene] STEP 1/5 OK ...`
 - `[Scene] COMPLETE name="Gaming" operations=5 duration=...ms`
 
-Legacy JSON scenes retain execution logging for backwards compatibility.
+Legacy JSON Scenes retain execution support for backwards compatibility.
 
 ## Actions
 
@@ -104,9 +137,14 @@ Legacy JSON scenes retain execution logging for backwards compatibility.
 - PipeWeaver API available on port 14565
 
 ## Install
-1. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
-2. Extract the v0.8.0 plugin package into OpenDeck's plugins directory.
-3. Restart OpenDeck.
-4. Add PipeWeaver actions to Stream Deck keys and configure them in OpenDeck.
+1. Download `pipeweaver-opendeck-plugin-v0.11.2.zip` from the v0.11.2 GitHub Release.
+2. Remove the previous `com.pipeweaver.opendeck.sdPlugin` folder if present.
+3. Extract the plugin package into OpenDeck's plugins directory.
+4. Restart OpenDeck.
+5. Add PipeWeaver actions to Stream Deck keys and configure them in OpenDeck.
 
 Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
+
+## Release
+
+The v0.11.2 release contains the matching plugin ZIP. Source on `main`, the manifest version, plugin diagnostics version, and release package are intended to remain synchronized for each WeaverDeck release.
