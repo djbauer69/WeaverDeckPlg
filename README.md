@@ -10,9 +10,9 @@ This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0
 
 v0.16.0 adds a declarative Smart Scene layer while retaining the validated v0.15.1 Source A/B volume-link support and the existing deterministic Scene engine.
 
-- **Prerelease UI hotfix:** the Smart Scene wrapper now waits for the stable v0.15.1 Scene Builder readiness marker rather than the optional Source-link injection marker. This fixes OpenDeck Property Inspectors that remained stuck on **Loading Smart Scene controls…** even though the base Scene Builder was already working.
-- **Prerelease application identity hotfix:** Smart Scene application matching now normalizes Linux process names by ignoring a trailing ` (deleted)` marker. This prevents a condition captured as `brave (deleted)` from being treated as a different application after Brave restarts and PipeWeaver reports the process as `brave`.
-- **Prerelease Source-link editor hotfix:** Smart Scene action dropdowns include **Source Volume Link / Unlink**, and selecting it now exposes the full **Sources** selector and **Link state: Linked / Unlinked** controls while retaining Smart Scene **Condition** and **On failure** controls.
+- **UI hotfix:** the Smart Scene wrapper now waits for the stable v0.15.1 Scene Builder readiness marker rather than the optional Source-link injection marker. This fixes OpenDeck Property Inspectors that remained stuck on **Loading Smart Scene controls…** even though the base Scene Builder was already working.
+- **Application identity hotfix:** Smart Scene application matching normalizes Linux process names by ignoring a trailing ` (deleted)` marker. This prevents a condition captured as `brave (deleted)` from being treated as a different application after Brave restarts and PipeWeaver reports the process as `brave`.
+- **Source-link editor hotfix:** Smart Scene action dropdowns include **Source Volume Link / Unlink**, and selecting it exposes the full **Sources** selector and **Link state: Linked / Unlinked** controls while retaining Smart Scene **Condition** and **On failure** controls.
 - Each Scene step can run **Always**, **when an application is running**, or **when an application is not running**.
 - Adds an explicit **Wait / Delay** Scene operation from 0 to 60,000 ms.
 - Adds per-step **On failure** policy: **Stop Scene** (default) or **Continue Scene**.
@@ -25,7 +25,7 @@ v0.16.0 adds a declarative Smart Scene layer while retaining the validated v0.15
 
 ## Smart Scene conditions
 
-Every structured Scene operation now has a **Condition** selector:
+Every structured Scene operation has a **Condition** selector:
 
 - **Always** — run the step normally. This is the default and matches pre-v0.16 behavior.
 - **Application running** — run only if the configured application is currently present.
@@ -57,7 +57,7 @@ This applies only to runtime execution failures. Scene validation remains all-or
 
 ## Example Smart Scene
 
-A Scene can now express logic such as:
+A Scene can express logic such as:
 
 ```text
 1. If Brave is running:
@@ -174,28 +174,31 @@ The v0.15 polling cleanup remains:
 
 Plugin logs are normally written under `~/.local/share/opendeck/logs/plugins/`.
 
-## Validation performed before release testing
+## Validation and runtime testing
 
-The v0.16.0 build was checked for:
+v0.16.0 has completed package checks and real OpenDeck/PipeWeaver runtime validation.
+
+Validated areas include:
 
 - JavaScript syntax across the plugin entrypoint and Smart Scene runtime extension
-- Property Inspector inline-script syntax
-- manifest JSON validity
-- ZIP integrity
-- Smart Scene mock execution with application-running and application-not-running conditions
-- Wait execution
-- Continue-on-failure execution and final alert behavior
-- Stop-on-failure behavior
+- Property Inspector injected-script syntax
+- manifest JSON validity and ZIP integrity
+- Smart Scene Property Inspector readiness
+- application-running conditions with the application present and absent
+- application-not-running conditions with the application present and absent
+- condition `SKIP` behaviour
+- Linux application identity normalization for `process` values with/without trailing ` (deleted)`
+- Wait / Delay execution and timing
+- Source Volume Link / Unlink dropdown, source selector, Linked/Unlinked state editor, validation and repeated execution
+- Stop Scene runtime failure policy: later steps do not run
+- Continue Scene runtime failure policy: later steps run and the Scene logs `COMPLETE WITH ERRORS`
 - malformed condition / wait / failure-policy validation
-- v0.15.1 Source Volume Link Scene regression
-- Smart Scene wrapper readiness hotfix syntax and package integrity
-- application identity normalization for `process` values with/without a trailing ` (deleted)` marker
-- Source Volume Link / Unlink dropdown/editor overlay syntax, nested injected-script syntax, source selector/state control presence, package linkage, ZIP integrity, and executable plugin entrypoint mode
+- v0.15.1 Source Volume Link Scene capture/restore regression
 
-Runtime testing in OpenDeck/PipeWeaver is still required before the release should be promoted from prerelease to stable.
+**v0.16.0 is runtime-validated and considered stable.**
 
 ## Release
 
-The corrected v0.16.0 prerelease ZIP SHA-256 is:
+The v0.16.0 stable ZIP SHA-256 is:
 
 `d45d8fd156b36802785d010dc25b2cfb86e8612c86ab42af98f00767ad9db593`
