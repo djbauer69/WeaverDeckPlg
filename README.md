@@ -10,6 +10,7 @@ This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0
 
 v0.16.0 adds a declarative Smart Scene layer while retaining the validated v0.15.1 Source A/B volume-link support and the existing deterministic Scene engine.
 
+- **Prerelease UI hotfix:** the Smart Scene wrapper now waits for the stable v0.15.1 Scene Builder readiness marker rather than the optional Source-link injection marker. This fixes OpenDeck Property Inspectors that remained stuck on **Loading Smart Scene controls…** even though the base Scene Builder was already working.
 - Each Scene step can run **Always**, **when an application is running**, or **when an application is not running**.
 - Adds an explicit **Wait / Delay** Scene operation from 0 to 60,000 ms.
 - Adds per-step **On failure** policy: **Stop Scene** (default) or **Continue Scene**.
@@ -178,11 +179,12 @@ The v0.16.0 build was checked for:
 - Stop-on-failure behavior
 - malformed condition / wait / failure-policy validation
 - v0.15.1 Source Volume Link Scene regression
+- Smart Scene wrapper readiness hotfix syntax and package integrity
 
 Runtime testing in OpenDeck/PipeWeaver is still required before the release should be promoted from prerelease to stable.
 
 ## Release
 
-The v0.16.0 release ZIP SHA-256 is:
+The corrected v0.16.0 prerelease ZIP SHA-256 is:
 
-`2e92c5bc4ea3a5aaa5c21cc6f6131c0d1f9549e1116ae40c9ccb20c034d43b5c`
+`6cd4b349fa03e1757f5def7e5cc051b74721603ab67619103b4fb4a3078de060`
