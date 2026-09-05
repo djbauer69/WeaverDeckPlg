@@ -11,6 +11,7 @@ This plugin controls **PipeWeaver only** through its HTTP API at `http://127.0.0
 v0.16.0 adds a declarative Smart Scene layer while retaining the validated v0.15.1 Source A/B volume-link support and the existing deterministic Scene engine.
 
 - **Prerelease UI hotfix:** the Smart Scene wrapper now waits for the stable v0.15.1 Scene Builder readiness marker rather than the optional Source-link injection marker. This fixes OpenDeck Property Inspectors that remained stuck on **Loading Smart Scene controls…** even though the base Scene Builder was already working.
+- **Prerelease application identity hotfix:** Smart Scene application matching now normalizes Linux process names by ignoring a trailing ` (deleted)` marker. This prevents a condition captured as `brave (deleted)` from being treated as a different application after Brave restarts and PipeWeaver reports the process as `brave`.
 - Each Scene step can run **Always**, **when an application is running**, or **when an application is not running**.
 - Adds an explicit **Wait / Delay** Scene operation from 0 to 60,000 ms.
 - Adds per-step **On failure** policy: **Stop Scene** (default) or **Continue Scene**.
@@ -29,7 +30,7 @@ Every structured Scene operation now has a **Condition** selector:
 - **Application running** — run only if the configured application is currently present.
 - **Application not running** — run only if the configured application is currently absent.
 
-Application conditions store a stable descriptor containing the application's name, process, and PipeWeaver device type. They do not store the transient node ID.
+Application conditions store a stable descriptor containing the application's name, process, and PipeWeaver device type. They do not store the transient node ID. Linux process names are normalized for matching so a trailing ` (deleted)` marker does not break identity across application restarts.
 
 If an application condition evaluates false at execution time, the step is skipped and the Scene continues normally. The plugin logs `SKIP condition not met` with the condition description.
 
@@ -180,6 +181,7 @@ The v0.16.0 build was checked for:
 - malformed condition / wait / failure-policy validation
 - v0.15.1 Source Volume Link Scene regression
 - Smart Scene wrapper readiness hotfix syntax and package integrity
+- application identity normalization for `process` values with/without a trailing ` (deleted)` marker
 
 Runtime testing in OpenDeck/PipeWeaver is still required before the release should be promoted from prerelease to stable.
 
@@ -187,4 +189,4 @@ Runtime testing in OpenDeck/PipeWeaver is still required before the release shou
 
 The corrected v0.16.0 prerelease ZIP SHA-256 is:
 
-`6cd4b349fa03e1757f5def7e5cc051b74721603ab67619103b4fb4a3078de060`
+`eb6b67d3c0afa396c37e0ca76bb9ab4a5222d739c176db3d1060d6bbea4ae5fd`
