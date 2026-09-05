@@ -20,10 +20,16 @@
       "Icon": "icons/mute",
       "Name": "Application Mute",
       "States": [
-        {"Image": "icons/muteLive"},
-        {"Image": "icons/muteMuted"}
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
       ],
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute on a PipeWeaver application.",
       "UUID": "com.pipeweaver.opendeck.appmute",
@@ -33,10 +39,16 @@
       "Icon": "icons/route",
       "Name": "Application Route Off",
       "States": [
-        {"Image": "icons/routeOff"},
-        {"Image": "icons/routeOn"}
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
       ],
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Clear the transient route for a live application.",
       "UUID": "com.pipeweaver.opendeck.approuteoff",
@@ -46,10 +58,16 @@
       "Icon": "icons/route",
       "Name": "Application Route On",
       "States": [
-        {"Image": "icons/routeOff"},
-        {"Image": "icons/routeOn"}
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
       ],
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Route a live application to a compatible PipeWeaver channel.",
       "UUID": "com.pipeweaver.opendeck.approuteon",
@@ -59,10 +77,16 @@
       "Icon": "icons/route",
       "Name": "Application Route Toggle",
       "States": [
-        {"Image": "icons/routeOff"},
-        {"Image": "icons/routeOn"}
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
       ],
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle a live application between a compatible PipeWeaver channel and Default.",
       "UUID": "com.pipeweaver.opendeck.approutetoggle",
@@ -72,10 +96,16 @@
       "Icon": "icons/volumeUp",
       "Name": "Application Set Volume",
       "States": [
-        {"Image": "icons/volumeUp"},
-        {"Image": "icons/volumeUp"}
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
       ],
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Set a live PipeWeaver application to an exact volume.",
       "UUID": "com.pipeweaver.opendeck.appsetvolume",
@@ -84,8 +114,14 @@
     {
       "Icon": "icons/volumeDown",
       "Name": "Application Volume Down",
-      "States": [{"Image": "icons/volumeDown"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a PipeWeaver application volume.",
       "UUID": "com.pipeweaver.opendeck.appvoldown",
@@ -94,8 +130,14 @@
     {
       "Icon": "icons/volumeUp",
       "Name": "Application Volume Up",
-      "States": [{"Image": "icons/volumeUp"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a PipeWeaver application volume.",
       "UUID": "com.pipeweaver.opendeck.appvolup",
@@ -104,8 +146,17 @@
     {
       "Icon": "icons/mute",
       "Name": "Physical Input Mute",
-      "States": [{"Image": "icons/muteLive"},{"Image": "icons/muteMuted"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute on a physical PipeWeaver input.",
       "UUID": "com.pipeweaver.opendeck.physinmute",
@@ -114,8 +165,17 @@
     {
       "Icon": "icons/volumeDown",
       "Name": "Physical Input Volume Down",
-      "States": [{"Image": "icons/volumeDown"},{"Image": "icons/volumeDown"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        },
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a physical PipeWeaver input volume.",
       "UUID": "com.pipeweaver.opendeck.physinvoldown",
@@ -124,8 +184,17 @@
     {
       "Icon": "icons/volumeUp",
       "Name": "Physical Input Volume Up",
-      "States": [{"Image": "icons/volumeUp"},{"Image": "icons/volumeUp"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a physical PipeWeaver input volume.",
       "UUID": "com.pipeweaver.opendeck.physinvolup",
@@ -134,8 +203,17 @@
     {
       "Icon": "icons/mute",
       "Name": "Physical Output Mute",
-      "States": [{"Image": "icons/muteLive"},{"Image": "icons/muteMuted"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute on a physical PipeWeaver output.",
       "UUID": "com.pipeweaver.opendeck.physmute",
@@ -144,8 +222,14 @@
     {
       "Icon": "icons/volumeDown",
       "Name": "Physical Output Volume Down",
-      "States": [{"Image": "icons/volumeDown"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a physical PipeWeaver output volume.",
       "UUID": "com.pipeweaver.opendeck.physvoldown",
@@ -154,8 +238,14 @@
     {
       "Icon": "icons/volumeUp",
       "Name": "Physical Output Volume Up",
-      "States": [{"Image": "icons/volumeUp"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a physical PipeWeaver output volume.",
       "UUID": "com.pipeweaver.opendeck.physvolup",
@@ -164,8 +254,17 @@
     {
       "Icon": "icons/route",
       "Name": "Set Default Device",
-      "States": [{"Image": "icons/defaultIdle"},{"Image": "icons/defaultActive"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/defaultIdle"
+        },
+        {
+          "Image": "icons/defaultActive"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Set PipeWeaver default input or output.",
       "UUID": "com.pipeweaver.opendeck.default",
@@ -174,8 +273,17 @@
     {
       "Icon": "icons/route",
       "Name": "Route Off",
-      "States": [{"Image": "icons/routeOff"},{"Image": "icons/routeOn"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Disable a PipeWeaver source-to-target route.",
       "UUID": "com.pipeweaver.opendeck.routeoff",
@@ -184,8 +292,17 @@
     {
       "Icon": "icons/route",
       "Name": "Route On",
-      "States": [{"Image": "icons/routeOff"},{"Image": "icons/routeOn"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Enable a PipeWeaver source-to-target route.",
       "UUID": "com.pipeweaver.opendeck.routeon",
@@ -194,8 +311,17 @@
     {
       "Icon": "icons/route",
       "Name": "Toggle Route",
-      "States": [{"Image": "icons/routeOff"},{"Image": "icons/routeOn"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle a PipeWeaver source-to-target route.",
       "UUID": "com.pipeweaver.opendeck.route",
@@ -204,8 +330,17 @@
     {
       "Icon": "icons/volumeDown",
       "Name": "Source A Volume Down",
-      "States": [{"Image": "icons/volumeDown"},{"Image": "icons/volumeDown"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        },
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease PipeWeaver source Mix A volume.",
       "UUID": "com.pipeweaver.opendeck.sourceavoldown",
@@ -214,8 +349,17 @@
     {
       "Icon": "icons/volumeUp",
       "Name": "Source A Volume Up",
-      "States": [{"Image": "icons/volumeUp"},{"Image": "icons/volumeUp"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Increase PipeWeaver source Mix A volume.",
       "UUID": "com.pipeweaver.opendeck.sourceavolup",
@@ -224,8 +368,17 @@
     {
       "Icon": "icons/volumeDown",
       "Name": "Source B Volume Down",
-      "States": [{"Image": "icons/volumeDown"},{"Image": "icons/volumeDown"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        },
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease PipeWeaver source Mix B volume.",
       "UUID": "com.pipeweaver.opendeck.sourcebvoldown",
@@ -234,8 +387,17 @@
     {
       "Icon": "icons/volumeUp",
       "Name": "Source B Volume Up",
-      "States": [{"Image": "icons/volumeUp"},{"Image": "icons/volumeUp"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Increase PipeWeaver source Mix B volume.",
       "UUID": "com.pipeweaver.opendeck.sourcebvolup",
@@ -244,8 +406,17 @@
     {
       "Icon": "icons/mute",
       "Name": "Source Mute",
-      "States": [{"Image": "icons/muteLive"},{"Image": "icons/muteMuted"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute for a PipeWeaver source A or B channel.",
       "UUID": "com.pipeweaver.opendeck.sourcemute",
@@ -254,8 +425,17 @@
     {
       "Icon": "icons/mute",
       "Name": "Source Mute A",
-      "States": [{"Image": "icons/muteLive"},{"Image": "icons/muteMuted"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle PipeWeaver source Mix A mute.",
       "UUID": "com.pipeweaver.opendeck.sourcemutea",
@@ -264,8 +444,17 @@
     {
       "Icon": "icons/mute",
       "Name": "Source Mute B",
-      "States": [{"Image": "icons/muteLive"},{"Image": "icons/muteMuted"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle PipeWeaver source Mix B mute.",
       "UUID": "com.pipeweaver.opendeck.sourcemuteb",
@@ -274,8 +463,17 @@
     {
       "Icon": "icons/volumeUp",
       "Name": "Source Set Volume",
-      "States": [{"Image": "icons/volumeUp"},{"Image": "icons/volumeUp"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Set a PipeWeaver source A or B channel to an exact volume.",
       "UUID": "com.pipeweaver.opendeck.sourcesetvolume",
@@ -284,8 +482,14 @@
     {
       "Icon": "icons/volumeDown",
       "Name": "Source Volume Down",
-      "States": [{"Image": "icons/volumeDown"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a PipeWeaver source A or B volume.",
       "UUID": "com.pipeweaver.opendeck.sourcevoldown",
@@ -294,8 +498,14 @@
     {
       "Icon": "icons/volumeUp",
       "Name": "Source Volume Up",
-      "States": [{"Image": "icons/volumeUp"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a PipeWeaver source A or B volume.",
       "UUID": "com.pipeweaver.opendeck.sourcevolup",
@@ -304,8 +514,14 @@
     {
       "Icon": "icons/volumeUp",
       "Name": "Set Target Volume",
-      "States": [{"Image": "icons/volumeUp"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Set a PipeWeaver target to an exact volume.",
       "UUID": "com.pipeweaver.opendeck.setvolume",
@@ -314,8 +530,17 @@
     {
       "Icon": "icons/route",
       "Name": "Target Mix A",
-      "States": [{"Image": "icons/mixA"},{"Image": "icons/mixB"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/mixA"
+        },
+        {
+          "Image": "icons/mixB"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Set a PipeWeaver target to Mix A.",
       "UUID": "com.pipeweaver.opendeck.targetmixa",
@@ -324,8 +549,17 @@
     {
       "Icon": "icons/route",
       "Name": "Target Mix B",
-      "States": [{"Image": "icons/mixA"},{"Image": "icons/mixB"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/mixA"
+        },
+        {
+          "Image": "icons/mixB"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Set a PipeWeaver target to Mix B.",
       "UUID": "com.pipeweaver.opendeck.targetmixb",
@@ -334,8 +568,17 @@
     {
       "Icon": "icons/mute",
       "Name": "Target Mute",
-      "States": [{"Image": "icons/muteLive"},{"Image": "icons/muteMuted"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute on a PipeWeaver target.",
       "UUID": "com.pipeweaver.opendeck.mute",
@@ -344,8 +587,17 @@
     {
       "Icon": "icons/mute",
       "Name": "Target Mute Off",
-      "States": [{"Image": "icons/muteLive"},{"Image": "icons/muteMuted"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Unmute a PipeWeaver target.",
       "UUID": "com.pipeweaver.opendeck.muteoff",
@@ -354,8 +606,17 @@
     {
       "Icon": "icons/mute",
       "Name": "Target Mute On",
-      "States": [{"Image": "icons/muteLive"},{"Image": "icons/muteMuted"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Mute a PipeWeaver target.",
       "UUID": "com.pipeweaver.opendeck.muteon",
@@ -364,8 +625,14 @@
     {
       "Icon": "icons/volumeDown",
       "Name": "Target Volume Down",
-      "States": [{"Image": "icons/volumeDown"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a PipeWeaver target volume.",
       "UUID": "com.pipeweaver.opendeck.volumedown",
@@ -374,8 +641,14 @@
     {
       "Icon": "icons/volumeUp",
       "Name": "Target Volume Up",
-      "States": [{"Image": "icons/volumeUp"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a PipeWeaver target volume.",
       "UUID": "com.pipeweaver.opendeck.volumeup",
@@ -384,8 +657,17 @@
     {
       "Icon": "icons/route",
       "Name": "Toggle Target Mix",
-      "States": [{"Image": "icons/mixA"},{"Image": "icons/mixB"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/mixA"
+        },
+        {
+          "Image": "icons/mixB"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle a PipeWeaver target between Mix A and Mix B.",
       "UUID": "com.pipeweaver.opendeck.targetmixtoggle",
@@ -394,8 +676,14 @@
     {
       "Icon": "icons/plugin",
       "Name": "PipeWeaver Scene",
-      "States": [{"Image": "icons/plugin"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/plugin"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Run a structured multi-device PipeWeaver scene.",
       "UUID": "com.pipeweaver.opendeck.scene",
@@ -404,8 +692,17 @@
     {
       "Icon": "icons/plugin",
       "Name": "PipeWeaver Status",
-      "States": [{"Image": "icons/statusOnline"},{"Image": "icons/statusOffline"}],
-      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "icons/statusOnline"
+        },
+        {
+          "Image": "icons/statusOffline"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "Tooltip": "Show PipeWeaver connection status and refresh it on press.",
       "UUID": "com.pipeweaver.opendeck.status",
