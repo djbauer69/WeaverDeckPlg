@@ -27,7 +27,7 @@ test('Scene success and delayed title use the common text policy',()=>{
 });
 function core(){
  const c=vm.createContext({require:createRequire(root+'/plugin-core.js'),process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},console:{log(){},error(){},warn(){}},setTimeout,clearTimeout,Buffer,URL});
- let source=require(root+'/core-v0191').build();source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
+ let source=require(root+'/core-v020').build();source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
  c.sent=[];vm.runInContext('send=m=>sent.push(m)',c);return c;
 }
 test('all non-app volume actions show actual current volume, correct A/B, physical ID, 0%, and offline unknown',()=>{
@@ -72,6 +72,6 @@ test('nested inspectors share one socket; manual edits survive old Scene saves a
 test('every manifest action maps to an existing original inspector and entry point starts latest core',()=>{
  const c=vm.createContext({window:{}});vm.runInContext(fs.readFileSync(root+'/propertyInspector/button-inspectors.js','utf8'),c);
  for(const a of manifest.Actions){assert.equal(a.PropertyInspectorPath,'propertyInspector/button-settings.html');assert(fs.existsSync(root+'/propertyInspector/'+c.window.buttonInspectors[a.UUID]),a.UUID)}
- assert(fs.readFileSync(root+'/plugin.js','utf8').includes('require("./core-v0191").start()'));
- new vm.Script(require(root+'/core-v0191').build());
+ assert(fs.readFileSync(root+'/plugin.js','utf8').includes('require("./core-v020").start()'));
+ new vm.Script(require(root+'/core-v020').build());
 });

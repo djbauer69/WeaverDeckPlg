@@ -1,4 +1,36 @@
-# PipeWeaver Control for OpenDeck — v0.19.1 prerelease
+# PipeWeaver Control for OpenDeck — WeaverDeck v0.20.0 prerelease
+
+## v0.20.0: Volume dials and touch-strip feedback
+
+Adds five Encoder actions: **Application Volume Dial**, **Source Volume Dial**,
+**Target Volume Dial**, **Physical Input Volume Dial**, and **Physical Output
+Volume Dial**. Drag one onto a dial in OpenDeck and select its device/application.
+
+- Turn clockwise/counter-clockwise to adjust volume by Step % per tick (default 5).
+- Press the dial or briefly tap its strip segment to toggle mute. Release does
+  not toggle again; long touch is ignored. No held-turn modifier is implemented.
+- The strip shows Dynamic Text or Manual Input, the live percentage, a volume
+  bar, and Live/MUTED/Unavailable state. Strip labels use one line.
+- Source dials select A or B and respect PipeWeaver's existing volume-link state.
+- Application dials reuse resilient identity matching; ambiguous matches fail safely.
+- Rapid same-direction ticks are combined and all dial changes run in order.
+  Pending input expires after two seconds, is bounded to 64 queued groups, and
+  is cancelled on reassignment/disappearance/disconnect. Commands with uncertain
+  acknowledgement are not retried. An already-sent command cannot be undone by
+  removing a dial.
+- All 47 existing button actions and Smart Scene/startup behavior are retained.
+  New actions remain grouped by function and sorted alphabetically.
+
+Implemented against OpenDeck 2.14.0's Encoder and touch-strip interface. **Real
+Stream Deck +/+ XL hardware testing is pending.** Neo infobar support is separate
+and is not implemented in this release. Other suggested features, including
+volume fades, remain deferred.
+
+**33 automated tests pass.** See the [compatibility matrix and hardware test
+steps](docs/COMPATIBILITY.md) for device/distribution status, prerequisites, test
+coverage, and the distinction between implemented and hardware-verified support.
+
+
 
 ## v0.19.1: Button text and volume badges
 

@@ -45,5 +45,10 @@ window.buttonInspectors={
   "com.pipeweaver.opendeck.muteon": "mute.html",
   "com.pipeweaver.opendeck.setvolume": "setvolume.html",
   "com.pipeweaver.opendeck.volumedown": "volume.html",
-  "com.pipeweaver.opendeck.volumeup": "volume.html"
+  "com.pipeweaver.opendeck.volumeup": "volume.html",
+  "com.pipeweaver.opendeck.appvolumedial": "appvolume.html",
+  "com.pipeweaver.opendeck.sourcevolumedial": "source.html",
+  "com.pipeweaver.opendeck.targetvolumedial": "volume.html",
+  "com.pipeweaver.opendeck.physinvolumedial": "physical.html",
+  "com.pipeweaver.opendeck.physvolumedial": "physical.html"
 };
