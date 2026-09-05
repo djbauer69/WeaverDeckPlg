@@ -1,6 +1,6 @@
 "use strict";
 
-/* v0.12.0 visual-only application icon resolver.
+/* v0.12.1 visual-only application icon resolver.
  * This module reads Linux desktop/icon metadata only for artwork. It never
  * manipulates PipeWire, PulseAudio or WirePlumber. Live application state is
  * read from PipeWeaver's HTTP API.
@@ -127,7 +127,7 @@ function installApplicationVisuals(){
       }
     }
     desktopEntries=out;
-    console.error(`[v0.12.0] application icon desktop entries: ${out.length}`);
+    console.error(`[v0.12.1] application icon desktop entries: ${out.length}`);
     return out;
   }
   function builtinFor(app){
@@ -170,7 +170,7 @@ function installApplicationVisuals(){
     const key=`${app?.process||""}|${app?.name||""}|${app?.title||""}`;if(iconCache.has(key))return iconCache.get(key);
     const desktop=desktopFor(app),local=desktop?fileData(findIconFile(desktop.icon)):null,builtin=builtinFor(app),bundled=builtin?.asset?fileData(path.join(__dirname,builtin.asset)):null;
     const result={data:local||bundled||null,builtin,source:local?"desktop":bundled?"builtin":"generated",desktop:desktop?.file||null};iconCache.set(key,result);
-    console.error(`[v0.12.0] application icon resolved: ${app?.name||app?.process||"Application"} source=${result.source}${result.desktop?` desktop=${result.desktop}`:""}${builtin?` builtin=${builtin.id}`:""}`);
+    console.error(`[v0.12.1] application icon resolved: ${app?.name||app?.process||"Application"} source=${result.source}${result.desktop?` desktop=${result.desktop}`:""}${builtin?` builtin=${builtin.id}`:""}`);
     return result;
   }
   function badge(app,builtin){
@@ -182,7 +182,7 @@ function installApplicationVisuals(){
     if(mode==="mute"){bg=state?"#b3261e":"#18794e";accent=state?"#ffdad6":"#b7f7d8";mark=state?"M":""}
     else if(mode==="route"){bg=state?"#165d9c":"#42464d";accent=state?"#d1e4ff":"#d9dde4";mark=state?"→":"×"}
     else {mark=Number.isFinite(app?.volume)?`${Math.round(app.volume)}%`:""}
-    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144"><rect width="144" height="144" rx="26" fill="${bg}"/><rect x="16" y="14" width="112" height="112" rx="24" fill="white" fill-opacity=".10"/><image href="${esc(src)}" x="30" y="25" width="84" height="84" preserveAspectRatio="xMidYMid meet"/>${mark?`<rect x="82" y="96" width="52" height="34" rx="12" fill="#111820" fill-opacity=".88"/><text x="108" y="119" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="${mark.length>2?15:22}" fill="${accent}">${esc(mark)}</text>`:""}</svg>`;
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144"><rect width="144" height="144" rx="26" fill="${bg}"/><image href="${esc(src)}" x="10" y="8" width="124" height="124" preserveAspectRatio="xMidYMid meet"/>${mark?`<rect x="84" y="101" width="52" height="34" rx="12" fill="#111820" fill-opacity=".90"/><text x="110" y="124" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="${mark.length>2?15:22}" fill="${accent}">${esc(mark)}</text>`:""}</svg>`;
     return dataUri("image/svg+xml",svg);
   }
   function matchApp(app,settings){return app&&app.name===settings.name&&(!settings.process||app.process===settings.process)&&(!settings.deviceType||String(app.deviceType).toLowerCase()===String(settings.deviceType).toLowerCase())}
@@ -201,7 +201,7 @@ function installApplicationVisuals(){
         const mode=modeFor(ctx.action),state=stateFor(status,app,ctx),key=`${mode}|${state}|${app.volume}|${app.process}|${app.name}|${ctx.settings.targetName||""}`;
         if(imageKeys.get(context)===key)continue;imageKeys.set(context,key);setImage(ws,context,artwork(app,mode,state));
       }
-    }catch(e){console.error("[v0.12.0] application visuals refresh failed:",e?.message||e)}finally{refreshing=false}
+    }catch(e){console.error("[v0.12.1] application visuals refresh failed:",e?.message||e)}finally{refreshing=false}
   }
   function schedule(){if(refreshTimer)clearTimeout(refreshTimer);refreshTimer=setTimeout(async()=>{const ws=[...sockets].find(x=>x.readyState===1);if(ws)await refresh(ws);schedule()},REFRESH_MS)}
   function attachSocket(ws){sockets.add(ws);schedule()}
@@ -213,7 +213,8 @@ function installApplicationVisuals(){
     else if(m.event==="willDisappear"&&contexts.has(m.context)){contexts.delete(m.context);imageKeys.delete(m.context)}
     else if(m.event==="keyDown"&&contexts.has(m.context)){setTimeout(()=>refresh(ws),180)}
   }
-  return {attachSocket,detachSocket,handleIncoming};
+  function ownsContext(context){return contexts.has(context)}
+  return {attachSocket,detachSocket,handleIncoming,ownsContext};
 }
 
 module.exports={installApplicationVisuals};
