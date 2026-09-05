@@ -12,7 +12,7 @@ v0.16.0 adds a declarative Smart Scene layer while retaining the validated v0.15
 
 - **Prerelease UI hotfix:** the Smart Scene wrapper now waits for the stable v0.15.1 Scene Builder readiness marker rather than the optional Source-link injection marker. This fixes OpenDeck Property Inspectors that remained stuck on **Loading Smart Scene controls…** even though the base Scene Builder was already working.
 - **Prerelease application identity hotfix:** Smart Scene application matching now normalizes Linux process names by ignoring a trailing ` (deleted)` marker. This prevents a condition captured as `brave (deleted)` from being treated as a different application after Brave restarts and PipeWeaver reports the process as `brave`.
-- **Prerelease Source-link dropdown hotfix:** Smart Scene action dropdowns now explicitly restore **Source Volume Link / Unlink** so Source A/B link state can be configured manually as a deterministic Scene step as well as captured automatically.
+- **Prerelease Source-link editor hotfix:** Smart Scene action dropdowns include **Source Volume Link / Unlink**, and selecting it now exposes the full **Sources** selector and **Link state: Linked / Unlinked** controls while retaining Smart Scene **Condition** and **On failure** controls.
 - Each Scene step can run **Always**, **when an application is running**, or **when an application is not running**.
 - Adds an explicit **Wait / Delay** Scene operation from 0 to 60,000 ms.
 - Adds per-step **On failure** policy: **Stop Scene** (default) or **Continue Scene**.
@@ -81,6 +81,13 @@ When linked, PipeWeaver preserves its native A:B volume ratio. Existing Source A
 ## Source link state in Scenes
 
 Scene Builder includes **Source Volume Link / Unlink** and Capture Current State records link state when Sources are included. Scene steps deliberately set **Linked** or **Unlinked** rather than toggling, so repeated Scene execution remains idempotent and deterministic.
+
+Selecting **Source Volume Link / Unlink** in Scene Builder exposes:
+
+- **Sources** — one or more PipeWeaver Sources
+- **Link state** — **Linked** or **Unlinked**
+- **Condition** — Smart Scene condition
+- **On failure** — **Stop Scene** or **Continue Scene**
 
 For deterministic restoration, captured Scenes:
 
@@ -183,7 +190,7 @@ The v0.16.0 build was checked for:
 - v0.15.1 Source Volume Link Scene regression
 - Smart Scene wrapper readiness hotfix syntax and package integrity
 - application identity normalization for `process` values with/without a trailing ` (deleted)` marker
-- Source Volume Link / Unlink dropdown overlay syntax, nested injected-script syntax, package linkage, ZIP integrity, and executable plugin entrypoint mode
+- Source Volume Link / Unlink dropdown/editor overlay syntax, nested injected-script syntax, source selector/state control presence, package linkage, ZIP integrity, and executable plugin entrypoint mode
 
 Runtime testing in OpenDeck/PipeWeaver is still required before the release should be promoted from prerelease to stable.
 
@@ -191,4 +198,4 @@ Runtime testing in OpenDeck/PipeWeaver is still required before the release shou
 
 The corrected v0.16.0 prerelease ZIP SHA-256 is:
 
-`b9080191f42a3a976e5ca8a9ed799b3a692ce7adcd26dfa65bca6fb09933face`
+`d45d8fd156b36802785d010dc25b2cfb86e8612c86ab42af98f00767ad9db593`
