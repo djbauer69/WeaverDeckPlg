@@ -1,4 +1,20 @@
-# PipeWeaver Control for OpenDeck — v0.18.0 prerelease
+# PipeWeaver Control for OpenDeck — v0.18.1 prerelease
+
+## v0.18.1: Scene file names
+
+Save Scene File now uses the currently selected Browser-local Preset name for
+both the filename and exported Scene name. It saves the current Scene contents.
+With no valid preset selected, it falls back to the Scene name. Filename
+sanitization and numbered suffixes for existing files remain unchanged.
+
+Verified preset selection and fallback cases; all nine existing automated tests
+pass. This small fix is pending confirmation in OpenDeck.
+
+v0.18.1 ZIP SHA-256:
+`b676d23d7fd83314b6269708690fd90b8e4f335f5bc646c1fc8c7c46a7c778b2`
+
+The v0.18.0 feature and testing notes below remain applicable.
+
 
 Linux OpenDeck plugin controlling **PipeWeaver only**, through its HTTP API at
 `http://127.0.0.1:14565/api/command`. No direct PipeWire, PulseAudio, system service,

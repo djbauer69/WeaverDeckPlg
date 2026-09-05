@@ -2,7 +2,7 @@
   "Name": "PipeWeaver Control",
   "Description": "PipeWeaver application controls, audio engine restart, buffer size, source mute destinations, and Smart Scenes.",
   "Author": "OpenAI",
-  "Version": "0.18.0",
+  "Version": "0.18.1",
   "CodePathLin": "plugin.js",
   "CodePaths": {
     "x86_64-unknown-linux-gnu": "plugin.js",

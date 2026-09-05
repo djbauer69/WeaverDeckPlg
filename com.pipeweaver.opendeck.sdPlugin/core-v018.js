@@ -9,8 +9,8 @@ async function featureButton018(i){
   const op=features018.buttonOperation(i);
   if(!op)return;
   setTitle(i.context,"Working…");
-  try{console.log("[v0.18.0] ACTION START "+features018.describe(op));await features018.execute(op);await refreshStatus();showOk(i.context);console.log("[v0.18.0] ACTION OK "+features018.describe(op))}
-  catch(e){console.error("[v0.18.0] ACTION FAILED "+features018.describe(op)+": "+e.message);showAlert(i.context);updateInstance(i)}
+  try{console.log("[v0.18.1] ACTION START "+features018.describe(op));await features018.execute(op);await refreshStatus();showOk(i.context);console.log("[v0.18.1] ACTION OK "+features018.describe(op))}
+  catch(e){console.error("[v0.18.1] ACTION FAILED "+features018.describe(op)+": "+e.message);showAlert(i.context);updateInstance(i)}
 }
 function updateInstance(i){
   const op018=features018.buttonOperation(i);
