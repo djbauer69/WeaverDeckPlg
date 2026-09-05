@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-/* PipeWeaver Control for OpenDeck v0.9.2
+/* PipeWeaver Control for OpenDeck v0.11.1
  * IMPORTANT: this plugin talks only to PipeWeaver's HTTP API.
  * It does not call PipeWire, PulseAudio, WirePlumber, pactl, wpctl, etc.
  */
@@ -31,7 +31,7 @@ let pluginUUID=process.argv[process.argv.indexOf("-pluginUUID")+1];
 if(!port||!pluginUUID){console.error("PipeWeaver Control: missing -port or -pluginUUID");process.exit(2);}
 let ws=null,lastStatus=null,statusRefreshInFlight=false,statusTimer=null,reconnectTimer=null,reconnectDelay=RECONNECT_INITIAL_MS,socketGeneration=0;
 const instances=new Map();
-const DIAG_PREFIX="[v0.11.0]";
+const DIAG_PREFIX="[v0.11.1]";
 function diag(label, value){
   try {
     const text = typeof value === "string" ? value : JSON.stringify(value);
@@ -121,7 +121,7 @@ function sceneConfiguredDevices(status,type){
   const profile=status?.audio?.profile?.devices||{};
   const container=deviceCollection(status,type,profile);
   if(!container)return [];
-  const raw=[container.virtual_devices,container.virtualDevices,container.VirtualDevices].flatMap(asList);
+  const raw=configuredGroups(container);
   const out=[],seen=new Set();
   for(const d of raw){const n=deviceName(d),id=deviceId(d);if(n&&id&&!seen.has(id)){seen.add(id);out.push(d)}}
   return out;

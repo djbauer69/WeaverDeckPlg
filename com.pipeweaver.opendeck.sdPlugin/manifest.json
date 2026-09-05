@@ -2,7 +2,7 @@
   "Name": "PipeWeaver Control",
   "Description": "Control PipeWeaver from OpenDeck with live state feedback, structured scenes, Capture Current State, and application scene controls.",
   "Author": "OpenAI",
-  "Version": "0.11.0",
+  "Version": "0.11.1",
   "CodePathLin": "plugin.js",
   "CodePaths": {
     "x86_64-unknown-linux-gnu": "plugin.js",
