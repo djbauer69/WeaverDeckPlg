@@ -1,6 +1,6 @@
 "use strict";
 
-/* WeaverDeck v0.14.2 Scene file I/O
+/* WeaverDeck v0.15.0 Scene file I/O
  *
  * OpenDeck's embedded Property Inspector WebView does not reliably honor
  * browser-style <a download> requests. This helper keeps Scene serialization
@@ -101,7 +101,7 @@ function installSceneFileIO() {
 
       try {
         const result = saveUnique(downloadsDir(), payload.fileName, payload.scene);
-        console.error(`[v0.14.2] Scene file saved: ${result.filePath}`);
+        console.error(`[v0.15.0] Scene file saved: ${result.filePath}`);
         sendResult(socket, message.context, {
           command: "sceneFileSaved",
           ok: true,
@@ -110,7 +110,7 @@ function installSceneFileIO() {
         });
       } catch (error) {
         const detail = error?.message || String(error);
-        console.error(`[v0.14.2] Scene file save failed: ${detail}`);
+        console.error(`[v0.15.0] Scene file save failed: ${detail}`);
         sendResult(socket, message.context, {
           command: "sceneFileSaved",
           ok: false,
