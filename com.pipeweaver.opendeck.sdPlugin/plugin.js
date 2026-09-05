@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 "use strict";
 
-/* PipeWeaver Control for OpenDeck v0.14.2
- * v0.14.2 keeps the proven v0.11.2 control engine intact while layering
- * application artwork and native Scene-file saving around its OpenDeck WebSocket.
+/* PipeWeaver Control for OpenDeck v0.15.0
+ * v0.15.0 keeps the proven v0.11.2 control engine intact while layering
+ * application artwork, Scene visuals, native Scene-file saving, and the
+ * persistent Scene Library around its OpenDeck WebSocket.
  * Audio control still goes exclusively through PipeWeaver's HTTP API.
  */
 
 const {installApplicationVisuals}=require("./app-visuals");
 const {installSceneFileIO}=require("./scene-file-io");
+const {installSceneLibrary}=require("./scene-library");
+const {installSceneVisuals}=require("./scene-visuals");
 
 const NativeWebSocket=globalThis.WebSocket;
 if(!NativeWebSocket){
@@ -20,11 +23,13 @@ if(!NativeWebSocket){
 // engine lives in plugin-core.js unchanged.
 for(const method of ["log","error","warn"]){
   const original=console[method].bind(console);
-  console[method]=(...args)=>original(...args.map(v=>typeof v==="string"?v.replace(/\[v0\.11\.2\]/g,"[v0.14.2]"):v));
+  console[method]=(...args)=>original(...args.map(v=>typeof v==="string"?v.replace(/\[v0\.11\.2\]/g,"[v0.15.0]"):v));
 }
 
 const visualLayer=installApplicationVisuals();
 const sceneFileLayer=installSceneFileIO();
+const sceneLibraryLayer=installSceneLibrary();
+const sceneVisualLayer=installSceneVisuals();
 
 class WeaverVisualWebSocket {
   constructor(...args){
@@ -35,8 +40,10 @@ class WeaverVisualWebSocket {
       if(this._onopen)this._onopen(ev);
     };
     this._ws.onmessage=(ev)=>{
-      try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.14.2] application visuals inbound error:",e?.stack||e)}
-      try{if(sceneFileLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.14.2] Scene file I/O inbound error:",e?.stack||e)}
+      try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.15.0] application visuals inbound error:",e?.stack||e)}
+      try{sceneVisualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.15.0] Scene visuals inbound error:",e?.stack||e)}
+      try{if(sceneFileLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.15.0] Scene file I/O inbound error:",e?.stack||e)}
+      try{if(sceneLibraryLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.15.0] Scene Library inbound error:",e?.stack||e)}
       if(this._onmessage)return this._onmessage(ev);
     };
     this._ws.onerror=(ev)=>{if(this._onerror)this._onerror(ev)};
@@ -65,6 +72,7 @@ class WeaverVisualWebSocket {
         data=JSON.stringify(m);
       }
     }catch(_){}
+    try{data=sceneVisualLayer.handleOutgoing(this,data)}catch(e){console.error("[v0.15.0] Scene visuals outbound error:",e?.stack||e)}
     return this._ws.send(data)
   }
   close(...args){return this._ws.close(...args)}
@@ -81,5 +89,5 @@ for(const key of ["CONNECTING","OPEN","CLOSING","CLOSED"]){
 }
 
 globalThis.WebSocket=WeaverVisualWebSocket;
-console.error("[v0.14.2] application artwork layer enabled");
+console.error("[v0.15.0] artwork, Scene visuals, native Scene file I/O, and Scene Library layers enabled");
 require("./plugin-core");
