@@ -1,4 +1,57 @@
-# PipeWeaver Control for OpenDeck — v0.18.1 prerelease
+# PipeWeaver Control for OpenDeck — v0.19.0 prerelease
+
+## v0.19.0: Startup Scene
+
+A new **Scene Startup** action configures one local Scene file to execute after
+OpenDeck connects and PipeWeaver responds successfully. It is disabled by default.
+
+1. Add Scene Startup to a deck key and open its settings.
+2. Enter the absolute path of a saved .weaverdeck-scene.json file, or use
+   `~/Downloads/Your-Scene.weaverdeck-scene.json`.
+3. Use **Check file** to validate it against PipeWeaver without applying anything.
+4. Enable **Run saved Scene at startup**, choose a settle delay (default 2 seconds),
+   and press **Save startup settings**.
+5. Restart OpenDeck to test automatic execution. Press the deck key to run the saved
+   file manually, including when automatic startup is disabled.
+
+The setting is shared across all Scene Startup keys and stored natively under
+`$XDG_DATA_HOME/weaverdeck/startup-scene-v1.json`, defaulting to
+`~/.local/share/weaverdeck/startup-scene-v1.json`. It is independent of the active
+deck page and survives plugin-folder replacement. The local file is read at each
+launch; moving/deleting it causes a logged failure. No file contents are cached
+as a substitute.
+
+The controller waits for two successful PipeWeaver status responses, applies the
+settle delay (0–60 seconds), then checks readiness again before running the Scene.
+If PipeWeaver starts later, it keeps waiting. Saving disabled cancels a pending
+run; saving enabled applies to the next launch, rather than executing immediately.
+
+Execution occurs once per plugin process launch, which normally accompanies
+OpenDeck startup. Reloading/restarting the plugin can also trigger it. Ordinary
+OpenDeck socket reconnects or PipeWeaver restarts within that process do not replay
+the startup Scene. A failed/partly executed Scene is not automatically retried.
+Manual execution cancels a pending automatic run to avoid duplicate application.
+
+Uses the existing Scene preflight validation, conditions and Stop/Continue failure
+policies. Check file never applies audio changes. Engine readiness does not imply
+that every application has an active stream: absent application operations retain
+their normal skip behaviour. Engine-restart steps can require manually resuming
+playback, as observed with Brave. Startup does not control application playback.
+
+Diagnostics use `[Startup Scene]` plus the normal `[Scene]` execution records.
+
+Validation: all 18 automated tests pass, including delayed readiness, readiness
+loss during settling, reconnect suppression, disabling, missing/invalid files,
+current-file reads, manual runs, and accurate runner success/failure reporting.
+All JS/inline scripts compile. The ZIP is verified byte-for-byte against package
+source with executable modes preserved. Live OpenDeck startup testing is pending.
+
+v0.19.0 ZIP SHA-256:
+`61ebdc0c6efcc748e92a1e1e3a9f72a5f304073628e3e7cd7d3f036812e9df70`
+
+Run checks with `node --test tests/*.test.js`; build with
+`python3 tools/build-release.py`.
+
 
 ## v0.18.1: Scene file names
 
