@@ -1,5 +1,23 @@
 # PipeWeaver Control for OpenDeck — WeaverDeck v0.22.0 prerelease
 
+## Saved Presets persistence (review build)
+
+The former Browser-local Presets section is now **Saved Presets**. Presets are
+stored in `$XDG_DATA_HOME/weaverdeck/scene-presets-v1.json` (normally
+`~/.local/share/weaverdeck/scene-presets-v1.json`), outside the plugin installation
+and embedded browser. They are shared by Scene inspectors and survive restarts.
+The existing Scene Library remains a separate collection.
+
+Presets still visible in browser storage are imported automatically without
+replacing newer disk copies. Browser copies are cleared only after the plugin
+confirms the import was saved. Deleted entries are not re-imported from stale
+browser caches. Presets already missing from browser storage cannot be recovered
+automatically; save the current Scene or load an exported Scene file and save it
+as a preset again. Success is reported only after the disk write completes.
+
+This test build includes the core consolidation below. After installing, save a
+preset, restart OpenDeck, and check that it appears and loads in Saved Presets.
+
 ## Core consolidation (review build)
 
 The complete v0.22.0 runtime now lives in `plugin-core.js`, which `plugin.js`
@@ -8,8 +26,8 @@ historical `core-v*.js` patch files have been removed; Git retains their history
 The existing feature modules remain separate.
 
 The consolidated core is byte-for-byte identical to the final runtime produced
-by the old patch chain. Action identifiers, saved settings, Scene formats and
-UI files are unchanged. Tests now load the consolidated core directly, and a startup test exercises the real entry point with simulated OpenDeck and PipeWeaver connections. Historical
+by the old patch chain. The core consolidation itself leaves action identifiers, saved settings, Scene formats and
+UI files unchanged. Tests now load the consolidated core directly, and a startup test exercises the real entry point with simulated OpenDeck and PipeWeaver connections. Historical
 internal names and diagnostic labels are retained to keep this refactor mechanical.
 This review build does not change the published v0.22.0 release.
 
@@ -33,7 +51,7 @@ lives inside the scrollable action settings, the fixed header shows the selected
 action name, and compact rows let dropdown-heavy actions place controls side by
 side when the inspector is wide enough. Numeric inputs share a dedicated row below the dropdown controls, wrapping only when the inspector is too narrow. Fade inspectors use the same dark background as other actions. The inspector content uses a shrinkable, scrollable viewport so controls remain reachable when opening from an empty key or a small inspector pane. Nested Scene frames resize to their content, growing and shrinking as steps change; the main inspector handles page scrolling without fixed-height blank space. Dropdowns use a dark grey background with white text, and header help text and control descriptions are hidden to save space.
 
-**47 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
+**55 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
 fade validation/execution, Smart Scene fade editor round trips, common Button Text
 injection, live volume badges, startup Scenes, source mute destinations,
 application identity matching, packaging compilation, and existing regressions.
