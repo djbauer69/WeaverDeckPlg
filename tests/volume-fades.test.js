@@ -32,7 +32,7 @@ test('disconnect or direct change while initial status is pending prevents fade 
 });
 function core(){
  let api,time=0;const native=createRequire(root+'/plugin-core.js');
- const c=vm.createContext({require:n=>n==='./volume-fades'?{validate,durationMs,create:a=>{api=a;return create(a,{now:()=>time,sleep:async ms=>{time+=ms}})}}:native(n),process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},console:{log(){},error(){},warn(){}},setTimeout,clearTimeout,Buffer,URL});let s=require(root+'/core-v022').build();s=s.slice(0,s.indexOf('diag("startup",'));vm.runInContext(s,c);return {c,get api(){return api}};
+ const c=vm.createContext({require:n=>n==='./volume-fades'?{validate,durationMs,create:a=>{api=a;return create(a,{now:()=>time,sleep:async ms=>{time+=ms}})}}:native(n),process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},console:{log(){},error(){},warn(){}},setTimeout,clearTimeout,Buffer,URL});let s=fs.readFileSync(root+"/plugin-core.js","utf8");s=s.slice(0,s.indexOf('diag("startup",'));vm.runInContext(s,c);return {c,get api(){return api}};
 }
 test('composed core validates fade steps, awaits their completion and uses common resource identity',async()=>{
  const f=core();f.c.fixture={audio:{profile:{devices:{targets:{virtual_devices:[{id:'dst',name:'Desktop',volume:20,muted:false}]},sources:{virtual_devices:[{id:'src',name:'Browser',volumes:{volume:{A:30,B:60}}}]}}},devices:{Source:[{id:'mic',name:'Mic',volume:10}],Target:[]}}};

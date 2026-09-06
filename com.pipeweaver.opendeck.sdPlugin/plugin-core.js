@@ -23,13 +23,15 @@ const ACTIONS = {
   sourceVolUp:"com.pipeweaver.opendeck.sourcevolup", sourceVolDown:"com.pipeweaver.opendeck.sourcevoldown", sourceMute:"com.pipeweaver.opendeck.sourcemute", sourceSetVol:"com.pipeweaver.opendeck.sourcesetvolume",
   sourceAVolUp:"com.pipeweaver.opendeck.sourceavolup", sourceAVolDown:"com.pipeweaver.opendeck.sourceavoldown", sourceBVolUp:"com.pipeweaver.opendeck.sourcebvolup", sourceBVolDown:"com.pipeweaver.opendeck.sourcebvoldown",
   sourceMuteA:"com.pipeweaver.opendeck.sourcemutea", sourceMuteB:"com.pipeweaver.opendeck.sourcemuteb",
+  sourceLinkToggle:"com.pipeweaver.opendeck.sourcelinktoggle",
   targetMixA:"com.pipeweaver.opendeck.targetmixa", targetMixB:"com.pipeweaver.opendeck.targetmixb", targetMixToggle:"com.pipeweaver.opendeck.targetmixtoggle",
   default:"com.pipeweaver.opendeck.default", status:"com.pipeweaver.opendeck.status", scene:"com.pipeweaver.opendeck.scene"
 };
 let port=Number(process.argv[process.argv.indexOf("-port")+1]);
 let pluginUUID=process.argv[process.argv.indexOf("-pluginUUID")+1];
 if(!port||!pluginUUID){console.error("PipeWeaver Control: missing -port or -pluginUUID");process.exit(2);}
-let ws=null,lastStatus=null,statusRefreshInFlight=false,statusTimer=null,reconnectTimer=null,reconnectDelay=RECONNECT_INITIAL_MS,socketGeneration=0;
+let ws=null,lastStatus=null,lastStatusAt=0,statusRefreshInFlight=false,statusTimer=null,reconnectTimer=null,reconnectDelay=RECONNECT_INITIAL_MS,socketGeneration=0;
+const APPLICATION_CACHE_MAX_AGE_MS=3500;
 const instances=new Map();
 const DIAG_PREFIX="[v0.11.2]";
 function diag(label, value){
@@ -48,12 +50,13 @@ function diagKeys(value, depth=0){
   for(const k of Object.keys(value)) out[k]=diagKeys(value[k], depth+1);
   return out;
 }
-function send(m){if(ws&&ws.readyState===1){try{ws.send(JSON.stringify(m));}catch(e){console.error("OpenDeck send failed:",e.message);}}}
+function send(m){if(m.context==="weaverdeck-startup")return;if(ws&&ws.readyState===1){try{ws.send(JSON.stringify(m));}catch(e){console.error("OpenDeck send failed:",e.message);}}}
 function setTitle(c,t){send({event:"setTitle",context:c,payload:{title:String(t)}})}
 function setState(c,s){send({event:"setState",context:c,payload:{state:Number(s)}})}
 function showAlert(c){send({event:"showAlert",context:c})}
 function showOk(c){send({event:"showOk",context:c})}
-function pipeCommand(data){return new Promise((resolve,reject)=>{let u;try{u=new URL(PIPEWEAVER_URL)}catch(e){reject(e);return}const body=JSON.stringify(data);const req=http.request({hostname:u.hostname,port:u.port||80,path:u.pathname+u.search,method:"POST",headers:{"Content-Type":"application/json","Content-Length":Buffer.byteLength(body),Accept:"application/json"},timeout:PIPEWEAVER_TIMEOUT_MS},res=>{let text="";res.setEncoding("utf8");res.on("data",c=>text+=c);res.on("end",()=>{if(res.statusCode<200||res.statusCode>=300){reject(new Error(`PipeWeaver HTTP ${res.statusCode}: ${text.slice(0,300)}`));return}try{resolve(JSON.parse(text))}catch(e){reject(new Error("PipeWeaver returned invalid JSON"))}})});req.on("timeout",()=>{req.destroy(new Error("PipeWeaver request timed out"))});req.on("error",e=>{reject(e)});req.write(body);req.end()})}
+function pipeCommand(data){const key=volumeResource021(data,lastStatus);if(key)return Promise.resolve(fades021.cancel(key)).then(()=>pipeCommand021(data));return pipeCommand021(data)}
+function pipeCommand021(data){return new Promise((resolve,reject)=>{let u;try{u=new URL(PIPEWEAVER_URL)}catch(e){reject(e);return}const body=JSON.stringify(data);const req=http.request({hostname:u.hostname,port:u.port||80,path:u.pathname+u.search,method:"POST",headers:{"Content-Type":"application/json","Content-Length":Buffer.byteLength(body),Accept:"application/json"},timeout:PIPEWEAVER_TIMEOUT_MS},res=>{let text="";res.setEncoding("utf8");res.on("data",c=>text+=c);res.on("end",()=>{if(res.statusCode<200||res.statusCode>=300){reject(new Error(`PipeWeaver HTTP ${res.statusCode}: ${text.slice(0,300)}`));return}try{resolve(JSON.parse(text))}catch(e){reject(new Error("PipeWeaver returned invalid JSON"))}})});req.on("timeout",()=>{req.destroy(new Error("PipeWeaver request timed out"))});req.on("error",e=>{reject(e)});req.write(body);req.end()})}
 async function getStatus(){return pipeCommand("GetStatus")}
 function unwrapStatus(r){return r?.Status||r?.data?.Status||null}
 function isOk(r){return r==="Ok"||!!(r&&Object.prototype.hasOwnProperty.call(r,"Ok"))||r?.data==="Ok"||r?.Pipewire==="Ok"}
@@ -111,11 +114,18 @@ function applications(s){
 function names(status,type){return namedDevices(status,type).map(deviceName).filter(Boolean).sort((a,b)=>a.localeCompare(b))}
 function appsForPI(s){return applications(s).map(a=>({name:a.name,process:a.process,deviceType:a.deviceType,nodeId:a.nodeId,volume:a.volume,muted:a.muted,title:a.title,targetId:a.targetId}))}
 function sourceVolume(src,mix){const v=src?.volumes?.volume?.[mix];return Number.isFinite(v)?Number(v):null}
+function sourceLinked(src){if(!src||!src.volumes||!("volumes_linked" in src.volumes))return null;return src.volumes.volumes_linked!==null&&src.volumes.volumes_linked!==undefined}
 function sourceMuted(src,mix){const st=src?.mute_states?.mute_state; if(Array.isArray(st)) return st.includes("Target"+mix); if(typeof st==="string") return st.includes("Target"+mix); return false}
 function sourceMixValue(src,mix){return sourceVolume(src,mix)}
 function findNamedSourceByName(s,n){return findNamedSource(s,n)}
 function routeEnabled(s,sourceName,targetName){const src=findNamedSource(s,sourceName),tgt=findNamedTarget(s,targetName),sid=deviceId(src),tid=deviceId(tgt);if(!sid||!tid)return null;const r=s?.audio?.profile?.routes?.[sid];return Array.isArray(r)?r.includes(tid):null}
-function appForSettings(s,st){return applications(s).find(x=>x.name===st.name&&(!st.process||x.process===st.process)&&(!st.deviceType||String(x.deviceType).toLowerCase()===String(st.deviceType).toLowerCase()))||null}
+function appIdentityNameKey(v){return String(v??"").trim().toLowerCase()}
+function appIdentityProcessKey(v){let s=String(v??"").trim().replace(/\s+\(deleted\)$/i,"").replace(/\\/g,"/");if(s.includes("/"))s=s.split("/").pop();return s.toLowerCase()}
+function appIdentityTypeKey(v){return String(v??"").trim().toLowerCase()}
+function appIdentityScore(a,d){if(!a||!d)return -1;const dt=appIdentityTypeKey(d.deviceType),at=appIdentityTypeKey(a.deviceType);if(dt&&at&&dt!==at)return -1;const an=appIdentityNameKey(a.name),dn=appIdentityNameKey(d.name),ap=appIdentityProcessKey(a.process),dp=appIdentityProcessKey(d.process),nameEq=!!(an&&dn&&an===dn),procEq=!!(ap&&dp&&ap===dp);if(nameEq&&procEq)return 100;if(procEq)return 80;if(nameEq)return 60;return -1}
+function appIdentityKey(a){return `${appIdentityTypeKey(a?.deviceType)}|${appIdentityProcessKey(a?.process)}|${appIdentityNameKey(a?.name)}`}
+function appResolveMany(list,d){const rows=(Array.isArray(list)?list:[]).map(a=>({a,score:appIdentityScore(a,d)})).filter(x=>x.score>=0);if(!rows.length)return [];const best=Math.max(...rows.map(x=>x.score)),top=rows.filter(x=>x.score===best),groups=new Map();for(const row of top){const k=appIdentityKey(row.a);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(row.a)}return groups.size===1?[...groups.values()][0]:[]}
+function appForSettings(s,st){return appResolveMany(applications(s),st)[0]||null}
 function appDestination(s,a,name){if(!a||!name)return null;return String(a.deviceType).toLowerCase()==="target"?findNamedTarget(s,name):findNamedSource(s,name)}
 function sceneConfiguredDevices(status,type){
   const profile=status?.audio?.profile?.devices||{};
@@ -128,7 +138,7 @@ function sceneConfiguredDevices(status,type){
 }
 function sceneData(s){
   const sourceDevices=sceneConfiguredDevices(s,"source"),targetDevices=sceneConfiguredDevices(s,"target");
-  const sources=sourceDevices.map(d=>({name:deviceName(d),id:deviceId(d),volumeA:sourceVolume(d,"A"),volumeB:sourceVolume(d,"B"),mutedA:sourceMuted(d,"A"),mutedB:sourceMuted(d,"B")})).filter(x=>x.name&&x.id);
+  const sources=sourceDevices.map(d=>({name:deviceName(d),id:deviceId(d),volumeA:sourceVolume(d,"A"),volumeB:sourceVolume(d,"B"),mutedA:sourceMuted(d,"A"),mutedB:sourceMuted(d,"B"),linked:sourceLinked(d)})).filter(x=>x.name&&x.id);
   const targets=targetDevices.map(d=>({name:deviceName(d),id:deviceId(d),volume:targetVolume(d),muted:targetMuted(d),mix:targetMix(d)})).filter(x=>x.name&&x.id);
   const routeMap=s?.audio?.profile?.routes||{};
   const routes=[];
@@ -148,11 +158,106 @@ function sceneData(s){
   return {sources,targets,routes,applications,physicalInputs,physicalOutputs,defaults};
 }
 
+const features018=require("./features-v018").create({pipeCommand,unwrapStatus,isOk,configured:sceneConfiguredDevices,deviceId,deviceName});
+async function featureButton018(i){
+  const op=features018.buttonOperation(i);
+  if(!op)return;
+  setTitle(i.context,"Working…");
+  try{console.log("[v0.18.1] ACTION START "+features018.describe(op));await features018.execute(op);await refreshStatus();showOk(i.context);console.log("[v0.18.1] ACTION OK "+features018.describe(op))}
+  catch(e){console.error("[v0.18.1] ACTION FAILED "+features018.describe(op)+": "+e.message);showAlert(i.context);updateInstance(i)}
+}
+const STARTUP_ACTION="com.pipeweaver.opendeck.scenestartup";
+const startup019=require("./startup-scene").create({status:refreshStatus,runScene,validate:validateSceneOperations,log:m=>console.log("[Startup Scene] "+m),changed:()=>updateAll()});
+async function startupMessage019(m){
+ const p=m.payload||{};
+ try{
+  let result;
+  if(p.command==="getStartupScene")result=startup019.snapshot();
+  else if(p.command==="saveStartupScene")result=startup019.save(p.settings||{});
+  else if(p.command==="checkStartupScene")result=await startup019.check(p.filePath);
+  else return false;
+  send({event:"sendToPropertyInspector",context:m.context,payload:{command:"startupSceneResult",request:p.command,ok:true,result}});
+ }catch(e){send({event:"sendToPropertyInspector",context:m.context,payload:{command:"startupSceneResult",request:p.command,ok:false,error:e.message}})}
+ return true;
+}
+const volumeArt0191=require('./volume-visuals').artwork;
+const dialKind020=require('./dial-controls').kind;
+function describeDial020(i,status){
+ const k=dialKind020(i),st=i.settings||{};let d,name,volume=null,muted=null,volumeCommand,muteCommand;
+ if(k==='application'){
+  d=appForSettings(status,st);name=d?.name||st.name||'Application';volume=d?.volume;muted=d?.muted;
+  if(d){volumeCommand=v=>({SetApplicationVolume:[d.nodeId,v]});muteCommand=m=>({SetApplicationMute:[d.nodeId,m]})}
+ }else if(k==='source'){
+  const mix=st.mix==='B'?'B':'A';d=findNamedSource(status,st.sourceName);name=(st.sourceName||'Source')+' '+mix;volume=sourceVolume(d,mix);muted=d?sourceMuted(d,mix):null;
+  if(deviceId(d)){volumeCommand=v=>({SetSourceVolume:[deviceId(d),mix,v]});muteCommand=m=>m?{AddSourceMuteTarget:[deviceId(d),'Target'+mix]}:{DelSourceMuteTarget:[deviceId(d),'Target'+mix]}}
+ }else if(k==='target'){
+  d=findNamedTarget(status,st.targetName);name=st.targetName||'Target';volume=targetVolume(d);muted=targetMuted(d);
+  if(d){volumeCommand=v=>({SetVolumeByName:[st.targetName,null,v]});muteCommand=m=>({SetTargetMuteStatesByName:[st.targetName,m?'Muted':'Unmuted']})}
+ }else{
+  d=physicalDevices(status,k).find(x=>deviceId(x)===st.deviceId);name=deviceName(d)||st.deviceName||('Physical '+k);volume=targetVolume(d);muted=targetMuted(d);
+  if(d){volumeCommand=v=>({SetPhysicalDeviceVolume:[deviceId(d),v]});muteCommand=m=>({SetPhysicalDeviceMute:[deviceId(d),m]})}
+ }
+ return {name,volume,muted,volumeCommand,muteCommand};
+}
+const dials020=require('./dial-controls').create({describe:describeDial020,refresh:refreshStatus,command:pipeCommand,ok:isOk,send,current:i=>instances.get(i.context)===i.original&&JSON.stringify(i.original.settings)===JSON.stringify(i.settings),log:m=>console.log('[Dial] '+m)});
+const fadeTypes021={appvolumefade:'application',sourcevolumefade:'source',targetvolumefade:'target',physinvolumefade:'input',physvolumefade:'output'};
+function fadeButton021(i){const kind=fadeTypes021[i.action.split('.').pop()];return kind?{...i.settings,type:'volumeFade',kind}:null}
+function volumeResource021(data,status){
+ const p=data?.Pipewire;if(!p)return null;
+ if(p.SetApplicationVolume)return 'app:'+p.SetApplicationVolume[0];
+ if(p.SetSourceVolume)return 'device:'+p.SetSourceVolume[0];
+ if(p.SetPhysicalDeviceVolume)return 'device:'+p.SetPhysicalDeviceVolume[0];
+ if(p.SetVolumeByName){const id=deviceId(findNamedTarget(status,p.SetVolumeByName[0]));return id?'device:'+id:null}
+ return null;
+}
+function resolveFade021(op,status){
+ const prefix={application:'app',source:'source',target:'target',input:'physin',output:'phys'}[op.kind];
+ const physical=['input','output'].includes(op.kind)?findScenePhysical(status,op.kind,op.device):null;
+ const settings={...op,...op.application,deviceId:deviceId(physical),deviceName:deviceName(physical)};
+ const d=describeDial020({action:'com.pipeweaver.opendeck.'+prefix+'volumedial',settings},status);
+ return {...d,key:d.volumeCommand?volumeResource021({Pipewire:d.volumeCommand(0)},status):null};
+}
+const fadeDurationMs022=require('./volume-fades').durationMs;
+function fadeDurationLabel022(op){const ms=fadeDurationMs022(op);return Number.isFinite(ms)?Math.round(ms)+'ms':'?ms'}
+const fades021=require('./volume-fades').create({resolve:resolveFade021,refresh:refreshStatus,command:pipeCommand021,ok:isOk,log:m=>console.log('[Fade] '+m)});
+async function runFadeButton021(i,op){
+ const run=Symbol();i.fadeRun=run;setTitle(i.context,'Fading…');
+ try{await fades021.run(op);if(i.fadeRun===run)showOk(i.context)}
+ catch(e){console.error('[Fade] Button: '+e.message);if(i.fadeRun===run)showAlert(i.context)}
+ finally{if(i.fadeRun===run){delete i.fadeRun;updateInstance(i)}}
+}
 function updateInstance(i){
+ const fade=fadeButton021(i);
+ if(fade){const d=resolveFade021(fade,lastStatus);setTitle(i.context,(d.name||'Fade')+'\n'+(i.fadeRun?'Fading…':String(fade.volume??0)+'% / '+fadeDurationLabel022(fade)));setState(i.context,Number.isFinite(d.volume)?0:1);const image=volumeArt0191(d.volume);if(i.fadeImage!==image){i.fadeImage=image;send({event:'setImage',context:i.context,payload:{image}})}return;}
+ if(dials020.render(i,lastStatus))return;
+  updateInstance0191(i);
+  const a=i.action.split('.').pop(),st=i.settings||{};
+  let volume=null,owned=true;
+  if(['sourcevoldown','sourcevolup','sourcesetvolume','sourceavoldown','sourceavolup','sourcebvoldown','sourcebvolup'].includes(a)){
+    const mix=a.startsWith('sourcea')?'A':a.startsWith('sourceb')?'B':st.mix||'A';
+    volume=sourceVolume(findNamedSource(lastStatus,st.sourceName),mix);
+  }else if(['volumedown','volumeup','setvolume'].includes(a)){
+    volume=targetVolume(findNamedTarget(lastStatus,st.targetName));
+  }else if(['physvoldown','physvolup','physinvoldown','physinvolup'].includes(a)){
+    volume=targetVolume(physicalDevices(lastStatus,a.startsWith('physin')?'input':'output').find(d=>deviceId(d)===st.deviceId));
+  }else owned=false;
+  if(owned){
+    const image=volumeArt0191(volume,a.endsWith('down'));
+    if(i.volumeImage0191!==image){i.volumeImage0191=image;send({event:'setImage',context:i.context,payload:{image}})}
+  }
+}
+function updateInstance0191(i){
+ if(i.action===STARTUP_ACTION){const s=startup019.snapshot();setState(i.context,s.phase==="Failed"?1:0);setTitle(i.context,"Startup Scene\n"+s.phase);return}
+  const op018=features018.buttonOperation(i);
+  if(op018){const v=features018.visual(op018,lastStatus);setState(i.context,v.state);setTitle(i.context,v.title);return}
   if(!lastStatus){setState(i.context,1);setTitle(i.context,"PW\nOFF");return}
   const a=i.action,st=i.settings||{};
   const sourceActions=[ACTIONS.sourceVolUp,ACTIONS.sourceVolDown,ACTIONS.sourceSetVol,ACTIONS.sourceAVolUp,ACTIONS.sourceAVolDown,ACTIONS.sourceBVolUp,ACTIONS.sourceBVolDown,ACTIONS.sourceMute,ACTIONS.sourceMuteA,ACTIONS.sourceMuteB];
-  if(sourceActions.includes(a)){
+  if(a===ACTIONS.sourceLinkToggle){
+    const n=st.sourceName,d=findNamedSource(lastStatus,n),linked=sourceLinked(d);
+    setState(i.context,linked===true?1:0);
+    setTitle(i.context,`${n||"Source"}\n${linked===null?"?":linked?"LINKED":"UNLINKED"}`);
+  } else if(sourceActions.includes(a)){
     const forcedMix=[ACTIONS.sourceAVolUp,ACTIONS.sourceAVolDown,ACTIONS.sourceMuteA].includes(a)?"A":[ACTIONS.sourceBVolUp,ACTIONS.sourceBVolDown,ACTIONS.sourceMuteB].includes(a)?"B":null;
     const mix=forcedMix||st.mix||"A",n=st.sourceName,d=findNamedSource(lastStatus,n),v=sourceVolume(d,mix),m=sourceMuted(d,mix),isMute=[ACTIONS.sourceMute,ACTIONS.sourceMuteA,ACTIONS.sourceMuteB].includes(a);
     setState(i.context,isMute?(d?(m?1:0):1):(v==null?1:0));
@@ -177,10 +282,13 @@ function updateInstance(i){
   else if([ACTIONS.route,ACTIONS.routeOn,ACTIONS.routeOff].includes(a)){const on=routeEnabled(lastStatus,st.sourceName,st.targetName);setState(i.context,on===null?1:(on?1:0));setTitle(i.context,`${st.sourceName||"SRC"}\n${on===null?"?":on?"→ ON":"→ OFF"}`)}
 }
 function updateAll(){for(const i of instances.values())updateInstance(i)}
-async function refreshStatus(){if(statusRefreshInFlight){return lastStatus}statusRefreshInFlight=true;try{const r=await getStatus();const s=unwrapStatus(r);if(!s)throw new Error("PipeWeaver status response not recognised");lastStatus=s;updateAll();return s}catch(e){console.error("PipeWeaver status refresh failed:",e?.stack||e?.message||e);diag("refreshStatus failure",e?.stack||e?.message||String(e));if(lastStatus!==null){lastStatus=null;updateAll()}return null}finally{statusRefreshInFlight=false;}}
+let statusPromise018=null;
+function refreshStatus(){if(statusPromise018)return statusPromise018;statusPromise018=refreshStatus018().finally(()=>{statusPromise018=null});return statusPromise018}
+async function refreshStatus018(){statusRefreshInFlight=true;try{const r=await getStatus();const s=unwrapStatus(r);if(!s)throw new Error("PipeWeaver status response not recognised");lastStatus=s;lastStatusAt=Date.now();updateAll();return s}catch(e){console.error("PipeWeaver status refresh failed:",e?.stack||e?.message||e);diag("refreshStatus failure",e?.stack||e?.message||String(e));if(lastStatus!==null){lastStatus=null;updateAll()}return null}finally{statusRefreshInFlight=false;}}
 function scheduleStatusRefresh(){if(statusTimer)clearTimeout(statusTimer);statusTimer=setTimeout(async()=>{await refreshStatus();scheduleStatusRefresh()},STATUS_INTERVAL_MS)}
 async function sourceVolumeStep(i,delta){const s=await refreshStatus(),n=i.settings.sourceName,mix=i.settings.mix||"A",cur=sourceVolume(findNamedSourceByName(s,n),mix);if(cur==null){showAlert(i.context);return}const raw=Number(i.settings.step),step=Number.isFinite(raw)&&raw>0?Math.round(raw):DEFAULT_STEP;const next=Math.max(0,Math.min(100,cur+delta*step));try{const r=await pipeCommand({Pipewire:{SetSourceVolume:[findNamedSourceByName(s,n)?.description?.id||findNamedSourceByName(s,n)?.id,mix,next]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Source volume failed:",e.message);showAlert(i.context)}}
 async function toggleSourceMute(i){const s=await refreshStatus(),n=i.settings.sourceName,mix=i.settings.mix||"A",src=findNamedSourceByName(s,n),id=src?.description?.id||src?.id;if(!src||!id){showAlert(i.context);return}const target="Target"+mix,muted=sourceMuted(src,mix);const cmd=muted?{DelSourceMuteTarget:[id,target]}:{AddSourceMuteTarget:[id,target]};try{const r=await pipeCommand({Pipewire:cmd});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Source mute failed:",e.message);showAlert(i.context)}}
+async function toggleSourceVolumeLink(i){const s=await refreshStatus(),n=i.settings.sourceName,src=findNamedSourceByName(s,n),id=deviceId(src),linked=sourceLinked(src);if(!src||!id||linked===null){showAlert(i.context);return}const next=!linked;try{const r=await pipeCommand({Pipewire:{SetSourceVolumeLinked:[id,next]}});if(!isOk(r)&&!JSON.stringify(r).includes("Requested State matches current state"))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Source volume link toggle failed:",e.message);showAlert(i.context)}}
 async function setSourceVolume(i,forcedMix=null){const s=await refreshStatus(),n=i.settings.sourceName,mix=forcedMix||i.settings.mix||"A",src=findNamedSource(s,n),id=deviceId(src),v=Math.max(0,Math.min(100,Math.round(Number(i.settings.volume))));if(!src||!id||!Number.isFinite(v)){showAlert(i.context);return}try{const r=await pipeCommand({Pipewire:{SetSourceVolume:[id,mix,v]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Set source volume failed:",e.message);showAlert(i.context)}}
 async function sourceVolumeStepForced(i,delta,mix){const old=i.settings.mix;i.settings.mix=mix;try{return await sourceVolumeStep(i,delta)}finally{i.settings.mix=old}}
 async function toggleSourceMuteForced(i,mix){const old=i.settings.mix;i.settings.mix=mix;try{return await toggleSourceMute(i)}finally{i.settings.mix=old}}
@@ -188,7 +296,7 @@ async function setTargetMix(i,mix){const s=await refreshStatus(),n=i.settings.ta
 async function toggleTargetMix(i){const s=await refreshStatus(),n=i.settings.targetName,t=findNamedTarget(s,n),id=t?.description?.id||t?.id;if(!t||!id||!t.mix){showAlert(i.context);return}return setTargetMix(i,t.mix==="A"?"B":"A")}
 async function setTargetVolume(i){const s=await refreshStatus();if(!findNamedTarget(s,i.settings.targetName)){showAlert(i.context);return}const v=Math.max(0,Math.min(100,Math.round(Number(i.settings.volume))));if(!Number.isFinite(v)){showAlert(i.context);return}try{const r=await pipeCommand({Pipewire:{SetVolumeByName:[i.settings.targetName,null,v]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Set target volume failed:",e.message);showAlert(i.context)}}
 async function volumeStep(i,delta){const s=await refreshStatus(),cur=targetVolume(findNamedTarget(s,i.settings.targetName));if(cur==null){showAlert(i.context);return}const raw=Number(i.settings.step),step=Number.isFinite(raw)&&raw>0?Math.round(raw):DEFAULT_STEP;const next=Math.max(0,Math.min(100,cur+delta*step));try{const r=await pipeCommand({Pipewire:{SetVolumeByName:[i.settings.targetName,null,next]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Target volume command failed:",e.message);showAlert(i.context)}}
-async function appVolumeStep(i,delta){const s=await refreshStatus(),a=applications(s).find(x=>x.name===i.settings.name&&(!i.settings.process||x.process===i.settings.process));if(!a||a.volume==null){showAlert(i.context);return}const raw=Number(i.settings.step),step=Number.isFinite(raw)&&raw>0?Math.round(raw):DEFAULT_STEP;const next=Math.max(0,Math.min(100,a.volume+delta*step));try{const r=await pipeCommand({Pipewire:{SetApplicationVolume:[a.nodeId,next]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Application volume command failed:",e.message);showAlert(i.context)}}
+async function appVolumeStep(i,delta){const s=await refreshStatus(),a=appForSettings(s,i.settings);if(!a||a.volume==null){showAlert(i.context);return}const raw=Number(i.settings.step),step=Number.isFinite(raw)&&raw>0?Math.round(raw):DEFAULT_STEP;const next=Math.max(0,Math.min(100,a.volume+delta*step));try{const r=await pipeCommand({Pipewire:{SetApplicationVolume:[a.nodeId,next]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Application volume command failed:",e.message);showAlert(i.context)}}
 async function setAppVolume(i){const s=await refreshStatus(),a=appForSettings(s,i.settings),v=Math.max(0,Math.min(100,Math.round(Number(i.settings.volume))));if(!a||!Number.isFinite(v)){showAlert(i.context);return}try{const r=await pipeCommand({Pipewire:{SetApplicationVolume:[a.nodeId,v]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Set application volume failed:",e.message);showAlert(i.context)}}
 async function setAppRoute(i,enabled){const s=await refreshStatus(),a=appForSettings(s,i.settings),t=appDestination(s,a,i.settings.targetName);if(!a||(!t&&enabled)){showAlert(i.context);return}try{const cmd=enabled?{SetTransientApplicationRouteByName:[a.nodeId,i.settings.targetName]}:{ClearTransientApplicationRoute:a.nodeId};const r=await pipeCommand({Pipewire:cmd});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Application route failed:",e.message);showAlert(i.context)}}
 async function toggleAppRoute(i){const s=await refreshStatus(),a=appForSettings(s,i.settings),t=appDestination(s,a,i.settings.targetName);if(!a||!t){showAlert(i.context);return}return setAppRoute(i,!(a.targetId&&a.targetId===deviceId(t)))}
@@ -196,7 +304,7 @@ async function setTargetMute(i,state){try{const r=await pipeCommand({Pipewire:{S
 async function toggleMute(i){const s=await refreshStatus(),m=targetMuted(findNamedTarget(s,i.settings.targetName));if(m==null){showAlert(i.context);return}return setTargetMute(i,m?"Unmuted":"Muted")}
 async function setRoute(i,enabled){try{const r=await pipeCommand({Pipewire:{SetRouteByNames:[i.settings.sourceName,i.settings.targetName,enabled]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Route command failed:",e.message);showAlert(i.context)}}
 async function toggleRoute(i){try{const r=await pipeCommand({Pipewire:{ToggleRouteByNames:[i.settings.sourceName,i.settings.targetName]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Route toggle failed:",e.message);showAlert(i.context)}}
-async function toggleAppMute(i){const s=await refreshStatus(),a=applications(s).find(x=>x.name===i.settings.name&&(!i.settings.process||x.process===i.settings.process));if(!a){showAlert(i.context);return}try{const r=await pipeCommand({Pipewire:{SetApplicationMute:[a.nodeId,!a.muted]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Application mute failed:",e.message);showAlert(i.context)}}
+async function toggleAppMute(i){const s=await refreshStatus(),a=appForSettings(s,i.settings);if(!a){showAlert(i.context);return}try{const r=await pipeCommand({Pipewire:{SetApplicationMute:[a.nodeId,!a.muted]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Application mute failed:",e.message);showAlert(i.context)}}
 async function physicalVolume(i,delta){const s=await refreshStatus(),d=physicalTargets(s).find(x=>deviceId(x)===i.settings.deviceId),cur=targetVolume(d);if(!d||cur==null){showAlert(i.context);return}const raw=Number(i.settings.step),step=Number.isFinite(raw)&&raw>0?Math.round(raw):DEFAULT_STEP,next=Math.max(0,Math.min(100,cur+delta*step));try{const r=await pipeCommand({Pipewire:{SetPhysicalDeviceVolume:[deviceId(d),next]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Physical volume command failed:",e.message);showAlert(i.context)}}
 async function physicalMute(i){const s=await refreshStatus(),d=physicalTargets(s).find(x=>deviceId(x)===i.settings.deviceId),m=targetMuted(d);if(m==null){showAlert(i.context);return}try{const r=await pipeCommand({Pipewire:{SetPhysicalDeviceMute:[deviceId(d),!m]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Physical mute command failed:",e.message);showAlert(i.context)}}
 async function physicalVolumeTyped(i,delta,type){const s=await refreshStatus(),d=physicalDevices(s,type).find(x=>deviceId(x)===i.settings.deviceId),cur=targetVolume(d);if(!d||cur==null){showAlert(i.context);return}const raw=Number(i.settings.step),step=Number.isFinite(raw)&&raw>0?Math.round(raw):DEFAULT_STEP,next=Math.max(0,Math.min(100,cur+delta*step));try{const r=await pipeCommand({Pipewire:{SetPhysicalDeviceVolume:[deviceId(d),next]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Physical volume command failed:",e.message);showAlert(i.context)}}
@@ -210,8 +318,34 @@ function sceneAppDescriptor(v){
   return name?{name,process,deviceType}:null;
 }
 function sceneApps(v){return Array.isArray(v)?v.map(sceneAppDescriptor).filter(Boolean):[]}
-function sceneAppMatches(a,d){return !!(a&&d&&a.name===d.name&&(!d.process||a.process===d.process)&&(!d.deviceType||String(a.deviceType).toLowerCase()===String(d.deviceType).toLowerCase()))}
+function sceneAppProcessKey(v){return appIdentityProcessKey(v)}
+function sceneAppMatches(a,d){return appIdentityScore(a,d)>=0}
 function sceneAppLabel(d){return `${d?.name||"Application"}${d?.process?` (${d.process})`:""}${d?.deviceType?` [${d.deviceType}]`:""}`}
+function sceneConditionSpec(op){
+  const raw=op?.condition;
+  if(raw===undefined||raw===null)return {type:"always",application:null};
+  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {type:"invalid",application:null};
+  const type=String(raw.type||"always");
+  return {type,application:sceneAppDescriptor(raw.application)};
+}
+function sceneFailurePolicy(op){return op?.onFailure==="continue"?"continue":"stop"}
+function sceneWaitMs(op){const n=Number(op?.milliseconds);return Number.isFinite(n)?Math.round(n):null}
+function sceneConditionEvaluation(op,status){
+  const c=sceneConditionSpec(op);
+  if(c.type==="always")return {met:true,label:"Always"};
+  const label=sceneAppLabel(c.application);
+  const running=!!(c.application&&appResolveMany(applications(status),c.application).length>0);
+  if(c.type==="applicationRunning")return {met:running,label:`Application running: ${label}`};
+  if(c.type==="applicationNotRunning")return {met:!running,label:`Application not running: ${label}`};
+  return {met:false,label:"Invalid condition"};
+}
+function sceneSmartDescription(op){
+  const base=sceneOperationDescription(op),c=sceneConditionSpec(op),failure=sceneFailurePolicy(op);
+  let prefix="";
+  if(c.type==="applicationRunning")prefix=`If ${sceneAppLabel(c.application)} is running: `;
+  else if(c.type==="applicationNotRunning")prefix=`If ${sceneAppLabel(c.application)} is not running: `;
+  return prefix+base+(failure==="continue"?" [continue on failure]":"");
+}
 function validateSceneOperations(ops,status){
   const errors=[],warnings=[];
   const add=(kind,idx,type,message)=>kind.push({step:idx+1,type:type||"unknown",message});
@@ -220,10 +354,22 @@ function validateSceneOperations(ops,status){
     const op=ops[idx],type=String(op?.type||"");
     if(!op||typeof op!=="object"){add(errors,idx,type,"Invalid scene operation");continue}
     const sources=sceneNames(op.sources),targets=sceneNames(op.targets),vol=()=>{const n=Number(op.volume);return String(op.volume??"").trim()!==""&&Number.isFinite(n)&&n>=0&&n<=100};
-    if(["sourceMute","sourceVolume"].includes(type)){
+    const condition=sceneConditionSpec(op);
+    if(!["always","applicationRunning","applicationNotRunning"].includes(condition.type))add(errors,idx,type,"Condition must be Always, Application running, or Application not running");
+    if(["applicationRunning","applicationNotRunning"].includes(condition.type)&&!condition.application)add(errors,idx,type,"Application condition requires an application descriptor");
+    if(op.onFailure!==undefined&&!['stop','continue'].includes(op.onFailure))add(errors,idx,type,"Failure policy must be stop or continue");
+    if(type==='volumeFade'){
+      for(const message of require('./volume-fades').validate(op))add(errors,idx,type,message);
+    }else if(features018.supports(op)){
+      for(const message of features018.validate(op,status))add(errors,idx,type,message);
+    }else if(type==="wait"){
+      const ms=sceneWaitMs(op);
+      if(ms===null||ms<0||ms>60000)add(errors,idx,type,"Wait must be between 0 and 60000 milliseconds");
+    }else if(["sourceMute","sourceVolume","sourceVolumeLink"].includes(type)){
       if(!sources.length)add(errors,idx,type,"No sources selected");
       for(const name of sources)if(!findNamedSource(status,name))add(errors,idx,type,`Source not found: ${name}`);
       if(type==="sourceVolume"&&!vol())add(errors,idx,type,"Volume must be a number from 0 to 100");
+      if(type==="sourceVolumeLink"&&!['linked','unlinked'].includes(op.state))add(errors,idx,type,"Link state must be linked or unlinked");
     }else if(["targetMute","targetVolume","targetMix"].includes(type)){
       if(!targets.length)add(errors,idx,type,"No targets selected");
       for(const name of targets)if(!findNamedTarget(status,name))add(errors,idx,type,`Target not found: ${name}`);
@@ -246,7 +392,7 @@ function validateSceneOperations(ops,status){
       if(!ds.length)add(errors,idx,type,"No applications selected");
       if(type==="applicationVolume"&&!vol())add(errors,idx,type,"Volume must be a number from 0 to 100");
       for(const d of ds){
-        const live=applications(status).filter(a=>sceneAppMatches(a,d));
+        const live=appResolveMany(applications(status),d);
         if(!live.length)add(warnings,idx,type,`Application not running; step will be skipped: ${sceneAppLabel(d)}`);
         if(type==="applicationRoute"&&op.state!=="off"){
           const targetName=String(op.targetName||"").trim();
@@ -265,6 +411,24 @@ function validateSceneOperations(ops,status){
 async function executeSceneOperation(op,status){
   if(!op||typeof op!=="object")throw new Error("Invalid scene operation");
   const type=String(op.type||"");
+  if(type==='volumeFade')return fades021.run(op);
+  if(features018.supports(op))return features018.execute(op);
+  if(type==="wait"){
+    const ms=sceneWaitMs(op);if(ms===null||ms<0||ms>60000)throw new Error("Invalid Scene wait");
+    if(ms>0)await new Promise(resolve=>setTimeout(resolve,ms));
+    return;
+  }
+  if(type==="sourceVolumeLink"){
+    const linked=op.state!=="unlinked";
+    for(const name of sceneNames(op.sources)){
+      const src=findNamedSource(status,name),id=deviceId(src);if(!id)throw new Error(`Scene source not found: ${name}`);
+      const current=sourceLinked(src);if(current===null)throw new Error(`Scene source link state unavailable: ${name}`);
+      if(current===linked)continue;
+      const r=await pipeCommand({Pipewire:{SetSourceVolumeLinked:[id,linked]}});
+      if(!isOk(r)&&!JSON.stringify(r).includes("Requested State matches current state"))throw new Error(`${name}: ${JSON.stringify(r)}`);
+    }
+    return;
+  }
   if(type==="sourceMute"){
     const mix=op.mix==="B"?"B":"A",target="Target"+mix,state=op.state==="unmuted"?"unmuted":"muted";
     for(const name of sceneNames(op.sources)){
@@ -336,7 +500,7 @@ async function executeSceneOperation(op,status){
     const muted=op.state!=="unmuted",descriptors=sceneApps(op.applications);
     if(!descriptors.length)throw new Error("No applications selected");
     for(const d of descriptors){
-      const matches=applications(status).filter(a=>sceneAppMatches(a,d));
+      const matches=appResolveMany(applications(status),d);
       if(!matches.length){console.log(`[Scene] application not running; skipped ${sceneAppLabel(d)}`);continue;}
       for(const a of matches){if(a.muted===muted)continue;const r=await pipeCommand({Pipewire:{SetApplicationMute:[a.nodeId,muted]}});if(!isOk(r))throw new Error(`${sceneAppLabel(d)}: ${JSON.stringify(r)}`)}
     }
@@ -346,7 +510,7 @@ async function executeSceneOperation(op,status){
     const v=sceneVolume(op.volume),descriptors=sceneApps(op.applications);if(v===null)throw new Error("Invalid application volume");
     if(!descriptors.length)throw new Error("No applications selected");
     for(const d of descriptors){
-      const matches=applications(status).filter(a=>sceneAppMatches(a,d));
+      const matches=appResolveMany(applications(status),d);
       if(!matches.length){console.log(`[Scene] application not running; skipped ${sceneAppLabel(d)}`);continue;}
       for(const a of matches){const r=await pipeCommand({Pipewire:{SetApplicationVolume:[a.nodeId,v]}});if(!isOk(r))throw new Error(`${sceneAppLabel(d)}: ${JSON.stringify(r)}`)}
     }
@@ -356,7 +520,7 @@ async function executeSceneOperation(op,status){
     const descriptors=sceneApps(op.applications),enabled=op.state!=="off",targetName=String(op.targetName||"").trim();
     if(!descriptors.length)throw new Error("No applications selected");
     for(const d of descriptors){
-      const matches=applications(status).filter(a=>sceneAppMatches(a,d));
+      const matches=appResolveMany(applications(status),d);
       if(!matches.length){console.log(`[Scene] application not running; skipped ${sceneAppLabel(d)}`);continue;}
       for(const a of matches){
         if(enabled){const destination=appDestination(status,a,targetName);if(!destination)throw new Error(`Compatible application route target not found for ${sceneAppLabel(d)}: ${targetName||"(none)"}`);const r=await pipeCommand({Pipewire:{SetTransientApplicationRouteByName:[a.nodeId,targetName]}});if(!isOk(r))throw new Error(`${sceneAppLabel(d)} → ${targetName}: ${JSON.stringify(r)}`)}
@@ -368,11 +532,15 @@ async function executeSceneOperation(op,status){
   throw new Error(`Unsupported scene operation: ${type||"(missing type)"}`);
 }
 function sceneOperationDescription(op){
+  if(op.type==='volumeFade')return 'Volume Fade '+op.kind+' to '+op.volume+'% over '+fadeDurationLabel022(op);
+  if(features018.supports(op))return features018.describe(op);
   const type=String(op?.type||"unknown");
   const sources=sceneNames(op?.sources);
   const targets=sceneNames(op?.targets);
   const list=a=>a.length?a.join(", "):"(none)";
+  if(type==="wait")return `Wait ${sceneWaitMs(op)} ms`;
   if(type==="sourceMute")return `Source ${op?.mix==="B"?"B":"A"} ${op?.state==="unmuted"?"unmute":"mute"}: ${list(sources)}`;
+  if(type==="sourceVolumeLink")return `Source volume ${op?.state==="unlinked"?"unlink":"link"}: ${list(sources)}`;
   if(type==="targetMute")return `Target ${op?.state==="unmuted"?"unmute":"mute"}: ${list(targets)}`;
   if(type==="sourceVolume")return `Source ${op?.mix==="B"?"B":"A"} volume ${sceneVolume(op?.volume)}%: ${list(sources)}`;
   if(type==="targetVolume")return `Target volume ${sceneVolume(op?.volume)}%: ${list(targets)}`;
@@ -393,7 +561,7 @@ async function runScene(i){
   const ops=Array.isArray(i.settings.operations)?i.settings.operations:[];
   if(ops.length){
     const started=Date.now();
-    let activeStep=0;
+    let activeStep=0,continuedFailures=0,succeeded019=false;
     console.log(`[Scene] START name=${JSON.stringify(sceneName)} operations=${ops.length} context=${i.context}`);
     try{
       let status=await refreshStatus();
@@ -406,26 +574,38 @@ async function runScene(i){
       console.log(`[Scene] VALIDATION OK errors=0 warnings=${validation.warnings.length}`);
       for(let idx=0;idx<ops.length;idx++){
         activeStep=idx+1;
-        const desc=sceneOperationDescription(ops[idx]);
+        const op=ops[idx],desc=sceneSmartDescription(op),condition=sceneConditionEvaluation(op,status);
+        if(!condition.met){
+          console.log(`[Scene] STEP ${activeStep}/${ops.length} SKIP condition not met (${condition.label}): ${desc}`);
+          status=await refreshStatus()||status;
+          continue;
+        }
         console.log(`[Scene] STEP ${activeStep}/${ops.length} START ${desc}`);
         const stepStarted=Date.now();
         try{
-          await executeSceneOperation(ops[idx],status);
+          await executeSceneOperation(op,status);
           console.log(`[Scene] STEP ${activeStep}/${ops.length} OK ${desc} (${Date.now()-stepStarted}ms)`);
         }catch(e){
+          const policy=sceneFailurePolicy(op);
           console.error(`[Scene] STEP ${activeStep}/${ops.length} FAILED ${desc}: ${e.message}`);
-          throw e;
+          if(policy==="continue"){continuedFailures++;console.warn(`[Scene] STEP ${activeStep}/${ops.length} CONTINUE after failure`)}
+          else throw e;
         }
         status=await refreshStatus()||status;
       }
       await refreshStatus();
-      console.log(`[Scene] COMPLETE name=${JSON.stringify(sceneName)} operations=${ops.length} duration=${Date.now()-started}ms`);
-      showOk(i.context);
+      if(continuedFailures){
+        console.warn(`[Scene] COMPLETE WITH ERRORS name=${JSON.stringify(sceneName)} operations=${ops.length} continuedFailures=${continuedFailures} duration=${Date.now()-started}ms`);
+        showAlert(i.context);
+      }else{
+        console.log(`[Scene] COMPLETE name=${JSON.stringify(sceneName)} operations=${ops.length} duration=${Date.now()-started}ms`);
+        showOk(i.context);succeeded019=true;
+      }
     }catch(e){
       console.error(`[Scene] FAILED name=${JSON.stringify(sceneName)} step=${activeStep||"startup"}/${ops.length} duration=${Date.now()-started}ms: ${e.message}`);
       showAlert(i.context);
     }
-    return;
+    return succeeded019;
   }
   let cmds;
   try{cmds=JSON.parse(i.settings.commands||"[]")}catch(e){console.error(`[Scene] LEGACY INVALID name=${JSON.stringify(sceneName)}: ${e.message}`);showAlert(i.context);return}
@@ -446,8 +626,53 @@ async function runScene(i){
     showOk(i.context);
   }catch(e){console.error(`[Scene] LEGACY FAILED name=${JSON.stringify(sceneName)} duration=${Date.now()-started}ms: ${e.message}`);showAlert(i.context)}
 }
+const holdTimers022=new Map();
+function holdMs022(i){const n=Number(i.settings?.holdMs);return Number.isFinite(n)&&n>=50&&n<=2000?Math.round(n):200}
+function holdSpec022(i){
+ const st=i.settings||{},a=i.action;
+ if(a===ACTIONS.sourceVolUp)return {delta:1,action:'com.pipeweaver.opendeck.sourcevolumedial',settings:st};
+ if(a===ACTIONS.sourceVolDown)return {delta:-1,action:'com.pipeweaver.opendeck.sourcevolumedial',settings:st};
+ if(a===ACTIONS.sourceAVolUp)return {delta:1,action:'com.pipeweaver.opendeck.sourcevolumedial',settings:{...st,mix:'A'}};
+ if(a===ACTIONS.sourceAVolDown)return {delta:-1,action:'com.pipeweaver.opendeck.sourcevolumedial',settings:{...st,mix:'A'}};
+ if(a===ACTIONS.sourceBVolUp)return {delta:1,action:'com.pipeweaver.opendeck.sourcevolumedial',settings:{...st,mix:'B'}};
+ if(a===ACTIONS.sourceBVolDown)return {delta:-1,action:'com.pipeweaver.opendeck.sourcevolumedial',settings:{...st,mix:'B'}};
+ if(a===ACTIONS.volUp)return {delta:1,action:'com.pipeweaver.opendeck.targetvolumedial',settings:st};
+ if(a===ACTIONS.volDown)return {delta:-1,action:'com.pipeweaver.opendeck.targetvolumedial',settings:st};
+ if(a===ACTIONS.appVolUp)return {delta:1,action:'com.pipeweaver.opendeck.appvolumedial',settings:st};
+ if(a===ACTIONS.appVolDown)return {delta:-1,action:'com.pipeweaver.opendeck.appvolumedial',settings:st};
+ if(a===ACTIONS.physVolUp)return {delta:1,action:'com.pipeweaver.opendeck.physvolumedial',settings:st};
+ if(a===ACTIONS.physVolDown)return {delta:-1,action:'com.pipeweaver.opendeck.physvolumedial',settings:st};
+ if(a===ACTIONS.physInVolUp)return {delta:1,action:'com.pipeweaver.opendeck.physinvolumedial',settings:st};
+ if(a===ACTIONS.physInVolDown)return {delta:-1,action:'com.pipeweaver.opendeck.physinvolumedial',settings:st};
+ return null;
+}
+async function holdStep022(i){
+ const spec=holdSpec022(i);if(!spec)return false;
+ try{
+ const status=await refreshStatus(),d=describeDial020({action:spec.action,settings:spec.settings},status);
+ if(!d.volumeCommand||!Number.isFinite(d.volume)){showAlert(i.context);return false}
+ const raw=Number(i.settings?.step),step=Number.isFinite(raw)&&raw>0?Math.round(raw):DEFAULT_STEP,next=Math.max(0,Math.min(100,d.volume+spec.delta*step));
+ if(next===d.volume){showOk(i.context);return false}
+ const r=await pipeCommand({Pipewire:d.volumeCommand(next)});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context);return true}
+ catch(e){console.error('[Hold] Volume command failed:',e.message);showAlert(i.context);return false}
+}
+function holdStop022(context){const job=holdTimers022.get(context);if(!job)return;job.active=false;clearTimeout(job.timer);holdTimers022.delete(context)}
+function holdClear022(){for(const context of [...holdTimers022.keys()])holdStop022(context)}
+function holdStart022(i,repeat=true){
+ if(!holdSpec022(i))return false;
+ holdStop022(i.context);
+ const job={active:true,timer:null,busy:false};holdTimers022.set(i.context,job);
+ const tick=async()=>{if(!job.active||job.busy)return;job.busy=true;const ok=await holdStep022(i);job.busy=false;if(!job.active)return;if(ok&&repeat)job.timer=setTimeout(tick,holdMs022(i));else holdStop022(i.context)};
+ tick();return true;
+}
 async function handleMessage(m) {
   const e = m.event;
+  if(e==='willDisappear'||e==='didReceiveSettings'){dials020.cancel(m.context);holdStop022(m.context)}
+  if(e==='keyUp'){holdStop022(m.context);return;}
+  if(['dialRotate','dialDown','dialUp','touchTap'].includes(e)){
+    dials020.handle(m,instances.get(m.context));return;
+  }
+  if(e==="sendToPlugin"&&m.action===STARTUP_ACTION&&await startupMessage019(m))return;
   if(e==="sendToPlugin" || e==="willAppear" || e==="didReceiveSettings") diag("OpenDeck event",m);
   if (e === "willAppear") {
     instances.set(m.context, { context:m.context, action:m.action, settings:{...(m.payload?.settings||{})} });
@@ -462,6 +687,10 @@ async function handleMessage(m) {
   }
   if (e === "keyDown") {
     const i=instances.get(m.context); if(!i) return;
+    if(features018.buttonOperation(i))return featureButton018(i);
+    if(i.action===STARTUP_ACTION){try{await startup019.runNow(i.context);showOk(i.context)}catch(e){console.error("[Startup Scene] Manual run failed: "+e.message);showAlert(i.context)}return}
+    if(holdStart022(i,!m.payload?.isInMultiAction))return;
+    const fade=fadeButton021(i);if(fade)return runFadeButton021(i,fade);
     switch(i.action){
       case ACTIONS.sourceVolUp: return sourceVolumeStep(i,1);
       case ACTIONS.sourceVolDown: return sourceVolumeStep(i,-1);
@@ -473,6 +702,7 @@ async function handleMessage(m) {
       case ACTIONS.sourceBVolDown: return sourceVolumeStepForced(i,-1,"B");
       case ACTIONS.sourceMuteA: return toggleSourceMuteForced(i,"A");
       case ACTIONS.sourceMuteB: return toggleSourceMuteForced(i,"B");
+      case ACTIONS.sourceLinkToggle: return toggleSourceVolumeLink(i);
       case ACTIONS.targetMixA: return setTargetMix(i,"A");
       case ACTIONS.targetMixB: return setTargetMix(i,"B");
       case ACTIONS.targetMixToggle: return toggleTargetMix(i);
@@ -516,7 +746,8 @@ async function handleMessage(m) {
     diag("sendToPlugin instance found",String(!!i));
     if(!i) return;
     let s=lastStatus;
-    if(["getSceneData","getTargets","getApplications","getDevices","validateScene"].includes(p.command)) s=await refreshStatus();
+    if(["getSceneData","getTargets","getDevices","validateScene"].includes(p.command)) s=await refreshStatus();
+    else if(p.command==="getApplications"&&(!s||Date.now()-lastStatusAt>APPLICATION_CACHE_MAX_AGE_MS)) s=await refreshStatus();
     if(p.command==="getTargets"){
       const payload={
         command:"targets",
@@ -557,6 +788,6 @@ async function handleMessage(m) {
 }
 
 function scheduleReconnect(g){if(g!==socketGeneration||reconnectTimer)return;const d=reconnectDelay;console.error(`PipeWeaver Control: reconnecting to OpenDeck in ${d}ms`);reconnectTimer=setTimeout(()=>{reconnectTimer=null;reconnectDelay=Math.min(reconnectDelay*2,RECONNECT_MAX_MS);connect()},d)}
-function connect(){const WebSocket=globalThis.WebSocket;if(!WebSocket){console.error("PipeWeaver Control: Node.js 20+ is required (global WebSocket missing)");process.exit(3)}if(ws&&(ws.readyState===0||ws.readyState===1))return;const g=++socketGeneration,socket=new WebSocket(`ws://127.0.0.1:${port}`);ws=socket;socket.onopen=()=>{if(g!==socketGeneration)return;reconnectDelay=RECONNECT_INITIAL_MS;console.error(`PipeWeaver Control: connected to OpenDeck on ${port}`);send({event:"registerPlugin",uuid:pluginUUID});void refreshStatus();scheduleStatusRefresh()};socket.onmessage=async ev=>{if(g!==socketGeneration)return;try{await handleMessage(JSON.parse(typeof ev.data==="string"?ev.data:ev.data.toString()))}catch(e){console.error("OpenDeck message error:",e?.stack||e)}};socket.onerror=e=>{if(g===socketGeneration)console.error("OpenDeck websocket error:",e?.message||e)};socket.onclose=()=>{if(g!==socketGeneration)return;if(ws===socket)ws=null;console.error("PipeWeaver Control: OpenDeck connection closed");scheduleReconnect(g)}}
+function connect(){const WebSocket=globalThis.WebSocket;if(!WebSocket){console.error("PipeWeaver Control: Node.js 20+ is required (global WebSocket missing)");process.exit(3)}if(ws&&(ws.readyState===0||ws.readyState===1))return;const g=++socketGeneration,socket=new WebSocket(`ws://127.0.0.1:${port}`);ws=socket;socket.onopen=()=>{if(g!==socketGeneration)return;reconnectDelay=RECONNECT_INITIAL_MS;console.error(`PipeWeaver Control: connected to OpenDeck on ${port}`);send({event:"registerPlugin",uuid:pluginUUID});startup019.connected();void refreshStatus();scheduleStatusRefresh()};socket.onmessage=async ev=>{if(g!==socketGeneration)return;try{await handleMessage(JSON.parse(typeof ev.data==="string"?ev.data:ev.data.toString()))}catch(e){console.error("OpenDeck message error:",e?.stack||e)}};socket.onerror=e=>{if(g===socketGeneration)console.error("OpenDeck websocket error:",e?.message||e)};socket.onclose=()=>{if(g!==socketGeneration)return;if(ws===socket)ws=null;holdClear022();fades021.clear();dials020.clear();startup019.disconnected();console.error("PipeWeaver Control: OpenDeck connection closed");scheduleReconnect(g)}}
 diag("startup",{port,pluginUUID,pipeweaverUrl:PIPEWEAVER_URL});
 process.on("uncaughtException",e=>console.error("PipeWeaver Control: uncaught exception:",e?.stack||e));process.on("unhandledRejection",e=>console.error("PipeWeaver Control: unhandled rejection:",e));connect();scheduleStatusRefresh();

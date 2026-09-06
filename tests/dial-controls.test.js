@@ -43,7 +43,7 @@ test('feedback preserves manual label, live zero, mute and offline state; blank 
 function core(){
  let api;const native=createRequire(root+'/plugin-core.js'),timers=[];
  const c=vm.createContext({require:n=>n==='./dial-controls'?{kind:require(root+'/dial-controls').kind,create:a=>{api=a;return create(a,{schedule:f=>timers.push(f)})}}:native(n),process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},console:{log(){},error(){},warn(){}},setTimeout,clearTimeout,Buffer,URL});
- let s=require(root+'/core-v022').build();s=s.slice(0,s.indexOf('diag("startup",'));vm.runInContext(s,c);return {c,get api(){return api},timers};
+ let s=fs.readFileSync(root+"/plugin-core.js","utf8");s=s.slice(0,s.indexOf('diag("startup",'));vm.runInContext(s,c);return {c,get api(){return api},timers};
 }
 test('composed dial commands select correct source mix, target, physical direction and resilient application identity',()=>{
  const f=core();f.c.status={audio:{profile:{devices:{sources:{virtual_devices:[{id:'src',name:'Browser',volumes:{volume:{A:25,B:70}},mute_states:{mute_state:['TargetB']}}]},targets:{virtual_devices:[{id:'dst',name:'Desktop',volume:40,muted:false}]}}},devices:{Source:[{id:'mic',name:'Mic',volume:80,muted:false}],Target:[{id:'out',name:'Out',volume:90,muted:true}]},applications:{Source:{'brave (deleted)':[{name:'Brave',process:'brave (deleted)',node_id:269,volume:60,muted:false}]}}}};

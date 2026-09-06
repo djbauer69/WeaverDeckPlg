@@ -1,5 +1,18 @@
 # PipeWeaver Control for OpenDeck — WeaverDeck v0.22.0 prerelease
 
+## Core consolidation (review build)
+
+The complete v0.22.0 runtime now lives in `plugin-core.js`, which `plugin.js`
+loads directly after installing the presentation and Scene adapters. The twelve
+historical `core-v*.js` patch files have been removed; Git retains their history.
+The existing feature modules remain separate.
+
+The consolidated core is byte-for-byte identical to the final runtime produced
+by the old patch chain. Action identifiers, saved settings, Scene formats and
+UI files are unchanged. Tests now load the consolidated core directly, and a startup test exercises the real entry point with simulated OpenDeck and PipeWeaver connections. Historical
+internal names and diagnostic labels are retained to keep this refactor mechanical.
+This review build does not change the published v0.22.0 release.
+
 ## v0.22.0: Hold-repeat volume buttons and millisecond fades
 
 All **Volume Up** and **Volume Down** keypad actions can now repeat while held.
@@ -20,7 +33,7 @@ lives inside the scrollable action settings, the fixed header shows the selected
 action name, and compact rows let dropdown-heavy actions place controls side by
 side when the inspector is wide enough. Numeric inputs share a dedicated row below the dropdown controls, wrapping only when the inspector is too narrow. Fade inspectors use the same dark background as other actions. The inspector content uses a shrinkable, scrollable viewport so controls remain reachable when opening from an empty key or a small inspector pane. Nested Scene frames resize to their content, growing and shrinking as steps change; the main inspector handles page scrolling without fixed-height blank space. Dropdowns use a dark grey background with white text, and header help text and control descriptions are hidden to save space.
 
-**46 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
+**47 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
 fade validation/execution, Smart Scene fade editor round trips, common Button Text
 injection, live volume badges, startup Scenes, source mute destinations,
 application identity matching, packaging compilation, and existing regressions.

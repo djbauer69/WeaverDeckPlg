@@ -27,7 +27,7 @@ test('Scene success and delayed title use the common text policy',()=>{
 });
 function core(){
  const c=vm.createContext({require:createRequire(root+'/plugin-core.js'),process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},console:{log(){},error(){},warn(){}},setTimeout,clearTimeout,Buffer,URL});
- let source=require(root+'/core-v022').build();source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
+ let source=fs.readFileSync(root+"/plugin-core.js","utf8");source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
  c.sent=[];vm.runInContext('send=m=>sent.push(m)',c);return c;
 }
 function holdCore(){
@@ -40,7 +40,7 @@ function holdCore(){
   clearTimeout:id=>timers.delete(id),
   Buffer,URL
  });
- let source=require(root+'/core-v022').build();source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
+ let source=fs.readFileSync(root+"/plugin-core.js","utf8");source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
  c.status={audio:{profile:{devices:{sources:{virtual_devices:[]},targets:{virtual_devices:[{id:'dst',name:'Desktop',volume:50,muted:false}]}}}},devices:{Source:[],Target:[]}};
  c.commands=[];
  vm.runInContext("refreshStatus=async()=>status;pipeCommand=async cmd=>{commands.push(cmd);status.audio.profile.devices.targets.virtual_devices[0].volume=cmd.Pipewire.SetVolumeByName[2];return 'Ok'};showOk=()=>{};showAlert=()=>{}",c);
@@ -121,6 +121,6 @@ test('nested inspectors share one socket; manual edits survive old Scene saves a
 test('every manifest action maps to an existing original inspector and entry point starts latest core',()=>{
  const c=vm.createContext({window:{}});vm.runInContext(fs.readFileSync(root+'/propertyInspector/button-inspectors.js','utf8'),c);
  for(const a of manifest.Actions){assert.equal(a.PropertyInspectorPath,'propertyInspector/button-settings.html');assert(fs.existsSync(root+'/propertyInspector/'+c.window.buttonInspectors[a.UUID]),a.UUID)}
- assert(fs.readFileSync(root+'/plugin.js','utf8').includes('require("./core-v022").start()'));
- new vm.Script(require(root+'/core-v022').build());
+ assert(fs.readFileSync(root+'/plugin.js','utf8').includes('require("./plugin-core")'));
+ new vm.Script(fs.readFileSync(root+"/plugin-core.js","utf8"));
 });
