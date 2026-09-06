@@ -1,8 +1,12 @@
 "use strict";
+(function(){
 // Reuse the original inspector's registered socket. Intercept saves so older
 // inspectors (including nested Scene editors) cannot discard the text settings.
+const direct=document.currentScript?.dataset.weaverDirect==='true';
+const originalConnect=direct?window.connectElgatoStreamDeckSocket:null;
 let latest={},preferences={},context,socket,rawSend;
-const frame=document.getElementById('inspector'),actionName=document.getElementById('actionName');
+const frame=direct?null:document.getElementById('inspector');
+let actionName=direct?null:document.getElementById('actionName');
 let mode=null,manual=null,input=null,manualLabel=null;
 let stopLayoutWatch=null;
 function adopt(settings){
@@ -29,6 +33,11 @@ function injectStyles(win){
   style.textContent=`
 :root{color-scheme:dark}
 body.weaver-compact{background:#1e1e1e!important;box-sizing:border-box;padding:10px!important}
+html:has(body.weaver-direct){overflow-y:auto;background:#1e1e1e;scrollbar-gutter:stable}
+body.weaver-direct{margin:0!important;min-width:0}
+.weaver-action-header{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:62px minmax(0,1fr);gap:7px;align-items:center;margin:-10px -10px 10px;padding:9px 10px;border-bottom:1px solid #555;background:#2d2d2d}
+.weaver-action-header>span{color:#bbb}
+.weaver-action-header>div{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff}
 body.weaver-compact [hidden]{display:none!important}
 body.weaver-compact small,
 body.weaver-compact .appnote,
@@ -120,9 +129,30 @@ function patchWindow(win,withTextControls=false){
 }
 window.connectElgatoStreamDeckSocket=function(...args){
   const info=JSON.parse(args[4]);context=info.context;adopt(info.payload?.settings||{});
+  if(direct){
+    patchWindow(window,true);
+    document.body.classList.add('weaver-direct');
+    let header=document.getElementById('weaverActionHeader');
+    if(!header){
+      header=document.createElement('header');header.id='weaverActionHeader';header.className='weaver-action-header';
+      const label=document.createElement('span');label.textContent='Action';
+      actionName=document.createElement('div');actionName.id='weaverActionName';
+      header.appendChild(label);header.appendChild(actionName);document.body.insertBefore(header,document.body.firstChild);
+    }else actionName=document.getElementById('weaverActionName');
+    actionName.textContent=window.buttonInspectorNames?.[info.action]||info.action.split('.').pop();
+    stopLayoutWatch?.();stopLayoutWatch=window.WeaverInspectorLayout.watch(null,window);
+    return originalConnect.apply(window,args);
+  }
   actionName.textContent=window.buttonInspectorNames?.[info.action]||info.action.split('.').pop();
   const original=window.buttonInspectors[info.action];
   if(!original){actionName.textContent='Unknown action inspector';return}
+  // OpenDeck stores inspector paths in existing profile entries. Migrate the
+  // old wrapper in place; OpenDeck's iframe load handler sends a fresh connect
+  // event after navigation. No profile edits or copied connection data needed.
+  if(window.location?.href.includes('opendeck_property_inspector')){
+    window.location.replace(new URL(original+'|opendeck_property_inspector',window.location.href).href);
+    return;
+  }
   frame.onload=()=>{
     stopLayoutWatch?.();
     patchWindow(frame.contentWindow,true);
@@ -132,3 +162,4 @@ window.connectElgatoStreamDeckSocket=function(...args){
   };
   frame.src=original;
 };
+})();

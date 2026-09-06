@@ -25,18 +25,20 @@ This test build includes the core consolidation below. Check that your old
 library entries and presets appear together, then restart OpenDeck and confirm
 the collection remains intact.
 
-The inspector uses normal document scrolling with a sticky action header and
-content-sized editor frames. A check in the outer page repairs nested sizes even
-when hidden child animation callbacks remain suspended. Overflow remains
-scrollable while sizing catches up. Check opening Scene from an empty key,
-scrolling to its final controls, and adding/removing steps in both a short and
-a tall inspector pane. The latest recurring-clipping fix awaits OpenDeck testing.
+Action inspectors now load directly in OpenDeck instead of inside the common
+iframe whose default height is 150 px. The shared action header, Button Text and
+compact styling are applied to each editor in place. Existing OpenDeck profiles
+using the old inspector path navigate automatically to the matching editor
+without changing saved button settings. Scene retains its two internal editor
+layers, sized to their content with compositing enabled. The latest clipping fix
+awaits OpenDeck testing, especially short inspectors that have no scrollbar.
 
 Physical Input/Output fades now wait up to 1000 ms for feedback after each accepted
 volume command before sending the next step. This addresses early confirmation
 failures seen with the C922 and Volt 2 inputs. Commands are never resent; timeout
 errors include requested and reported percentages. Slow device feedback can
-extend a fade's duration. This fix awaits testing on those physical inputs.
+extend a fade's duration. The C922 and Volt 2 inputs now pass the user's 1500 ms
+and 200 ms tests, including simultaneous fades on the two devices.
 See [the current runtime test record](releases/v0.22.0-testing.md).
 
 ## Core consolidation (review build)
@@ -72,7 +74,7 @@ lives inside the scrollable action settings, the fixed header shows the selected
 action name, and compact rows let dropdown-heavy actions place controls side by
 side when the inspector is wide enough. Numeric inputs share a dedicated row below the dropdown controls, wrapping only when the inspector is too narrow. Fade inspectors use the same dark background as other actions. The inspector content uses a shrinkable, scrollable viewport so controls remain reachable when opening from an empty key or a small inspector pane. Nested Scene frames resize to their content, growing and shrinking as steps change; the main inspector handles page scrolling without fixed-height blank space. Dropdowns use a dark grey background with white text, and header help text and control descriptions are hidden to save space.
 
-**67 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
+**71 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
 fade validation/execution, Smart Scene fade editor round trips, common Button Text
 injection, live volume badges, startup Scenes, source mute destinations,
 application identity matching, packaging compilation, and existing regressions.

@@ -16,6 +16,8 @@
   Object.assign(doc.documentElement.style,{height:'auto',minHeight:'0',overflow:'auto'});
   Object.assign(doc.body.style,{height:'auto',minHeight:'0',margin:'0',display:'flow-root',overflow:'visible'});
   frame.style.minHeight='0';
+  // Give the remaining nested Scene documents their own composited surface.
+  frame.style.transform='translateZ(0)';
   let pending=null,disposed=false;
   const update=()=>{
    if(disposed)return;
@@ -65,7 +67,11 @@
   // Run from the outer inspector, not from hidden child animation queues.
   // One low-frequency check also catches reveal/resize notifications missed
   // by embedded WebKit. Bottom-up sizing propagates the entire Scene at once.
-  const refresh=()=>{if(!host.document?.hidden)refreshTree(frame)};
+  const refresh=()=>{
+   if(host.document?.hidden)return;
+   if(frame)refreshTree(frame);
+   else for(const child of host.document.querySelectorAll('iframe'))refreshTree(child);
+  };
   const timer=host.setInterval(refresh,500);
   for(const event of ['focus','resize','pageshow'])host.addEventListener(event,refresh);
   const dispose=()=>{host.clearInterval(timer);for(const event of ['focus','resize','pageshow'])host.removeEventListener(event,refresh);host.removeEventListener('pagehide',dispose)};

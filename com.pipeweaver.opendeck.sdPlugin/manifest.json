@@ -33,7 +33,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute on a PipeWeaver application.",
       "UUID": "com.pipeweaver.opendeck.appmute",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/app.html"
     },
     {
       "Icon": "icons/route",
@@ -52,7 +52,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Clear the transient route for a live application.",
       "UUID": "com.pipeweaver.opendeck.approuteoff",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/approute.html"
     },
     {
       "Icon": "icons/route",
@@ -71,7 +71,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Route a live application to a compatible PipeWeaver channel.",
       "UUID": "com.pipeweaver.opendeck.approuteon",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/approute.html"
     },
     {
       "Icon": "icons/route",
@@ -90,7 +90,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle a live application between a compatible PipeWeaver channel and Default.",
       "UUID": "com.pipeweaver.opendeck.approutetoggle",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/approute.html"
     },
     {
       "Icon": "icons/volumeUp",
@@ -109,7 +109,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Set a live PipeWeaver application to an exact volume.",
       "UUID": "com.pipeweaver.opendeck.appsetvolume",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/appsetvolume.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.appvolumedial",
@@ -133,7 +133,7 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "PropertyInspectorPath": "propertyInspector/appvolume.html",
       "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
     },
     {
@@ -150,7 +150,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a PipeWeaver application volume.",
       "UUID": "com.pipeweaver.opendeck.appvoldown",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/appvolume.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.appvolumefade",
@@ -168,8 +168,8 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0–120000 milliseconds."
     },
     {
       "Icon": "icons/volumeUp",
@@ -185,7 +185,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a PipeWeaver application volume.",
       "UUID": "com.pipeweaver.opendeck.appvolup",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/appvolume.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.audiobuffer",
@@ -204,7 +204,7 @@
         "Keypad"
       ],
       "SupportedInMultiActions": true,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.audiorestart",
@@ -223,7 +223,7 @@
         "Keypad"
       ],
       "SupportedInMultiActions": true,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
     },
     {
       "Icon": "icons/route",
@@ -242,7 +242,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Set PipeWeaver default input or output.",
       "UUID": "com.pipeweaver.opendeck.default",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/default.html"
     },
     {
       "Icon": "icons/mute",
@@ -261,7 +261,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute on a physical PipeWeaver input.",
       "UUID": "com.pipeweaver.opendeck.physinmute",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/physical.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.physinvolumedial",
@@ -285,7 +285,7 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "PropertyInspectorPath": "propertyInspector/physical.html",
       "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
     },
     {
@@ -305,7 +305,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a physical PipeWeaver input volume.",
       "UUID": "com.pipeweaver.opendeck.physinvoldown",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/physical.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.physinvolumefade",
@@ -323,8 +323,8 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0–120000 milliseconds."
     },
     {
       "Icon": "icons/volumeUp",
@@ -343,7 +343,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a physical PipeWeaver input volume.",
       "UUID": "com.pipeweaver.opendeck.physinvolup",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/physical.html"
     },
     {
       "Icon": "icons/mute",
@@ -362,7 +362,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute on a physical PipeWeaver output.",
       "UUID": "com.pipeweaver.opendeck.physmute",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/physical.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.physvolumedial",
@@ -386,7 +386,7 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "PropertyInspectorPath": "propertyInspector/physical.html",
       "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
     },
     {
@@ -403,7 +403,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a physical PipeWeaver output volume.",
       "UUID": "com.pipeweaver.opendeck.physvoldown",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/physical.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.physvolumefade",
@@ -421,8 +421,8 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0–120000 milliseconds."
     },
     {
       "Icon": "icons/volumeUp",
@@ -438,7 +438,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a physical PipeWeaver output volume.",
       "UUID": "com.pipeweaver.opendeck.physvolup",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/physical.html"
     },
     {
       "Icon": "icons/route",
@@ -457,7 +457,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Disable a PipeWeaver source-to-target route.",
       "UUID": "com.pipeweaver.opendeck.routeoff",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/route.html"
     },
     {
       "Icon": "icons/route",
@@ -476,7 +476,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Enable a PipeWeaver source-to-target route.",
       "UUID": "com.pipeweaver.opendeck.routeon",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/route.html"
     },
     {
       "Icon": "icons/route",
@@ -495,7 +495,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle a PipeWeaver source-to-target route.",
       "UUID": "com.pipeweaver.opendeck.route",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/route.html"
     },
     {
       "Icon": "icons/plugin",
@@ -511,7 +511,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Run, capture, save, load, or manage structured PipeWeaver Smart Scenes with conditions, waits, failure policy, and Source A/B link state. v0.17 adds resilient application identity across restarts and transient disappearance.",
       "UUID": "com.pipeweaver.opendeck.scene",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/scene-v022.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.scenestartup",
@@ -530,7 +530,7 @@
         "Keypad"
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/startup-scene.html"
     },
     {
       "Icon": "icons/volumeDown",
@@ -549,7 +549,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease PipeWeaver source Mix A volume.",
       "UUID": "com.pipeweaver.opendeck.sourceavoldown",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
     },
     {
       "Icon": "icons/volumeUp",
@@ -568,7 +568,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Increase PipeWeaver source Mix A volume.",
       "UUID": "com.pipeweaver.opendeck.sourceavolup",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
     },
     {
       "Icon": "icons/volumeDown",
@@ -587,7 +587,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease PipeWeaver source Mix B volume.",
       "UUID": "com.pipeweaver.opendeck.sourcebvoldown",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
     },
     {
       "Icon": "icons/volumeUp",
@@ -606,7 +606,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Increase PipeWeaver source Mix B volume.",
       "UUID": "com.pipeweaver.opendeck.sourcebvolup",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
     },
     {
       "Icon": "icons/mute",
@@ -625,7 +625,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute for a PipeWeaver source A or B channel.",
       "UUID": "com.pipeweaver.opendeck.sourcemute",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/source.html"
     },
     {
       "Icon": "icons/mute",
@@ -644,7 +644,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle PipeWeaver source Mix A mute.",
       "UUID": "com.pipeweaver.opendeck.sourcemutea",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
     },
     {
       "Icon": "icons/mute",
@@ -663,12 +663,12 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle PipeWeaver source Mix B mute.",
       "UUID": "com.pipeweaver.opendeck.sourcemuteb",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.sourcemutetoadd",
       "Name": "Source Mute To Add",
-      "Tooltip": "Add a target to this mute slot\u2019s destination list.",
+      "Tooltip": "Add a target to this mute slot’s destination list.",
       "Icon": "icons/mute",
       "States": [
         {
@@ -682,7 +682,7 @@
         "Keypad"
       ],
       "SupportedInMultiActions": true,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.sourcemutetoall",
@@ -701,12 +701,12 @@
         "Keypad"
       ],
       "SupportedInMultiActions": true,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.sourcemutetoremove",
       "Name": "Source Mute To Remove",
-      "Tooltip": "Remove a target from this mute slot\u2019s destination list.",
+      "Tooltip": "Remove a target from this mute slot’s destination list.",
       "Icon": "icons/mute",
       "States": [
         {
@@ -720,12 +720,12 @@
         "Keypad"
       ],
       "SupportedInMultiActions": true,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.sourcemutetoset",
       "Name": "Source Mute To Set",
-      "Tooltip": "Replace this mute slot\u2019s destinations with the selected target.",
+      "Tooltip": "Replace this mute slot’s destinations with the selected target.",
       "Icon": "icons/mute",
       "States": [
         {
@@ -739,12 +739,12 @@
         "Keypad"
       ],
       "SupportedInMultiActions": true,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.sourcemutetotoggle",
       "Name": "Source Mute To Toggle",
-      "Tooltip": "Toggle a target in this mute slot\u2019s destination list.",
+      "Tooltip": "Toggle a target in this mute slot’s destination list.",
       "Icon": "icons/mute",
       "States": [
         {
@@ -758,7 +758,7 @@
         "Keypad"
       ],
       "SupportedInMultiActions": true,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
     },
     {
       "Icon": "icons/volumeUp",
@@ -777,7 +777,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Set a PipeWeaver source A or B channel to an exact volume.",
       "UUID": "com.pipeweaver.opendeck.sourcesetvolume",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/sourcesetvolume.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.sourcevolumedial",
@@ -801,7 +801,7 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "PropertyInspectorPath": "propertyInspector/source.html",
       "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
     },
     {
@@ -818,7 +818,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a PipeWeaver source A or B volume.",
       "UUID": "com.pipeweaver.opendeck.sourcevoldown",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/source.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.sourcevolumefade",
@@ -836,8 +836,8 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0–120000 milliseconds."
     },
     {
       "Icon": "icons/link",
@@ -856,7 +856,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle PipeWeaver Source A/B volume linking while preserving the current A/B ratio.",
       "UUID": "com.pipeweaver.opendeck.sourcelinktoggle",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/sourcelink.html"
     },
     {
       "Icon": "icons/volumeUp",
@@ -872,7 +872,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a PipeWeaver source A or B volume.",
       "UUID": "com.pipeweaver.opendeck.sourcevolup",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/source.html"
     },
     {
       "Icon": "icons/plugin",
@@ -891,7 +891,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Show PipeWeaver connection status and refresh it on press.",
       "UUID": "com.pipeweaver.opendeck.status",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/status.html"
     },
     {
       "Icon": "icons/route",
@@ -910,7 +910,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Set a PipeWeaver target to Mix A.",
       "UUID": "com.pipeweaver.opendeck.targetmixa",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/mix.html"
     },
     {
       "Icon": "icons/route",
@@ -929,7 +929,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Set a PipeWeaver target to Mix B.",
       "UUID": "com.pipeweaver.opendeck.targetmixb",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/mix.html"
     },
     {
       "Icon": "icons/route",
@@ -948,7 +948,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle a PipeWeaver target between Mix A and Mix B.",
       "UUID": "com.pipeweaver.opendeck.targetmixtoggle",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/mix.html"
     },
     {
       "Icon": "icons/mute",
@@ -967,7 +967,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Toggle mute on a PipeWeaver target.",
       "UUID": "com.pipeweaver.opendeck.mute",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/mute.html"
     },
     {
       "Icon": "icons/mute",
@@ -986,7 +986,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Unmute a PipeWeaver target.",
       "UUID": "com.pipeweaver.opendeck.muteoff",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/mute.html"
     },
     {
       "Icon": "icons/mute",
@@ -1005,7 +1005,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Mute a PipeWeaver target.",
       "UUID": "com.pipeweaver.opendeck.muteon",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/mute.html"
     },
     {
       "Icon": "icons/volumeUp",
@@ -1021,7 +1021,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Set a PipeWeaver target to an exact volume.",
       "UUID": "com.pipeweaver.opendeck.setvolume",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/setvolume.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.targetvolumedial",
@@ -1045,7 +1045,7 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "PropertyInspectorPath": "propertyInspector/volume.html",
       "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
     },
     {
@@ -1062,7 +1062,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Decrease a PipeWeaver target volume.",
       "UUID": "com.pipeweaver.opendeck.volumedown",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/volume.html"
     },
     {
       "UUID": "com.pipeweaver.opendeck.targetvolumefade",
@@ -1080,8 +1080,8 @@
         }
       ],
       "SupportedInMultiActions": false,
-      "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0–120000 milliseconds."
     },
     {
       "Icon": "icons/volumeUp",
@@ -1097,7 +1097,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Increase a PipeWeaver target volume.",
       "UUID": "com.pipeweaver.opendeck.volumeup",
-      "PropertyInspectorPath": "propertyInspector/button-settings.html"
+      "PropertyInspectorPath": "propertyInspector/volume.html"
     }
   ]
 }
