@@ -27,8 +27,26 @@ test('Scene success and delayed title use the common text policy',()=>{
 });
 function core(){
  const c=vm.createContext({require:createRequire(root+'/plugin-core.js'),process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},console:{log(){},error(){},warn(){}},setTimeout,clearTimeout,Buffer,URL});
- let source=require(root+'/core-v021').build();source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
+ let source=require(root+'/core-v022').build();source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
  c.sent=[];vm.runInContext('send=m=>sent.push(m)',c);return c;
+}
+function holdCore(){
+ const timers=new Map();let nextTimer=1;
+ const c=vm.createContext({
+  require:createRequire(root+'/plugin-core.js'),
+  process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},
+  console:{log(){},error(){},warn(){}},
+  setTimeout:(fn,ms)=>{const id=nextTimer++;timers.set(id,{fn,ms});return id},
+  clearTimeout:id=>timers.delete(id),
+  Buffer,URL
+ });
+ let source=require(root+'/core-v022').build();source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
+ c.status={audio:{profile:{devices:{sources:{virtual_devices:[]},targets:{virtual_devices:[{id:'dst',name:'Desktop',volume:50,muted:false}]}}}},devices:{Source:[],Target:[]}};
+ c.commands=[];
+ vm.runInContext("refreshStatus=async()=>status;pipeCommand=async cmd=>{commands.push(cmd);status.audio.profile.devices.targets.virtual_devices[0].volume=cmd.Pipewire.SetVolumeByName[2];return 'Ok'};showOk=()=>{};showAlert=()=>{}",c);
+ async function flush(){for(let n=0;n<20;n++)await new Promise(setImmediate)}
+ async function runTimer(){const entry=timers.entries().next().value;assert(entry);timers.delete(entry[0]);entry[1].fn();await flush();return entry[1].ms}
+ return {c,timers,flush,runTimer};
 }
 test('all non-app volume actions show actual current volume, correct A/B, physical ID, 0%, and offline unknown',()=>{
  const c=core();c.fixture={audio:{profile:{devices:{sources:{virtual_devices:[{name:'Browser',volumes:{volume:{A:0,B:62}}}]},targets:{virtual_devices:[{name:'Headphones',volume:37}]}}},devices:{Source:[{id:'mic',name:'Mic',volume:24}],Target:[{id:'speaker',name:'Speakers',volume:89}]}}};
@@ -45,6 +63,26 @@ test('all non-app volume actions show actual current volume, correct A/B, physic
  }
  c.i={action:'com.pipeweaver.opendeck.appvolup',context:'app',settings:{}};c.sent.length=0;vm.runInContext('updateInstance(i)',c);assert(!c.sent.some(m=>m.event==='setImage'),'application artwork remains owned by app visuals');
 });
+test('volume buttons repeat while held and stop on key release',async()=>{
+ const h=holdCore();
+ const eligible=['sourcevolup','sourcevoldown','sourceavolup','sourceavoldown','sourcebvolup','sourcebvoldown','volumeup','volumedown','appvolup','appvoldown','physvolup','physvoldown','physinvolup','physinvoldown'];
+ for(const suffix of eligible){h.c.i={action:'com.pipeweaver.opendeck.'+suffix,settings:{}};assert.equal(vm.runInContext('!!holdSpec022(i)',h.c),true,suffix)}
+ h.c.i={action:'com.pipeweaver.opendeck.setvolume',settings:{}};assert.equal(vm.runInContext('!!holdSpec022(i)',h.c),false);
+ await h.c.handleMessage({event:'willAppear',action:'com.pipeweaver.opendeck.volumeup',context:'key',payload:{settings:{targetName:'Desktop',step:5,holdMs:150}}});
+ await h.c.handleMessage({event:'keyDown',context:'key'});await h.flush();
+ assert.equal(h.c.commands.length,1);assert.deepEqual(JSON.parse(JSON.stringify(h.c.commands[0].Pipewire.SetVolumeByName)),['Desktop',null,55]);assert.equal(h.timers.values().next().value.ms,150);
+ assert.equal(await h.runTimer(),150);assert.equal(h.c.commands.length,2);assert.deepEqual(JSON.parse(JSON.stringify(h.c.commands[1].Pipewire.SetVolumeByName)),['Desktop',null,60]);
+ await h.c.handleMessage({event:'keyUp',context:'key'});assert.equal(h.timers.size,0);
+});
+test('Multi Action volume buttons apply one step without scheduling hold repeats',async()=>{
+ const h=holdCore();
+ await h.c.handleMessage({event:'willAppear',action:'com.pipeweaver.opendeck.volumeup',context:'multi',payload:{isInMultiAction:true,settings:{targetName:'Desktop',step:3,holdMs:50}}});
+ await h.c.handleMessage({event:'keyDown',context:'multi',payload:{isInMultiAction:true}});await h.flush();
+ assert.equal(h.c.commands.length,1);
+ assert.deepEqual(JSON.parse(JSON.stringify(h.c.commands[0].Pipewire.SetVolumeByName)),['Desktop',null,53]);
+ assert.equal(h.timers.size,0);
+ assert.equal(vm.runInContext('holdTimers022.size',h.c),0);
+});
 function ui(){
  const nodes=new Map();function node(id){if(!nodes.has(id))nodes.set(id,{value:'',hidden:false,disabled:true,events:{},addEventListener(e,f){this.events[e]=f}});return nodes.get(id)}
  const c=vm.createContext({document:{getElementById:node},console});c.window=c;
@@ -53,25 +91,36 @@ function ui(){
  const sent=[];let sock;
  class WS{constructor(){this.readyState=1;this.listeners=[]}send(s){sent.push(JSON.parse(s))}addEventListener(e,f){this.listeners.push(f)}}
  const legacyRow={hidden:false};
- const inner={WebSocket:WS,document:{getElementById:id=>id==='buttonText'?{closest:()=>legacyRow}:null,querySelectorAll:()=>[]}};
- const middle={WebSocket:class extends WS{},document:{getElementById:()=>null,querySelectorAll:()=>[{contentWindow:inner,addEventListener(){}}]}};
- const outer={WebSocket:class extends WS{},document:{getElementById:()=>null,querySelectorAll:()=>[{contentWindow:middle,addEventListener(){}}]},connectElgatoStreamDeckSocket(){sock=new inner.WebSocket();sock.send(JSON.stringify({event:'registerPropertyInspector',uuid:'pi'}))}};
+ function doc(frames=[]){
+  const map=new Map();
+  function el(id){
+   let current=id;
+   const o={value:'',hidden:false,disabled:false,style:{},className:'',innerHTML:'',textContent:'',classList:{add(){}},appendChild(){},insertBefore(child){this.firstChild=child},querySelector:s=>s==='label.weaver-manual'?{hidden:false}:null,closest:()=>legacyRow};
+   Object.defineProperty(o,'id',{get(){return current},set(v){current=v;if(v)map.set(v,o)}});
+   o.id=id;return o;
+  }
+  const d={body:el('body'),head:{appendChild(){}},createElement:()=>el(''),getElementById(id){if(id==='buttonText')return {closest:()=>legacyRow};if(id==='weaverTextControls'&&!map.has(id))return null;if(!map.has(id))map.set(id,el(id));return map.get(id)},querySelectorAll:()=>frames};
+  return d;
+ }
+ const inner={WebSocket:WS,document:doc()};
+ const middle={WebSocket:class extends WS{},document:doc([{contentWindow:inner,addEventListener(){}}])};
+ const outer={WebSocket:class extends WS{},document:doc([{contentWindow:middle,addEventListener(){}}]),connectElgatoStreamDeckSocket(){sock=new inner.WebSocket();sock.send(JSON.stringify({event:'registerPropertyInspector',uuid:'pi'}))}};
  node('inspector').contentWindow=outer;
  c.connectElgatoStreamDeckSocket(1234,'pi','registerPropertyInspector','{}',JSON.stringify({action:'com.pipeweaver.opendeck.scene',context:'key',payload:{settings:{name:'Scene',operations:[{type:'wait',milliseconds:200}],buttonText:'Legacy'}}}));
- node('inspector').onload();return {c,node,sent,socket:sock,legacyRow};
+ node('inspector').onload();return {c,node,sent,socket:sock,legacyRow,controls:{mode:outer.document.getElementById('weaverTextMode'),input:outer.document.getElementById('weaverManualText')}};
 }
 test('nested inspectors share one socket; manual edits survive old Scene saves and receive-settings',()=>{
- const u=ui();assert.equal(u.node('inspector').src,'scene-v021.html');assert.equal(u.node('textMode').value,'manual');assert(u.legacyRow.hidden);assert.equal(u.sent.filter(m=>m.event==='registerPropertyInspector').length,1);
- u.node('manualText').value='New scene label';u.node('manualText').events.input();assert.equal(u.sent.at(-1).payload.operations[0].milliseconds,200);
+ const u=ui();assert.equal(u.node('inspector').src,'scene-v022.html');assert.equal(u.controls.mode.value,'manual');assert(u.legacyRow.hidden);assert.equal(u.sent.filter(m=>m.event==='registerPropertyInspector').length,1);
+ u.controls.input.value='New scene label';u.controls.input.oninput();assert.equal(u.sent.at(-1).payload.operations[0].milliseconds,200);
  u.socket.send(JSON.stringify({event:'setSettings',context:'key',payload:{name:'Edited scene',operations:[{type:'audioRestart'}],buttonText:'stale'}}));
  assert.equal(u.sent.at(-1).payload.buttonText,'New scene label');assert.equal(u.sent.at(-1).payload.name,'Edited scene');
- u.node('textMode').value='dynamic';u.node('textMode').events.change();assert.equal(u.sent.at(-1).payload.textMode,'dynamic');assert.equal(u.sent.at(-1).payload.operations[0].type,'audioRestart');
+ u.controls.mode.value='dynamic';u.controls.mode.onchange();assert.equal(u.sent.at(-1).payload.textMode,'dynamic');assert.equal(u.sent.at(-1).payload.operations[0].type,'audioRestart');
  for(const listener of u.socket.listeners)listener({data:JSON.stringify({event:'didReceiveSettings',context:'key',payload:{settings:{textMode:'manual',buttonText:'Remote',name:'Remote scene'}}})});
- assert.equal(u.node('manualText').value,'Remote');assert.equal(u.node('textMode').value,'manual');
+ assert.equal(u.controls.input.value,'Remote');assert.equal(u.controls.mode.value,'manual');
 });
 test('every manifest action maps to an existing original inspector and entry point starts latest core',()=>{
  const c=vm.createContext({window:{}});vm.runInContext(fs.readFileSync(root+'/propertyInspector/button-inspectors.js','utf8'),c);
  for(const a of manifest.Actions){assert.equal(a.PropertyInspectorPath,'propertyInspector/button-settings.html');assert(fs.existsSync(root+'/propertyInspector/'+c.window.buttonInspectors[a.UUID]),a.UUID)}
- assert(fs.readFileSync(root+'/plugin.js','utf8').includes('require("./core-v021").start()'));
- new vm.Script(require(root+'/core-v021').build());
+ assert(fs.readFileSync(root+'/plugin.js','utf8').includes('require("./core-v022").start()'));
+ new vm.Script(require(root+'/core-v022').build());
 });

@@ -1,11 +1,17 @@
 "use strict";
 const {performance}=require('perf_hooks');
 const kinds=['application','source','target','input','output'];
+function durationMs(op){
+ const value=op.milliseconds!==undefined&&op.milliseconds!==null&&op.milliseconds!==''?op.milliseconds:Number(op.seconds)*1000;
+ return Number(value);
+}
 function validate(op){
  const errors=[];
+ const hasMilliseconds=op.milliseconds!==undefined&&op.milliseconds!==null;
+ const ms=durationMs(op);
  if(!kinds.includes(op.kind))errors.push('Select a fade control type');
  if(op.volume===''||op.volume==null||!Number.isFinite(Number(op.volume))||Number(op.volume)<0||Number(op.volume)>100)errors.push('Fade volume must be 0–100');
- if(op.seconds===''||op.seconds==null||!Number.isFinite(Number(op.seconds))||Number(op.seconds)<0||Number(op.seconds)>120)errors.push('Fade duration must be 0–120 seconds');
+ if((hasMilliseconds&&op.milliseconds==='')||(!hasMilliseconds&&(op.seconds==null||op.seconds===''))||!Number.isFinite(ms)||ms<0||ms>120000)errors.push('Fade duration must be 0–120000 milliseconds');
  if(op.kind==='application'&&!op.application?.name&&!op.application?.process)errors.push('Select an application');
  if(op.kind==='source'&&(!op.sourceName||!['A','B'].includes(op.mix)))errors.push('Select a source and mix A/B');
  if(op.kind==='target'&&!op.targetName)errors.push('Select a target');
@@ -29,8 +35,8 @@ function create(api,{now=()=>performance.now(),sleep=ms=>new Promise(r=>setTimeo
   try{
    if(previous)await previous.done;check();
    const start=resolve(await api.refresh());check();
-   const from=start.volume,target=Math.round(Number(op.volume)),duration=Number(op.seconds)*1000,began=now();let expected=from;
-   api.log('START '+initial.name+' '+from+'% -> '+target+'% in '+op.seconds+'s');
+   const from=start.volume,target=Math.round(Number(op.volume)),duration=Math.round(durationMs(op)),began=now();let expected=from;
+   api.log('START '+initial.name+' '+from+'% -> '+target+'% in '+duration+'ms');
    if(from===target){api.log('COMPLETE '+initial.name+' already at '+target+'%');return}
    for(;;){
     if(duration)await sleep(Math.min(100,Math.max(0,duration-(now()-began))));check();
@@ -51,4 +57,4 @@ function create(api,{now=()=>performance.now(),sleep=ms=>new Promise(r=>setTimeo
  }
  return {run,cancel,clear};
 }
-module.exports={create,validate};
+module.exports={create,validate,durationMs};

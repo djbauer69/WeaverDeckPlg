@@ -11,13 +11,14 @@ function populate(data){
 }
 function save(){
  let choice={};try{choice=JSON.parse(el('selection').value||'{}')}catch(_){}
- settings={...settings,application:null,sourceName:null,targetName:null,device:null,...choice,volume:el('volume').value,seconds:el('seconds').value,mix:el('mix').value};
+ settings={...settings,application:null,sourceName:null,targetName:null,device:null,...choice,volume:el('volume').value,milliseconds:el('milliseconds').value,seconds:null,mix:el('mix').value};
  socket?.send(JSON.stringify({event:'setSettings',context:info.context,payload:settings}));
 }
-for(const id of ['selection','volume','seconds','mix'])el(id).addEventListener('change',save);
+for(const id of ['selection','volume','milliseconds','mix'])el(id).addEventListener('change',save);
 window.connectElgatoStreamDeckSocket=function(port,uuid,event,unused,actionInfo){
- info=JSON.parse(actionInfo);settings={volume:0,seconds:3,mix:'A',...info.payload?.settings,kind:kinds[info.action.split('.').pop()]};
- el('volume').value=settings.volume;el('seconds').value=settings.seconds;el('mix').value=settings.mix;el('mixRow').hidden=settings.kind!=='source';
+ info=JSON.parse(actionInfo);settings={volume:0,milliseconds:3000,mix:'A',...info.payload?.settings,kind:kinds[info.action.split('.').pop()]};
+ if(settings.milliseconds==null&&settings.seconds!=null)settings.milliseconds=Math.round(Number(settings.seconds)*1000);
+ el('volume').value=settings.volume;el('milliseconds').value=settings.milliseconds;el('mix').value=settings.mix;el('mixRow').hidden=settings.kind!=='source';
  socket=new WebSocket('ws://localhost:'+port);
  socket.onopen=()=>{socket.send(JSON.stringify({event,uuid}));socket.send(JSON.stringify({event:'sendToPlugin',context:info.context,payload:{command:'getTargets'}}))};
  socket.onmessage=ev=>{try{const m=JSON.parse(ev.data);if(m.event==='sendToPropertyInspector'&&m.payload?.command==='targets')populate(m.payload)}catch(_){}};

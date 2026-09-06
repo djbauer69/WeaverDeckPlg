@@ -1,9 +1,23 @@
 # WeaverDeck compatibility and test matrix
 
-Applies to **WeaverDeck v0.21.0 prerelease**. Updated 2026-09-06.
+Applies to **WeaverDeck v0.22.0 prerelease**. Updated 2026-09-06.
 
-The user has no dial/display hardware for testing. Those rows remain pending;
-continuing feature development does not establish device compatibility.
+Rows requiring unavailable physical devices remain pending until a tester records
+the exact device, host, and runtime result.
+
+## v0.22.0 hold-repeat and millisecond-fade coverage
+
+43 automated tests pass in the complete suite. v0.22 adds tests for keypad
+Volume Up/Down hold-repeat eligibility, configured repeat timing, key-release
+stop behavior, millisecond fade validation/execution, Smart Scene millisecond
+fade controls, and the compact common inspector with scrollable Button Text
+settings. Existing coverage from v0.21, v0.20, v0.19, v0.18, and v0.17 remains
+part of the suite.
+
+No additional physical hardware or Linux distribution is marked verified by this
+release. Runtime acceptance should focus on held volume repeat behavior,
+millisecond fade timing, and inspector layout in addition to the existing
+regression checklist.
 
 ## v0.21.0 volume-fade coverage
 

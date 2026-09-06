@@ -1,4 +1,39 @@
-# PipeWeaver Control for OpenDeck — WeaverDeck v0.21.0 prerelease
+# PipeWeaver Control for OpenDeck — WeaverDeck v0.22.0 prerelease
+
+## v0.22.0: Hold-repeat volume buttons and millisecond fades
+
+All **Volume Up** and **Volume Down** keypad actions can now repeat while held.
+This covers Application, Source, fixed Source A/B, Target, Physical Input, and
+Physical Output volume buttons. Each action keeps its existing Step % setting and
+adds **Hold ms** (50-2000 ms, default 200) to control repeat speed. A quick press
+still applies one step. Releasing the key, changing settings, removing the
+button, or disconnecting OpenDeck stops the held repeat. Set Volume remains an
+exact one-shot action. Volume Up/Down inside Multi Actions also apply just one step.
+
+Standalone **Volume Fade** actions and Smart Scene **Volume Fade** steps now use
+milliseconds instead of seconds. The UI writes `milliseconds` values from
+0-120000, with a default of 3000. Older saved Scene files or settings containing
+`seconds` still validate and run through a compatibility fallback.
+
+The common action inspector is less crowded: Button Text mode/manual input now
+lives inside the scrollable action settings, the fixed header shows the selected
+action name, and compact rows let dropdown-heavy actions place controls side by
+side when the inspector is wide enough.
+
+**44 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
+fade validation/execution, Smart Scene fade editor round trips, common Button Text
+injection, live volume badges, startup Scenes, source mute destinations,
+application identity matching, packaging compilation, and existing regressions.
+
+First checks:
+1. Hold Target Volume Up/Down and confirm it repeats at the configured **Hold ms**,
+   then stops as soon as you release.
+2. Repeat with Application, Source, Source A/B, Physical Input, and Physical
+   Output volume buttons.
+3. Create a fade for 250 ms, 1000 ms, and 3000 ms; confirm the label and Scene
+   summary show milliseconds.
+4. Open several action settings, especially Scene, and confirm the action name is
+   in the fixed header while Button Text appears in the scrollable settings.
 
 ## v0.21.0: Volume fades
 
