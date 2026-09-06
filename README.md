@@ -1,4 +1,51 @@
-# PipeWeaver Control for OpenDeck — WeaverDeck v0.20.0 prerelease
+# PipeWeaver Control for OpenDeck — WeaverDeck v0.21.0 prerelease
+
+## v0.21.0: Volume fades
+
+Adds **Application Volume Fade**, **Source Volume Fade**, **Target Volume Fade**,
+**Physical Input Volume Fade**, and **Physical Output Volume Fade** buttons.
+Select a device/application, destination volume (0–100%), and duration
+(0–120 seconds; default 3). Zero seconds applies immediately. Mute is unchanged.
+Buttons retain Dynamic Text / Manual Input and show the current volume badge.
+
+Smart Scenes gain a **Volume Fade** step covering the same five control types.
+Each step fades one selection and waits for completion before the next step.
+Conditions, Stop/Continue failure policy, saved Scene files, and startup Scenes
+are supported. Use Smart Scenes for sequencing fades; fade buttons are excluded
+from native OpenDeck Multi Actions, which cannot await plugin completion.
+
+Fades interpolate the volume percentage linearly with at most one update per
+100ms per fade. HTTP latency may extend the nominal duration; this is not a
+sample-accurate audio envelope. The final target is checked against PipeWeaver.
+Source A/B follows PipeWeaver's existing volume-link setting. Only one fade per
+source runs at a time, even when its mixes are unlinked.
+
+A new fade on the same resource supersedes the previous fade. A direct WeaverDeck
+volume command cancels the fade and waits for any already-sent fade command before
+applying its adjustment. A detected external volume change (over 1 percentage
+point), missing device/application, identity change, or OpenDeck disconnect stops
+the fade. Uncertain commands are not retried. A fade does not resume automatically
+after reconnect. Removing a button or changing deck pages does not itself cancel
+an already-started fade; use a volume adjustment to take over.
+
+**42 automated tests pass**, including the new engine, interruption handling,
+Scene validation/execution, editor import/export, and existing regressions.
+OpenDeck/PipeWeaver runtime validation of v0.21.0 remains pending.
+Dial/display features are retained from v0.20.0 and still **not hardware verified**;
+the user has no dial hardware available. See [compatibility](docs/COMPATIBILITY.md).
+
+First checks on the existing XL:
+1. Add Target Volume Fade, select a target, choose 20% over 3 seconds, and press.
+   Confirm the slider fades and the button badge follows; then fade back up.
+2. During a fade, use an existing Volume Up/Down/Set button. The fade should stop.
+3. Repeat with Brave and Source A/B; account for Source Link if enabled.
+4. In a Smart Scene, add Volume Fade then a mute/routing step. Confirm the second
+   step starts after the fade finishes. Export/import the Scene and recheck it.
+5. Check physical-device fades, manual labels, and persistence after restart.
+
+Other suggested features (hold controls, Scene status/restore, startup file picker)
+remain future work; this release focuses on volume fades.
+
 
 ## v0.20.0: Volume dials and touch-strip feedback
 

@@ -27,7 +27,7 @@ test('Scene success and delayed title use the common text policy',()=>{
 });
 function core(){
  const c=vm.createContext({require:createRequire(root+'/plugin-core.js'),process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},console:{log(){},error(){},warn(){}},setTimeout,clearTimeout,Buffer,URL});
- let source=require(root+'/core-v020').build();source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
+ let source=require(root+'/core-v021').build();source=source.slice(0,source.indexOf('diag("startup",'));vm.runInContext(source,c);
  c.sent=[];vm.runInContext('send=m=>sent.push(m)',c);return c;
 }
 test('all non-app volume actions show actual current volume, correct A/B, physical ID, 0%, and offline unknown',()=>{
@@ -61,7 +61,7 @@ function ui(){
  node('inspector').onload();return {c,node,sent,socket:sock,legacyRow};
 }
 test('nested inspectors share one socket; manual edits survive old Scene saves and receive-settings',()=>{
- const u=ui();assert.equal(u.node('inspector').src,'scene-v018.html');assert.equal(u.node('textMode').value,'manual');assert(u.legacyRow.hidden);assert.equal(u.sent.filter(m=>m.event==='registerPropertyInspector').length,1);
+ const u=ui();assert.equal(u.node('inspector').src,'scene-v021.html');assert.equal(u.node('textMode').value,'manual');assert(u.legacyRow.hidden);assert.equal(u.sent.filter(m=>m.event==='registerPropertyInspector').length,1);
  u.node('manualText').value='New scene label';u.node('manualText').events.input();assert.equal(u.sent.at(-1).payload.operations[0].milliseconds,200);
  u.socket.send(JSON.stringify({event:'setSettings',context:'key',payload:{name:'Edited scene',operations:[{type:'audioRestart'}],buttonText:'stale'}}));
  assert.equal(u.sent.at(-1).payload.buttonText,'New scene label');assert.equal(u.sent.at(-1).payload.name,'Edited scene');
@@ -72,6 +72,6 @@ test('nested inspectors share one socket; manual edits survive old Scene saves a
 test('every manifest action maps to an existing original inspector and entry point starts latest core',()=>{
  const c=vm.createContext({window:{}});vm.runInContext(fs.readFileSync(root+'/propertyInspector/button-inspectors.js','utf8'),c);
  for(const a of manifest.Actions){assert.equal(a.PropertyInspectorPath,'propertyInspector/button-settings.html');assert(fs.existsSync(root+'/propertyInspector/'+c.window.buttonInspectors[a.UUID]),a.UUID)}
- assert(fs.readFileSync(root+'/plugin.js','utf8').includes('require("./core-v020").start()'));
- new vm.Script(require(root+'/core-v020').build());
+ assert(fs.readFileSync(root+'/plugin.js','utf8').includes('require("./core-v021").start()'));
+ new vm.Script(require(root+'/core-v021').build());
 });

@@ -51,7 +51,7 @@ test("recovery timeout fails instead of silently continuing",async()=>{
  await assert.rejects(create(x.api).execute({type:"audioRestart"}),/timed out/);
 });
 function coreContext(){
- let source=require(root+"/core-v020").build();source=source.slice(0,source.indexOf('diag("startup",'));
+ let source=require(root+"/core-v021").build();source=source.slice(0,source.indexOf('diag("startup",'));
  const sandbox={require:createRequire(root+"/plugin-core.js"),process:{env:{},argv:["node","plugin.js","-port","12345","-pluginUUID","test"]},console,setTimeout,clearTimeout,Buffer,URL};vm.createContext(sandbox);vm.runInContext(source,sandbox);return sandbox;
 }
 test("composed core validates new operations, preserves identity matching, and shares concurrent status requests",async()=>{
