@@ -1,6 +1,6 @@
 # PipeWeaver Control for OpenDeck — WeaverDeck v0.22.0 prerelease
 
-## Unified Scene Library (review build)
+## Unified Scene Library
 
 **Scene Library** is the single shared collection for reusable Scenes, with
 save, update, rename, duplicate and delete controls. **Scene Files** remains the
@@ -21,17 +21,13 @@ Scene Library lives in `$XDG_DATA_HOME/weaverdeck/scene-library-v1.json` (normal
 selected library entry's name, falling back to the current Scene name. Existing
 Scene files and startup paths continue to work.
 
-This test build includes the core consolidation below. Check that your old
-library entries and presets appear together, then restart OpenDeck and confirm
-the collection remains intact.
-
 Action inspectors now load directly in OpenDeck instead of inside the common
 iframe whose default height is 150 px. The shared action header, Button Text and
 compact styling are applied to each editor in place. Existing OpenDeck profiles
 using the old inspector path navigate automatically to the matching editor
 without changing saved button settings. Scene retains its two internal editor
-layers, sized to their content with compositing enabled. The latest clipping fix
-awaits OpenDeck testing, especially short inspectors that have no scrollbar.
+layers, sized to their content with compositing enabled. The user confirmed that
+this direct-editor change fixes the recurring inspector clipping.
 
 Physical Input/Output fades now wait up to 1000 ms for feedback after each accepted
 volume command before sending the next step. This addresses early confirmation
@@ -41,7 +37,7 @@ extend a fade's duration. The C922 and Volt 2 inputs now pass the user's 1500 ms
 and 200 ms tests, including simultaneous fades on the two devices.
 See [the current runtime test record](releases/v0.22.0-testing.md).
 
-## Core consolidation (review build)
+## Core consolidation
 
 The complete v0.22.0 runtime now lives in `plugin-core.js`, which `plugin.js`
 loads directly after installing the presentation and Scene adapters. The twelve
@@ -52,7 +48,6 @@ The consolidated core is byte-for-byte identical to the final runtime produced
 by the old patch chain. The core consolidation itself leaves action identifiers, saved settings, Scene formats and
 UI files unchanged. Tests now load the consolidated core directly, and a startup test exercises the real entry point with simulated OpenDeck and PipeWeaver connections. Historical
 internal names and diagnostic labels are retained to keep this refactor mechanical.
-This review build does not change the published v0.22.0 release.
 
 ## v0.22.0: Hold-repeat volume buttons and millisecond fades
 
