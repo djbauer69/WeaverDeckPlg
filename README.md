@@ -1,22 +1,29 @@
 # PipeWeaver Control for OpenDeck — WeaverDeck v0.22.0 prerelease
 
-## Saved Presets persistence (review build)
+## Unified Scene Library (review build)
 
-The former Browser-local Presets section is now **Saved Presets**. Presets are
-stored in `$XDG_DATA_HOME/weaverdeck/scene-presets-v1.json` (normally
-`~/.local/share/weaverdeck/scene-presets-v1.json`), outside the plugin installation
-and embedded browser. They are shared by Scene inspectors and survive restarts.
-The existing Scene Library remains a separate collection.
+**Scene Library** is the single shared collection for reusable Scenes, with
+save, update, rename, duplicate and delete controls. **Scene Files** remains the
+import/export option for backups, sharing and startup loading. Loading a Scene
+copies it into the selected button; later edits do not automatically update the
+library or exported files.
 
-Presets still visible in browser storage are imported automatically without
-replacing newer disk copies. Browser copies are cleared only after the plugin
-confirms the import was saved. Deleted entries are not re-imported from stale
-browser caches. Presets already missing from browser storage cannot be recovered
-automatically; save the current Scene or load an exported Scene file and save it
-as a preset again. Success is reported only after the disk write completes.
+Saved Presets are automatically imported into Scene Library on first use. If a
+library entry and preset have the same name but different content, both are kept
+and the incoming entry gets a suffix such as `(Preset)` or `(Preset 2)`.
+Identical entries are not duplicated. Migration history prevents renamed or
+deleted imports from reappearing on later launches. The old preset file is kept
+intact as a backup. Any still-accessible browser presets are imported too, and
+browser storage is cleared only after the plugin confirms a successful import.
 
-This test build includes the core consolidation below. After installing, save a
-preset, restart OpenDeck, and check that it appears and loads in Saved Presets.
+Scene Library lives in `$XDG_DATA_HOME/weaverdeck/scene-library-v1.json` (normally
+`~/.local/share/weaverdeck/scene-library-v1.json`). Saving a Scene File uses the
+selected library entry's name, falling back to the current Scene name. Existing
+Scene files and startup paths continue to work.
+
+This test build includes the core consolidation below. Check that your old
+library entries and presets appear together, then restart OpenDeck and confirm
+the collection remains intact.
 
 ## Core consolidation (review build)
 
@@ -51,7 +58,7 @@ lives inside the scrollable action settings, the fixed header shows the selected
 action name, and compact rows let dropdown-heavy actions place controls side by
 side when the inspector is wide enough. Numeric inputs share a dedicated row below the dropdown controls, wrapping only when the inspector is too narrow. Fade inspectors use the same dark background as other actions. The inspector content uses a shrinkable, scrollable viewport so controls remain reachable when opening from an empty key or a small inspector pane. Nested Scene frames resize to their content, growing and shrinking as steps change; the main inspector handles page scrolling without fixed-height blank space. Dropdowns use a dark grey background with white text, and header help text and control descriptions are hidden to save space.
 
-**55 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
+**60 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
 fade validation/execution, Smart Scene fade editor round trips, common Button Text
 injection, live volume badges, startup Scenes, source mute destinations,
 application identity matching, packaging compilation, and existing regressions.
