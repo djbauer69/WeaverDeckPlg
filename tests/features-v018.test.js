@@ -51,7 +51,7 @@ test("recovery timeout fails instead of silently continuing",async()=>{
  await assert.rejects(create(x.api).execute({type:"audioRestart"}),/timed out/);
 });
 function coreContext(){
- let source=require(root+"/core-v021").build();source=source.slice(0,source.indexOf('diag("startup",'));
+ let source=require(root+"/core-v022").build();source=source.slice(0,source.indexOf('diag("startup",'));
  const sandbox={require:createRequire(root+"/plugin-core.js"),process:{env:{},argv:["node","plugin.js","-port","12345","-pluginUUID","test"]},console,setTimeout,clearTimeout,Buffer,URL};vm.createContext(sandbox);vm.runInContext(source,sandbox);return sandbox;
 }
 test("composed core validates new operations, preserves identity matching, and shares concurrent status requests",async()=>{
@@ -80,11 +80,15 @@ test("Scene editor layers expose new fields, preserve conditions, and round-trip
  vm.runInContext(fs.readFileSync(root+'/propertyInspector/scene-source-link-v016.js','utf8'),outer);vm.runInContext('v016InstallSourceLinkDropdown()',outer);
  vm.runInContext(fs.readFileSync(root+'/propertyInspector/scene-features-v018.js','utf8'),outer);vm.runInContext('installSceneFeatures018()',outer);
  assert.equal(inner.__features018,true);
+ vm.runInContext(fs.readFileSync(root+'/propertyInspector/fade-ui.js','utf8'),outer);
+ vm.runInContext(fs.readFileSync(root+'/propertyInspector/scene-fades-v022.js','utf8'),outer);vm.runInContext('installSceneFades022()',outer);
+ assert.equal(inner.__fades022,true);
  vm.runInContext('data.sceneSources=["Browser"];data.sceneTargets=["Headphones"];operations=[{type:"wait",condition:{type:"applicationNotRunning",application:{name:"Brave",process:"brave"}},onFailure:"continue"}]',inner);
- for(const type of ['audioBuffer','audioRestart','sourceMuteDestinations']){
+ for(const type of ['audioBuffer','audioRestart','sourceMuteDestinations','volumeFade']){
   vm.runInContext('setType(0,'+JSON.stringify(type)+')',inner);
   const html=vm.runInContext('fields(operations[0],0)',inner);assert(html.includes('Condition'));assert(html.includes('Continue Scene'));assert.equal(vm.runInContext('operations[0].condition.type',inner),'applicationNotRunning');
   if(type==='sourceMuteDestinations')assert(html.includes('Headphones'));
+  if(type==='volumeFade')assert(html.includes('Duration ms'));
   vm.runInContext('exportScene();importScene()',inner);assert.equal(vm.runInContext('operations[0].type',inner),type);
  }
 });

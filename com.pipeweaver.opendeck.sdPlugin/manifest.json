@@ -1,8 +1,8 @@
 {
   "Name": "PipeWeaver Control",
-  "Description": "PipeWeaver application controls, audio engine restart, buffer size, source mute destinations, and Smart Scenes.",
+  "Description": "PipeWeaver controls with hold-repeat volume buttons, millisecond fades, audio engine restart, buffer size, source mute destinations, and Smart Scenes.",
   "Author": "OpenAI",
-  "Version": "0.21.0",
+  "Version": "0.22.0",
   "CodePathLin": "plugin.js",
   "CodePaths": {
     "x86_64-unknown-linux-gnu": "plugin.js",
@@ -169,7 +169,7 @@
       ],
       "SupportedInMultiActions": false,
       "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
     },
     {
       "Icon": "icons/volumeUp",
@@ -324,7 +324,7 @@
       ],
       "SupportedInMultiActions": false,
       "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
     },
     {
       "Icon": "icons/volumeUp",
@@ -422,7 +422,7 @@
       ],
       "SupportedInMultiActions": false,
       "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
     },
     {
       "Icon": "icons/volumeUp",
@@ -837,7 +837,7 @@
       ],
       "SupportedInMultiActions": false,
       "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
     },
     {
       "Icon": "icons/link",
@@ -1081,7 +1081,7 @@
       ],
       "SupportedInMultiActions": false,
       "PropertyInspectorPath": "propertyInspector/button-settings.html",
-      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
     },
     {
       "Icon": "icons/volumeUp",

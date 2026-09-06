@@ -6,7 +6,7 @@
 <label for="settleSeconds">Delay after PipeWeaver is ready (seconds)</label><input id="settleSeconds" type="number" min="0" max="60" step="1" value="2">
 <button id="check" onclick="check019()" disabled>Check file</button><button id="save" onclick="save019()" disabled>Save startup settings</button>
 <div id="status">Connecting…</div>
-<div class="hint">This is one shared startup setting for the plugin. Save applies it to the next OpenDeck/plugin launch. The plugin waits for PipeWeaver, validates the saved Scene, then runs it once. Reconnecting does not run it again. Disabling and saving cancels a pending startup run.</div>
-<div class="hint">The file is read from disk at each launch. Keep it at this path. Press this deck button to run the saved file manually. It works even if startup is disabled.</div>
-<div class="hint">Engine readiness does not mean every application is playing audio. A short delay can help applications appear, but absent application steps retain their normal skip behaviour. Scenes containing engine restarts may require you to resume playback manually.</div>
+<div class="hint weaver-description">This is one shared startup setting for the plugin. Save applies it to the next OpenDeck/plugin launch. The plugin waits for PipeWeaver, validates the saved Scene, then runs it once. Reconnecting does not run it again. Disabling and saving cancels a pending startup run.</div>
+<div class="hint weaver-description">The file is read from disk at each launch. Keep it at this path. Press this deck button to run the saved file manually. It works even if startup is disabled.</div>
+<div class="hint weaver-description">Engine readiness does not mean every application is playing audio. A short delay can help applications appear, but absent application steps retain their normal skip behaviour. Scenes containing engine restarts may require you to resume playback manually.</div>
 </body></html>

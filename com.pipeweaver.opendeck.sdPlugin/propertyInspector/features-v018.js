@@ -10,7 +10,7 @@ function connectElgatoStreamDeckSocket(port,uuid,event,info,actionInfo){
 }
 function request018(){if(info018.action.includes("sourcemuteto"))socket018.send(JSON.stringify({event:"sendToPlugin",context:info018.context,payload:{command:"getTargets"}}))}
 function field018(key,label,values,defaultValue){
-  const host=document.getElementById("controls"),l=document.createElement("label"),select=document.createElement("select");l.textContent=label;host.append(l,select);
+  const host=document.getElementById("controls"),row=document.createElement("div"),l=document.createElement("label"),select=document.createElement("select");row.className="row";l.textContent=label;row.append(l,select);host.append(row);
   for(const [value,text] of values)select.add(new Option(text,value));
   const chosen=settings018[key]??defaultValue;
   if(chosen&&!values.some(v=>v[0]===chosen))select.add(new Option("Configured: "+chosen,chosen));

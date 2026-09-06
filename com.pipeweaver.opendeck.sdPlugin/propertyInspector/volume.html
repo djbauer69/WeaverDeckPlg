@@ -12,12 +12,14 @@ small { color:#999; }
 let websocket;
 let context;
 let settings = {};
+let isDial = false;
 
 function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegisterEvent, inInfo, inActionInfo) {
   websocket = new WebSocket("ws://localhost:" + inPort);
   context = inPropertyInspectorUUID;
   const info = JSON.parse(inActionInfo);
   settings = info.payload.settings || {};
+  isDial = info.action.endsWith("volumedial");
   websocket.onopen = () => {
     websocket.send(JSON.stringify({
       event: inRegisterEvent,
@@ -56,9 +58,13 @@ function requestLists() {
 function init() {
   document.getElementById("target").value = settings.targetName || "";
   document.getElementById("step").value = settings.step || "5";
+  document.getElementById("holdRow").style.display = isDial ? "none" : "flex";
+  document.getElementById("holdMs").value = settings.holdMs || "200";
 }
 function collect() {
-  return {targetName: document.getElementById("target").value, step: document.getElementById("step").value};
+  const payload = {targetName: document.getElementById("target").value, step: document.getElementById("step").value};
+  if (!isDial) payload.holdMs = document.getElementById("holdMs").value;
+  return payload;
 }
 function populate(data) {
   const s = document.getElementById("target");
@@ -71,9 +77,11 @@ function populate(data) {
 }
 function save(){ sendSettings(); }
 
-</script></head><body>PipeWeaver Volume
+</script></head><body>
 
 <div class="row"><label>Target</label><select id="target" onchange="save()"><option>Selecting…</option></select></div>
-<div class="row"><label>Step %</label><input id="step" type="number" min="1" max="100" onchange="save()"></div>
+<div class="weaver-numeric-row"><div class="row"><label>Step %</label><input id="step" type="number" min="1" max="100" onchange="save()"></div>
+<div class="row" id="holdRow"><label>Hold ms</label><input id="holdMs" type="number" min="50" max="2000" step="10" onchange="save()"></div>
+</div>
 <small>Changes are sent to PipeWeaver only.</small>
 </body></html>
