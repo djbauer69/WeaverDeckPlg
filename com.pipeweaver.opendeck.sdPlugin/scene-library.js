@@ -50,7 +50,7 @@ function normalizeScene(scene, forcedName) {
 }
 
 function emptyLibrary() {
-  return { format: LIBRARY_FORMAT, formatVersion: LIBRARY_VERSION, scenes: {} };
+  return { format: LIBRARY_FORMAT, formatVersion: LIBRARY_VERSION, scenes: Object.create(null), presetImports: [] };
 }
 
 function readLibrary(filePath = libraryPath()) {
@@ -65,6 +65,10 @@ function readLibrary(filePath = libraryPath()) {
     for (const [rawName, rawScene] of Object.entries(doc.scenes)) {
       const name = cleanLibraryName(rawName);
       out.scenes[name] = normalizeScene(rawScene, name);
+    }
+    if(doc.presetImports!=null){
+      if(!Array.isArray(doc.presetImports)||doc.presetImports.some(x=>typeof x!=="string"))throw new Error("Invalid preset migration history");
+      out.presetImports=[...new Set(doc.presetImports)];
     }
     return out;
   } catch (error) {
@@ -134,18 +138,20 @@ function sendResult(socket, context, payload) {
   socket.send(JSON.stringify({ event: "sendToPropertyInspector", context, payload }));
 }
 
-function libraryPayload(doc, extra = {}) {
+function libraryPayload(doc, extra = {}, filePath = libraryPath()) {
   return {
     command: "sceneLibrary",
     ok: true,
-    path: libraryPath(),
+    path: filePath,
     entries: sortedEntries(doc),
     ...extra
   };
 }
 
-function installSceneLibrary() {
-  const commands = new Set(["getSceneLibrary", "saveSceneLibrary", "deleteSceneLibrary", "renameSceneLibrary", "duplicateSceneLibrary"]);
+function installSceneLibrary(options = {}) {
+  const filePath=options.filePath||libraryPath();
+  const legacyPath=options.legacyPresetPath;
+  const commands = new Set(["getSceneLibrary", "saveSceneLibrary", "deleteSceneLibrary", "renameSceneLibrary", "duplicateSceneLibrary", "importBrowserPresets"]);
   return {
     handleIncoming(socket, event) {
       let message;
@@ -154,19 +160,24 @@ function installSceneLibrary() {
       const payload = message?.payload;
       if (message?.event !== "sendToPlugin" || !commands.has(payload?.command)) return false;
       try {
+        const migration=require("./scene-library-migration");
+        const migrated=migration.migrateSavedPresets(filePath,legacyPath);
         let response;
         if (payload.command === "getSceneLibrary") {
-          response = libraryPayload(readLibrary());
+          response = libraryPayload(migrated.doc,{message:migrated.message},filePath);
+        } else if(payload.command === "importBrowserPresets") {
+          const imported=migration.importBrowserPresets(payload.presets,filePath,legacyPath);
+          response=libraryPayload(imported.doc,{message:imported.message},filePath);
         } else {
-          const result = mutateLibrary(payload.command, payload);
-          response = libraryPayload(result.doc, { message: result.message, selected: result.selected });
+          const result = mutateLibrary(payload.command, payload, filePath);
+          response = libraryPayload(result.doc, { message: result.message, selected: result.selected },filePath);
           console.error(`[v0.15.0] ${result.message}`);
         }
-        sendResult(socket, message.context, response);
+        sendResult(socket, message.context, {...response,operation:payload.command,requestId:payload.requestId});
       } catch (error) {
         const detail = error?.message || String(error);
         console.error(`[v0.15.0] Scene Library error: ${detail}`);
-        sendResult(socket, message.context, { command: "sceneLibrary", ok: false, error: detail, path: libraryPath() });
+        sendResult(socket, message.context, { command: "sceneLibrary", ok: false, error: detail, path: filePath, operation:payload.command, requestId:payload.requestId });
       }
       return true;
     }

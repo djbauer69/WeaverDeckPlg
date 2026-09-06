@@ -1,4 +1,6 @@
 'use strict';
+// Legacy Saved Presets format retained for migration into Scene Library.
+// The active plugin no longer installs this module's separate preset commands.
 const fs=require('fs'),path=require('path');
 const {libraryPath,cleanLibraryName,normalizeScene,writeLibrary}=require('./scene-library');
 const FORMAT='WeaverDeckScenePresets',LIMIT=8*1024*1024;

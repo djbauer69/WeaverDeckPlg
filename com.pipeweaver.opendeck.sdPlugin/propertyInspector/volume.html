@@ -77,7 +77,7 @@ function populate(data) {
 }
 function save(){ sendSettings(); }
 
-</script></head><body>
+</script><script defer src="button-inspectors.js"></script><script defer src="inspector-layout.js"></script><script defer src="button-settings.js" data-weaver-direct="true"></script></head><body>
 
 <div class="row"><label>Target</label><select id="target" onchange="save()"><option>Selecting…</option></select></div>
 <div class="weaver-numeric-row"><div class="row"><label>Step %</label><input id="step" type="number" min="1" max="100" onchange="save()"></div>

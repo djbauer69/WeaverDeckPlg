@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Volume Fade</title>
 <style>body{background:#1e1e1e;color:#eee;font:13px sans-serif;margin:0;padding:12px}.row{display:flex;align-items:center;margin-bottom:10px;gap:8px}label{width:90px;color:#bbb}input,select{flex:1;min-width:0;box-sizing:border-box;padding:7px;background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:4px}small{display:block;margin-top:14px;color:#bbb}</style>
-<script src="fade-ui.js"></script><script defer src="fade.js"></script></head><body>
+<script src="fade-ui.js"></script><script defer src="fade.js"></script><script defer src="button-inspectors.js"></script><script defer src="inspector-layout.js"></script><script defer src="button-settings.js" data-weaver-direct="true"></script></head><body>
 <div class="row"><label for="selection">Device / App</label><select id="selection"><option value="">Select…</option></select></div>
 <div class="row" id="mixRow"><label for="mix">Source mix</label><select id="mix"><option>A</option><option>B</option></select></div>
 <div class="weaver-numeric-row"><div class="row"><label for="volume">Fade to %</label><input id="volume" type="number" min="0" max="100" step="1" value="0"></div>

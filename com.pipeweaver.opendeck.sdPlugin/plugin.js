@@ -30,7 +30,6 @@ const presentationLayer=require("./button-presentation").installButtonPresentati
 const visualLayer=installApplicationVisuals();
 const sceneFileLayer=installSceneFileIO();
 const sceneLibraryLayer=installSceneLibrary();
-const scenePresetsLayer=require("./scene-presets").installScenePresets();
 const sceneVisualLayer=installSceneVisuals();
 
 class WeaverVisualWebSocket {
@@ -46,7 +45,6 @@ class WeaverVisualWebSocket {
       try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.22.0] application visuals inbound error:",e?.stack||e)}
       try{sceneVisualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.22.0] Scene visuals inbound error:",e?.stack||e)}
       try{if(sceneFileLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.22.0] Scene file I/O inbound error:",e?.stack||e)}
-      try{if(scenePresetsLayer.handleIncoming(this,ev))return}catch(e){console.error("[Presets] inbound error:",e?.stack||e)}
       try{if(sceneLibraryLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.22.0] Scene Library inbound error:",e?.stack||e)}
       if(this._onmessage)return this._onmessage(ev);
     };

@@ -64,3 +64,35 @@ test('manual takeover can wait for the last in-flight fade write before applying
  let applied=false;const manual=Promise.resolve(f.engine.cancel('device:x')).then(()=>{f.setVolume(15);applied=true});
  await new Promise(setImmediate);assert.equal(applied,false);release();await fade;await manual;assert.equal(f.volume,15);
 });
+function physicalFixture({delay=180,never=false}={}){
+ let time=0,volume=100,pending=null;const commands=[],logs=[];
+ const api={refresh:async()=>{if(pending&&!never&&time>=pending.at){volume=pending.value;pending=null}return {}},resolve:()=>({key:'device:mic',name:'Mic',volume,volumeCommand:v=>({v})}),command:async c=>{assert.equal(pending,null,'must confirm the preceding command before another write');commands.push(c);pending={at:time+delay,value:c.Pipewire.v};return 'Ok'},ok:r=>r==='Ok',log:s=>logs.push(s)};
+ const options={now:()=>time,sleep:async ms=>{time+=ms}},engine=create(api,options);
+ return {api,engine,commands,logs,options,get time(){return time},get volume(){return volume},setVolume:v=>{pending=null;volume=v}};
+}
+const physicalOp={kind:'input',device:{id:'mic',name:'Mic'},volume:50,milliseconds:1500};
+test('physical fades wait for delayed device feedback for each write and for the final endpoint',async()=>{
+ for(const kind of ['input','output']){
+  const f=physicalFixture();await f.engine.run({...physicalOp,kind});assert.equal(f.volume,50);assert(f.logs.at(-1).startsWith('COMPLETE'));
+  await f.engine.run({...physicalOp,kind,volume:100,milliseconds:200});assert.equal(f.volume,100);assert(f.logs.at(-1).startsWith('COMPLETE'));
+  const before=f.commands.length;await f.engine.run({...physicalOp,kind,milliseconds:0});assert.equal(f.commands.length,before+1,'0ms sends exactly one write');assert.equal(f.volume,50);
+ }
+});
+test('unconfirmed physical writes time out with requested/readback values and are never repeated',async()=>{
+ const f=physicalFixture({never:true});await assert.rejects(f.engine.run({...physicalOp,milliseconds:0}),/confirmation timed out \(requested 50%, reported 100%\)/);
+ assert.equal(f.commands.length,1);assert.equal(f.time,1000);assert(!f.logs.some(s=>s.startsWith('COMPLETE')));
+});
+test('physical confirmation stops for external changes and disappearing device identity',async()=>{
+ for(const scenario of ['external','identity']){
+  const f=physicalFixture(),raw=f.api.command;f.api.command=async c=>{const r=await raw(c);if(scenario==='external')f.setVolume(0);else f.api.resolve=()=>({key:null,volume:null});return r};
+  await assert.rejects(f.engine.run(physicalOp),scenario==='external'?/changed externally/:/changed identity/);assert.equal(f.commands.length,1);
+ }
+});
+test('manual takeover or disconnect interrupts physical feedback waits without further fade writes',async()=>{
+ for(const disconnect of [false,true]){
+  const f=physicalFixture({never:true}),raw=f.options.sleep;
+  f.options.sleep=async ms=>{await raw(ms);if(disconnect)f.engine.clear();else f.engine.cancel('device:mic')};
+  f.engine=create(f.api,f.options);
+  await assert.rejects(f.engine.run({...physicalOp,milliseconds:0}),/cancelled/);assert.equal(f.commands.length,1);
+ }
+});
