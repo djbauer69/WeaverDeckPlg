@@ -18,7 +18,7 @@ milliseconds instead of seconds. The UI writes `milliseconds` values from
 The common action inspector is less crowded: Button Text mode/manual input now
 lives inside the scrollable action settings, the fixed header shows the selected
 action name, and compact rows let dropdown-heavy actions place controls side by
-side when the inspector is wide enough.
+side when the inspector is wide enough. Numeric inputs each occupy their own row below the dropdown controls. Dropdowns use a dark grey background with white text, and header help text and control descriptions are hidden to save space.
 
 **44 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
 fade validation/execution, Smart Scene fade editor round trips, common Button Text

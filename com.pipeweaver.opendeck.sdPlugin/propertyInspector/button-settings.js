@@ -2,7 +2,7 @@
 // Reuse the original inspector's registered socket. Intercept saves so older
 // inspectors (including nested Scene editors) cannot discard the text settings.
 let latest={},preferences={},context,socket,rawSend;
-const frame=document.getElementById('inspector'),help=document.getElementById('help'),actionName=document.getElementById('actionName');
+const frame=document.getElementById('inspector'),actionName=document.getElementById('actionName');
 let mode=null,manual=null,input=null,manualLabel=null;
 function adopt(settings){
   latest={...settings};
@@ -25,7 +25,46 @@ function injectStyles(win){
   doc.body.classList?.add('weaver-compact');
   if(doc.getElementById('weaverCompactStyle'))return;
   const style=doc.createElement('style');style.id='weaverCompactStyle';
-  style.textContent=`body.weaver-compact [hidden]{display:none!important}body.weaver-compact{box-sizing:border-box;padding:10px!important}body.weaver-compact .row{gap:6px!important;margin-bottom:7px!important}body.weaver-compact label{max-width:78px}body.weaver-compact select,body.weaver-compact input,body.weaver-compact textarea{padding:5px 6px!important}body.weaver-compact .field{gap:6px!important;margin:5px 0!important}body.weaver-compact .field label{width:68px!important}.weaver-text-controls{margin:0 0 9px;padding:8px;border:1px solid #444;border-radius:5px;background:#222}.weaver-text-grid{display:grid;grid-template-columns:82px minmax(0,1fr);gap:7px;align-items:start}.weaver-text-grid label{padding-top:5px;color:#bbb}.weaver-text-grid select,.weaver-text-grid textarea{box-sizing:border-box;width:100%;background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:4px}.weaver-manual[hidden]{display:none}@media (min-width:420px){body.weaver-compact>div.row:not(.top){display:inline-flex;width:calc(50% - 5px)!important;vertical-align:top}body.weaver-compact>div.row:nth-of-type(even):not(.top){margin-left:5px!important}}@media (min-width:480px){body.weaver-compact .step .field:not(:has(.choices)){display:inline-flex;width:calc(50% - 5px)!important;margin-right:5px!important;vertical-align:top}body.weaver-compact .step .field:has(.choices){display:flex;width:100%!important}}`;
+  style.textContent=`
+:root{color-scheme:dark}
+body.weaver-compact{box-sizing:border-box;padding:10px!important}
+body.weaver-compact [hidden]{display:none!important}
+body.weaver-compact small,
+body.weaver-compact .appnote,
+body.weaver-compact .weaver-description{display:none!important}
+body.weaver-compact .row{gap:6px!important;margin-bottom:7px!important;box-sizing:border-box}
+body.weaver-compact .row>label{flex:0 0 78px;width:78px}
+body.weaver-compact input,body.weaver-compact textarea{padding:5px 6px!important;color-scheme:dark}
+body.weaver-compact select{
+  appearance:none;-webkit-appearance:none;color-scheme:dark;
+  background-color:#2a2a2a!important;color:#fff!important;
+  border:1px solid #555;border-radius:4px;box-sizing:border-box;
+  padding:5px 28px 5px 6px!important;min-width:0;
+  background-image:linear-gradient(45deg,transparent 50%,#fff 50%),linear-gradient(135deg,#fff 50%,transparent 50%);
+  background-position:calc(100% - 14px) 50%,calc(100% - 9px) 50%;
+  background-size:5px 5px;background-repeat:no-repeat;
+}
+body.weaver-compact select option,body.weaver-compact select optgroup{background:#2a2a2a;color:#fff}
+body.weaver-compact .field{gap:6px!important;margin:5px 0!important;box-sizing:border-box}
+body.weaver-compact .field>label{flex:0 0 78px;width:78px!important}
+.weaver-text-controls{margin:0 0 9px;padding:8px;border:1px solid #444;border-radius:5px;background:#222}
+.weaver-text-grid{display:grid;grid-template-columns:82px minmax(0,1fr);gap:7px;align-items:start}
+.weaver-text-grid label{padding-top:5px;color:#bbb}
+.weaver-text-grid select,.weaver-text-grid textarea{box-sizing:border-box;width:100%;background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:4px}
+body.weaver-compact .row:has(input[type="number"]),body.weaver-compact .field:has(input[type="number"]){display:flex;width:100%!important;margin-left:0!important;margin-right:0!important}
+@media (min-width:420px){
+  body.weaver-compact>div.row:has(select):not(:has(input)):not(.top),
+  body.weaver-compact #controls>div.row:has(select):not(:has(input)){
+    display:inline-flex;width:calc(50% - 5px);margin-right:5px;vertical-align:top;
+  }
+}
+@media (min-width:480px){
+  body.weaver-compact .step .field:has(select):not(:has(input)):not(:has(.choices)){
+    display:inline-flex;width:calc(50% - 5px);margin-right:5px!important;vertical-align:top;
+  }
+  body.weaver-compact .step .field:has(.choices){display:flex;width:100%}
+}
+`;
   (doc.head||doc.body).appendChild(style);
 }
 function injectTextControls(win){
@@ -73,10 +112,8 @@ function patchWindow(win,withTextControls=false){
 window.connectElgatoStreamDeckSocket=function(...args){
   const info=JSON.parse(args[4]);context=info.context;adopt(info.payload?.settings||{});
   actionName.textContent=window.buttonInspectorNames?.[info.action]||info.action.split('.').pop();
-  if(info.action.endsWith('volumedial'))help.textContent='Turn to adjust by Step % per tick. Press or tap to mute. The strip shows live volume and mute state in either text mode; labels use one line.';
-  else if(info.action.endsWith('volup')||info.action.endsWith('voldown'))help.textContent='Tap once for one Step %. Hold to repeat at the configured hold speed.';
   const original=window.buttonInspectors[info.action];
-  if(!original){help.textContent='Unknown action inspector';return}
+  if(!original){actionName.textContent='Unknown action inspector';return}
   frame.onload=()=>{
     patchWindow(frame.contentWindow,true);
     frame.contentWindow.connectElgatoStreamDeckSocket(...args);
