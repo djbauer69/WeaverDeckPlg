@@ -124,6 +124,7 @@ window.connectElgatoStreamDeckSocket=function(...args){
   if(!original){actionName.textContent='Unknown action inspector';return}
   frame.onload=()=>{
     patchWindow(frame.contentWindow,true);
+    window.WeaverInspectorLayout.fit(frame);
     frame.contentWindow.connectElgatoStreamDeckSocket(...args);
   };
   frame.src=original;

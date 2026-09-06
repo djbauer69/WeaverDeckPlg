@@ -23,3 +23,26 @@ test('repeated binding reuses the observer and navigation replaces and cleans up
  b.listeners.get('pagehide')();assert(b.observers[0].disconnected);assert.equal(b.listeners.size,0);
  fit(frame);assert.equal(b.observers.length,2,'returning to a page can bind again');
 });
+test('hidden inspectors and asynchronous library changes get a fresh layout without requiring a viewport resize',()=>{
+ const v=documentView(),jobs=new Map(),mutations=[],intersections=[];let id=0;
+ v.win.requestAnimationFrame=fn=>{jobs.set(++id,fn);return id};
+ v.win.cancelAnimationFrame=id=>jobs.delete(id);
+ v.win.MutationObserver=class{constructor(fn){this.fn=fn;mutations.push(this)}observe(){}disconnect(){this.disconnected=true}};
+ const owner={IntersectionObserver:class{constructor(fn){this.fn=fn;intersections.push(this)}observe(){}disconnect(){this.disconnected=true}}};
+ const flush=()=>{const batch=[...jobs.values()];jobs.clear();batch.forEach(fn=>fn())};
+ const frame={contentWindow:v.win,ownerDocument:{defaultView:owner},style:{height:'150px'}};
+ v.box.width=0;fit(frame);assert.equal(frame.style.height,'150px');
+ v.box.width=600;v.box.height=2400;intersections[0].fn();flush();assert.equal(frame.style.height,'2400px');
+ v.box.height=3100;mutations[0].fn();v.observers[0].fn();assert.equal(jobs.size,1,'coalesce body mutations and resize notifications');
+ flush();assert.equal(frame.style.height,'3100px','late-loaded library content remains reachable');
+ v.box.height=620;v.listeners.get('focus')();flush();assert.equal(frame.style.height,'620px','reopening reclaims blank space');
+ mutations[0].fn();v.listeners.get('pagehide')();assert.equal(jobs.size,0);assert(mutations[0].disconnected);assert(intersections[0].disconnected);
+});
+test('nested frame height changes propagate through the parent to the outer scrolling content',()=>{
+ const child=documentView(),parent=documentView();
+ const childFrame={contentWindow:child.win,style:{}},outerFrame={contentWindow:parent.win,style:{}};
+ parent.doc.body.getBoundingClientRect=()=>({width:600,height:500+parseInt(childFrame.style.height||0)});
+ fit(childFrame);fit(outerFrame);assert.equal(outerFrame.style.height,'880px');
+ child.box.height=5000;child.observers[0].fn();parent.observers[0].fn();assert.equal(outerFrame.style.height,'5500px');
+ child.box.height=200;child.observers[0].fn();parent.observers[0].fn();assert.equal(outerFrame.style.height,'700px');
+});

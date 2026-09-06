@@ -25,6 +25,11 @@ This test build includes the core consolidation below. Check that your old
 library entries and presets appear together, then restart OpenDeck and confirm
 the collection remains intact.
 
+The inspector uses one outer page scrollbar with content-sized editor frames.
+Sizing refreshes after library/content changes and when a hidden inspector is
+shown again. Check opening Scene from an empty key, scrolling to its final
+controls, and adding/removing steps in both a short and a tall inspector pane.
+
 ## Core consolidation (review build)
 
 The complete v0.22.0 runtime now lives in `plugin-core.js`, which `plugin.js`
@@ -58,7 +63,7 @@ lives inside the scrollable action settings, the fixed header shows the selected
 action name, and compact rows let dropdown-heavy actions place controls side by
 side when the inspector is wide enough. Numeric inputs share a dedicated row below the dropdown controls, wrapping only when the inspector is too narrow. Fade inspectors use the same dark background as other actions. The inspector content uses a shrinkable, scrollable viewport so controls remain reachable when opening from an empty key or a small inspector pane. Nested Scene frames resize to their content, growing and shrinking as steps change; the main inspector handles page scrolling without fixed-height blank space. Dropdowns use a dark grey background with white text, and header help text and control descriptions are hidden to save space.
 
-**60 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
+**62 automated tests pass**, covering hold-repeat start/stop behavior, millisecond
 fade validation/execution, Smart Scene fade editor round trips, common Button Text
 injection, live volume badges, startup Scenes, source mute destinations,
 application identity matching, packaging compilation, and existing regressions.

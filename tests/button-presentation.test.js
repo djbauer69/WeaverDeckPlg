@@ -85,7 +85,8 @@ test('Multi Action volume buttons apply one step without scheduling hold repeats
 });
 function ui(){
  const nodes=new Map();function node(id){if(!nodes.has(id))nodes.set(id,{value:'',hidden:false,disabled:true,events:{},addEventListener(e,f){this.events[e]=f}});return nodes.get(id)}
- const c=vm.createContext({document:{getElementById:node},console});c.window=c;c.WeaverInspectorLayout={fit(){}};
+ const fitted=[];
+ const c=vm.createContext({document:{getElementById:node},console});c.window=c;c.WeaverInspectorLayout={fit(frame){fitted.push(frame)}};
  vm.runInContext(fs.readFileSync(root+'/propertyInspector/button-inspectors.js','utf8'),c);
  vm.runInContext(fs.readFileSync(root+'/propertyInspector/button-settings.js','utf8'),c);
  const sent=[];let sock;
@@ -107,10 +108,11 @@ function ui(){
  const outer={WebSocket:class extends WS{},document:doc([{contentWindow:middle,addEventListener(){}}]),connectElgatoStreamDeckSocket(){sock=new inner.WebSocket();sock.send(JSON.stringify({event:'registerPropertyInspector',uuid:'pi'}))}};
  node('inspector').contentWindow=outer;
  c.connectElgatoStreamDeckSocket(1234,'pi','registerPropertyInspector','{}',JSON.stringify({action:'com.pipeweaver.opendeck.scene',context:'key',payload:{settings:{name:'Scene',operations:[{type:'wait',milliseconds:200}],buttonText:'Legacy'}}}));
- node('inspector').onload();return {c,node,sent,socket:sock,legacyRow,controls:{mode:outer.document.getElementById('weaverTextMode'),input:outer.document.getElementById('weaverManualText')}};
+ node('inspector').onload();return {c,node,sent,socket:sock,legacyRow,fitted,controls:{mode:outer.document.getElementById('weaverTextMode'),input:outer.document.getElementById('weaverManualText')}};
 }
 test('nested inspectors share one socket; manual edits survive old Scene saves and receive-settings',()=>{
  const u=ui();assert.equal(u.node('inspector').src,'scene-v022.html');assert.equal(u.controls.mode.value,'manual');assert(u.legacyRow.hidden);assert.equal(u.sent.filter(m=>m.event==='registerPropertyInspector').length,1);
+ assert.equal(u.fitted.length,3);assert.equal(u.fitted.at(-1),u.node('inspector'),'the top editor must expand too, leaving scrolling to the outer inspector');
  u.controls.input.value='New scene label';u.controls.input.oninput();assert.equal(u.sent.at(-1).payload.operations[0].milliseconds,200);
  u.socket.send(JSON.stringify({event:'setSettings',context:'key',payload:{name:'Edited scene',operations:[{type:'audioRestart'}],buttonText:'stale'}}));
  assert.equal(u.sent.at(-1).payload.buttonText,'New scene label');assert.equal(u.sent.at(-1).payload.name,'Edited scene');
