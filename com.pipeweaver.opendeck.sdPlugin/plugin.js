@@ -19,8 +19,8 @@ if(!NativeWebSocket){
   process.exit(3);
 }
 
-// Keep diagnostics aligned with the package version while the stable v0.11.2
-// engine lives in plugin-core.js unchanged.
+// Keep historical diagnostic labels aligned with the package version.
+// plugin-core.js contains the complete consolidated runtime.
 for(const method of ["log","error","warn"]){
   const original=console[method].bind(console);
   console[method]=(...args)=>original(...args.map(v=>typeof v==="string"?v.replace(/\[v0\.(?:11\.2|12\.2|15\.0|15\.1|16\.0|18\.1|21\.0)\]/g,"[v0.22.0]"):v));
@@ -80,4 +80,4 @@ for(const key of ["CONNECTING","OPEN","CLOSING","CLOSED"]){
 
 globalThis.WebSocket=WeaverVisualWebSocket;
 console.error("[v0.22.0] artwork, resilient application identity, cached app discovery, Scene visuals, Scene Library, Source volume-link, Smart Scenes, millisecond fades, and hold-repeat volume controls enabled");
-require("./core-v022").start();
+require("./plugin-core");
