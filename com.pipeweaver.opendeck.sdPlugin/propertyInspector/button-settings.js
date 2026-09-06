@@ -109,8 +109,12 @@ function patchWindow(win,withTextControls=false){
   }
   const old=win.document.getElementById('buttonText');if(old?.closest('.row'))old.closest('.row').hidden=true;
   for(const child of win.document.querySelectorAll('iframe')){
-    patchWindow(child.contentWindow,false);
-    child.addEventListener('load',()=>patchWindow(child.contentWindow,false));
+    const ready=()=>{
+      patchWindow(child.contentWindow,false);
+      window.WeaverInspectorLayout.fit(child);
+    };
+    ready();
+    child.addEventListener('load',ready);
   }
 }
 window.connectElgatoStreamDeckSocket=function(...args){
