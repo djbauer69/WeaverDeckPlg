@@ -18,7 +18,7 @@ window.buttonInspectors={
   "com.pipeweaver.opendeck.routeoff": "route.html",
   "com.pipeweaver.opendeck.routeon": "route.html",
   "com.pipeweaver.opendeck.route": "route.html",
-  "com.pipeweaver.opendeck.scene": "scene-v018.html",
+  "com.pipeweaver.opendeck.scene": "scene-v021.html",
   "com.pipeweaver.opendeck.scenestartup": "startup-scene.html",
   "com.pipeweaver.opendeck.sourceavoldown": "sourcefixed.html",
   "com.pipeweaver.opendeck.sourceavolup": "sourcefixed.html",
@@ -50,5 +50,10 @@ window.buttonInspectors={
   "com.pipeweaver.opendeck.sourcevolumedial": "source.html",
   "com.pipeweaver.opendeck.targetvolumedial": "volume.html",
   "com.pipeweaver.opendeck.physinvolumedial": "physical.html",
-  "com.pipeweaver.opendeck.physvolumedial": "physical.html"
+  "com.pipeweaver.opendeck.physvolumedial": "physical.html",
+  "com.pipeweaver.opendeck.appvolumefade": "fade.html",
+  "com.pipeweaver.opendeck.sourcevolumefade": "fade.html",
+  "com.pipeweaver.opendeck.targetvolumefade": "fade.html",
+  "com.pipeweaver.opendeck.physinvolumefade": "fade.html",
+  "com.pipeweaver.opendeck.physvolumefade": "fade.html"
 };

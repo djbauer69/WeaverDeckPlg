@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-/* PipeWeaver Control for OpenDeck v0.20.0
+/* PipeWeaver Control for OpenDeck v0.21.0
  * Adds source mute destination configuration, audio engine restart and buffer
  * size controls for buttons and Smart Scenes. Retains resilient application
  * identity, Source Link, Scene Library, capture and portable Scene files.
@@ -23,7 +23,7 @@ if(!NativeWebSocket){
 // engine lives in plugin-core.js unchanged.
 for(const method of ["log","error","warn"]){
   const original=console[method].bind(console);
-  console[method]=(...args)=>original(...args.map(v=>typeof v==="string"?v.replace(/\[v0\.(?:11\.2|12\.2|15\.0|15\.1|16\.0|18\.1)\]/g,"[v0.20.0]"):v));
+  console[method]=(...args)=>original(...args.map(v=>typeof v==="string"?v.replace(/\[v0\.(?:11\.2|12\.2|15\.0|15\.1|16\.0|18\.1)\]/g,"[v0.21.0]"):v));
 }
 
 const presentationLayer=require("./button-presentation").installButtonPresentation();
@@ -42,10 +42,10 @@ class WeaverVisualWebSocket {
     };
     this._ws.onmessage=(ev)=>{
       presentationLayer.handleIncoming(this,ev);
-      try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.20.0] application visuals inbound error:",e?.stack||e)}
-      try{sceneVisualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.20.0] Scene visuals inbound error:",e?.stack||e)}
-      try{if(sceneFileLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.20.0] Scene file I/O inbound error:",e?.stack||e)}
-      try{if(sceneLibraryLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.20.0] Scene Library inbound error:",e?.stack||e)}
+      try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.21.0] application visuals inbound error:",e?.stack||e)}
+      try{sceneVisualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.21.0] Scene visuals inbound error:",e?.stack||e)}
+      try{if(sceneFileLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.21.0] Scene file I/O inbound error:",e?.stack||e)}
+      try{if(sceneLibraryLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.21.0] Scene Library inbound error:",e?.stack||e)}
       if(this._onmessage)return this._onmessage(ev);
     };
     this._ws.onerror=(ev)=>{if(this._onerror)this._onerror(ev)};
@@ -62,7 +62,7 @@ class WeaverVisualWebSocket {
   set binaryType(v){this._ws.binaryType=v}
   get bufferedAmount(){return this._ws.bufferedAmount}
   send(data){
-    try{data=sceneVisualLayer.handleOutgoing(this,data)}catch(e){console.error("[v0.20.0] Scene visuals outbound error:",e?.stack||e)}
+    try{data=sceneVisualLayer.handleOutgoing(this,data)}catch(e){console.error("[v0.21.0] Scene visuals outbound error:",e?.stack||e)}
     return this._ws.send(presentationLayer.handleOutgoing(data))
   }
   close(...args){return this._ws.close(...args)}
@@ -79,5 +79,5 @@ for(const key of ["CONNECTING","OPEN","CLOSING","CLOSED"]){
 }
 
 globalThis.WebSocket=WeaverVisualWebSocket;
-console.error("[v0.20.0] artwork, resilient application identity, cached app discovery, Scene visuals, Scene Library, Source volume-link, and Smart Scenes enabled");
-require("./core-v020").start();
+console.error("[v0.21.0] artwork, resilient application identity, cached app discovery, Scene visuals, Scene Library, Source volume-link, and Smart Scenes enabled");
+require("./core-v021").start();

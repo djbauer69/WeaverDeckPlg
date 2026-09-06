@@ -2,7 +2,7 @@
   "Name": "PipeWeaver Control",
   "Description": "PipeWeaver application controls, audio engine restart, buffer size, source mute destinations, and Smart Scenes.",
   "Author": "OpenAI",
-  "Version": "0.20.0",
+  "Version": "0.21.0",
   "CodePathLin": "plugin.js",
   "CodePaths": {
     "x86_64-unknown-linux-gnu": "plugin.js",
@@ -153,6 +153,25 @@
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
     },
     {
+      "UUID": "com.pipeweaver.opendeck.appvolumefade",
+      "Name": "Application Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
+    },
+    {
       "Icon": "icons/volumeUp",
       "Name": "Application Volume Up",
       "States": [
@@ -289,6 +308,25 @@
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
     },
     {
+      "UUID": "com.pipeweaver.opendeck.physinvolumefade",
+      "Name": "Physical Input Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
+    },
+    {
       "Icon": "icons/volumeUp",
       "Name": "Physical Input Volume Up",
       "States": [
@@ -366,6 +404,25 @@
       "Tooltip": "Decrease a physical PipeWeaver output volume.",
       "UUID": "com.pipeweaver.opendeck.physvoldown",
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.physvolumefade",
+      "Name": "Physical Output Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
     },
     {
       "Icon": "icons/volumeUp",
@@ -764,6 +821,25 @@
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
     },
     {
+      "UUID": "com.pipeweaver.opendeck.sourcevolumefade",
+      "Name": "Source Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
+    },
+    {
       "Icon": "icons/link",
       "Name": "Source Volume Link Toggle",
       "States": [
@@ -987,6 +1063,25 @@
       "Tooltip": "Decrease a PipeWeaver target volume.",
       "UUID": "com.pipeweaver.opendeck.volumedown",
       "PropertyInspectorPath": "propertyInspector/button-settings.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.targetvolumefade",
+      "Name": "Target Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/button-settings.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120 seconds."
     },
     {
       "Icon": "icons/volumeUp",

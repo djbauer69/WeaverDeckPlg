@@ -1,6 +1,20 @@
 # WeaverDeck compatibility and test matrix
 
-Applies to **WeaverDeck v0.20.0 prerelease**. Updated 2026-09-05.
+Applies to **WeaverDeck v0.21.0 prerelease**. Updated 2026-09-06.
+
+The user has no dial/display hardware for testing. Those rows remain pending;
+continuing feature development does not establish device compatibility.
+
+## v0.21.0 volume-fade coverage
+
+42 automated tests pass in the complete suite. Fade tests cover both directions,
+exact endpoints, immediate/no-op fades, invalid settings, missing devices, external
+changes, identity changes, interrupted requests, manual takeover, replacement
+fades, Smart Scene execution/validation, and editor import/export for all five
+control types. Real OpenDeck/PipeWeaver fade timing and smoothness are pending.
+Five new fade buttons bring the total to 52 button actions plus five dial actions.
+No new hardware or Linux distribution is marked verified.
+
 
 **Automated pass** means a simulated protocol/core test passed; it does not mean
 that physical hardware or a Linux distribution was tested. **Pending** means no

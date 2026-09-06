@@ -43,7 +43,7 @@ test('feedback preserves manual label, live zero, mute and offline state; blank 
 function core(){
  let api;const native=createRequire(root+'/plugin-core.js'),timers=[];
  const c=vm.createContext({require:n=>n==='./dial-controls'?{kind:require(root+'/dial-controls').kind,create:a=>{api=a;return create(a,{schedule:f=>timers.push(f)})}}:native(n),process:{env:{},argv:['node','plugin','-port','1234','-pluginUUID','test']},console:{log(){},error(){},warn(){}},setTimeout,clearTimeout,Buffer,URL});
- let s=require(root+'/core-v020').build();s=s.slice(0,s.indexOf('diag("startup",'));vm.runInContext(s,c);return {c,get api(){return api},timers};
+ let s=require(root+'/core-v021').build();s=s.slice(0,s.indexOf('diag("startup",'));vm.runInContext(s,c);return {c,get api(){return api},timers};
 }
 test('composed dial commands select correct source mix, target, physical direction and resilient application identity',()=>{
  const f=core();f.c.status={audio:{profile:{devices:{sources:{virtual_devices:[{id:'src',name:'Browser',volumes:{volume:{A:25,B:70}},mute_states:{mute_state:['TargetB']}}]},targets:{virtual_devices:[{id:'dst',name:'Desktop',volume:40,muted:false}]}}},devices:{Source:[{id:'mic',name:'Mic',volume:80,muted:false}],Target:[{id:'out',name:'Out',volume:90,muted:true}]},applications:{Source:{'brave (deleted)':[{name:'Brave',process:'brave (deleted)',node_id:269,volume:60,muted:false}]}}}};
@@ -66,7 +66,7 @@ test('real core routes dial lifecycle and feedback, cancels vanished controls, a
 test('five Encoder-only actions have a complete bounded feedback layout and retain all button UUIDs',()=>{
  const m=require(root+'/manifest.json'),dials=m.Actions.filter(a=>a.Controllers.includes('Encoder'));assert.equal(dials.length,5);
  for(const a of dials){assert.deepEqual(a.Controllers,['Encoder']);assert.equal(a.SupportedInMultiActions,false);const layout=JSON.parse(fs.readFileSync(root+'/'+a.Encoder.layout));assert.deepEqual(layout.items.map(i=>i.key),['label','value','status','indicator']);for(const i of layout.items){const [x,y,w,h]=i.rect;assert(x>=0&&y>=0&&x+w<=200&&y+h<=100)}}
- assert.equal(m.Actions.filter(a=>a.Controllers.includes('Keypad')).length,47);
+ assert.equal(m.Actions.filter(a=>a.Controllers.includes('Keypad')).length,52);
 });
 test('disconnect cancels a gesture even while its readiness request is in flight',async()=>{
  const f=fixture();let release;f.api.refresh=()=>new Promise(r=>release=r);f.event('dialRotate',{ticks:2});const pending=f.flush();await new Promise(setImmediate);f.dial.clear();release({});await pending;assert.equal(f.commands.length,0);
