@@ -27,7 +27,7 @@ function injectStyles(win){
   const style=doc.createElement('style');style.id='weaverCompactStyle';
   style.textContent=`
 :root{color-scheme:dark}
-body.weaver-compact{box-sizing:border-box;padding:10px!important}
+body.weaver-compact{background:#1e1e1e!important;box-sizing:border-box;padding:10px!important}
 body.weaver-compact [hidden]{display:none!important}
 body.weaver-compact small,
 body.weaver-compact .appnote,
@@ -52,6 +52,10 @@ body.weaver-compact .field>label{flex:0 0 78px;width:78px!important}
 .weaver-text-grid label{padding-top:5px;color:#bbb}
 .weaver-text-grid select,.weaver-text-grid textarea{box-sizing:border-box;width:100%;background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:4px}
 body.weaver-compact .row:has(input[type="number"]),body.weaver-compact .field:has(input[type="number"]){display:flex;width:100%!important;margin-left:0!important;margin-right:0!important}
+/* A full-width group starts below the dropdown rows; its number fields share a row. */
+body.weaver-compact .weaver-numeric-row{display:flex;flex-wrap:wrap;gap:0 10px;width:100%;box-sizing:border-box}
+body.weaver-compact .weaver-numeric-row>.row:has(input[type="number"]),
+body.weaver-compact .weaver-numeric-row>.field:has(input[type="number"]){flex:1 1 150px;min-width:0;width:auto!important}
 @media (min-width:420px){
   body.weaver-compact>div.row:has(select):not(:has(input)):not(.top),
   body.weaver-compact #controls>div.row:has(select):not(:has(input)){
