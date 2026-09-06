@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {fit}=require('../com.pipeweaver.opendeck.sdPlugin/propertyInspector/inspector-layout');
+const {fit,watch}=require('../com.pipeweaver.opendeck.sdPlugin/propertyInspector/inspector-layout');
 function documentView(){
  const box={width:600,height:380},listeners=new Map(),observers=[];
  const doc={documentElement:{style:{}},body:{style:{},getBoundingClientRect:()=>box,scrollHeight:2600}};
@@ -9,7 +9,7 @@ function documentView(){
 }
 test('nested Scene frames grow and shrink with content instead of keeping their old viewport height',()=>{
  const v=documentView(),frame={contentWindow:v.win,style:{height:'2600px',minHeight:'1500px'}};
- fit(frame);assert.equal(frame.style.height,'380px');assert.equal(frame.style.minHeight,'0');assert.equal(v.doc.documentElement.style.overflow,'hidden');
+ fit(frame);assert.equal(frame.style.height,'380px');assert.equal(frame.style.minHeight,'0');assert.equal(v.doc.documentElement.style.overflow,'auto');
  v.box.height=4300.4;v.observers[0].fn();assert.equal(frame.style.height,'4301px');
  v.box.height=260;v.observers[0].fn();assert.equal(frame.style.height,'260px','deleting steps must reclaim blank space');
  v.box.width=0;v.box.height=0;v.observers[0].fn();assert.equal(frame.style.height,'260px','hidden selection must not collapse cached editor');
@@ -45,4 +45,21 @@ test('nested frame height changes propagate through the parent to the outer scro
  fit(childFrame);fit(outerFrame);assert.equal(outerFrame.style.height,'880px');
  child.box.height=5000;child.observers[0].fn();parent.observers[0].fn();assert.equal(outerFrame.style.height,'5500px');
  child.box.height=200;child.observers[0].fn();parent.observers[0].fn();assert.equal(outerFrame.style.height,'700px');
+});
+test('outer watchdog repairs nested sizes even when child animation callbacks remain suspended',()=>{
+ const child=documentView(),parent=documentView(),events=new Map();let tick,cleared=false;
+ const childFrame={contentWindow:child.win,style:{}},frame={contentWindow:parent.win,style:{}};
+ child.doc.querySelectorAll=()=>[];parent.doc.querySelectorAll=()=>[childFrame];
+ parent.doc.body.getBoundingClientRect=()=>({width:600,height:500+parseInt(childFrame.style.height||0)});
+ child.win.requestAnimationFrame=()=>123;parent.win.requestAnimationFrame=()=>456;
+ child.win.cancelAnimationFrame=()=>{};parent.win.cancelAnimationFrame=()=>{};
+ const host={document:{hidden:false},setInterval(fn,ms){assert.equal(ms,500);tick=fn;return 1},clearInterval(){cleared=true},addEventListener:(e,fn)=>events.set(e,fn),removeEventListener:e=>events.delete(e)};
+ const stop=watch(frame,host);assert.equal(frame.style.height,'880px');
+ child.box.height=4700;child.observers[0].fn();parent.observers[0].fn();
+ assert.equal(frame.style.height,'880px','simulate a WebView that suspended child requestAnimationFrame');
+ tick();assert.equal(childFrame.style.height,'4700px');assert.equal(frame.style.height,'5200px');
+ child.box.height=200;tick();assert.equal(frame.style.height,'700px');
+ host.document.hidden=true;child.box.height=900;tick();assert.equal(frame.style.height,'700px');
+ host.document.hidden=false;events.get('focus')();assert.equal(frame.style.height,'1400px');
+ stop();assert(cleared);assert.equal(events.size,0);
 });

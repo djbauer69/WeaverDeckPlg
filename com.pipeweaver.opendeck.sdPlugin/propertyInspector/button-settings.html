@@ -1,16 +1,15 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Button Settings</title>
 <style>
-/* The outer inspector owns page scrolling. Every editor frame grows with its
-   content, so nested frame viewports cannot cut off the bottom of a Scene. */
-html{width:100%;height:100%;margin:0;overflow:hidden;background:#2d2d2d}
-body{position:absolute;inset:0;display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0;min-height:0;margin:0;overflow:hidden;background:#2d2d2d;color:#ddd;font:13px sans-serif}
-header{padding:9px 10px;border-bottom:1px solid #555}
+/* Use normal document scrolling: no viewport-height grid or inner scroll box
+   whose cached size can outlive OpenDeck hiding/revealing this inspector. */
+html{margin:0;overflow-y:auto;background:#1e1e1e;scrollbar-gutter:stable}
+body{min-width:0;margin:0;background:#1e1e1e;color:#ddd;font:13px sans-serif}
+header{position:sticky;top:0;z-index:10;background:#2d2d2d;padding:9px 10px;border-bottom:1px solid #555}
 .meta{display:grid;grid-template-columns:62px minmax(0,1fr);gap:7px;align-items:center}
 label{color:#bbb}
 .action-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff}
-#inspectorScroll{min-width:0;min-height:0;overflow:auto;scrollbar-gutter:stable;background:#1e1e1e}
 #inspector{display:block;box-sizing:border-box;width:100%;min-width:0;min-height:0;border:0}
 </style>
 <script src="button-inspectors.js"></script><script src="inspector-layout.js"></script><script defer src="button-settings.js"></script></head><body>
 <header><div class="meta"><label>Action</label><div id="actionName" class="action-name">Loading…</div></div></header>
-<div id="inspectorScroll"><iframe id="inspector" title="Action settings"></iframe></div></body></html>
+<iframe id="inspector" title="Action settings"></iframe></body></html>

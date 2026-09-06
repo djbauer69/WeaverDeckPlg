@@ -4,6 +4,7 @@
 let latest={},preferences={},context,socket,rawSend;
 const frame=document.getElementById('inspector'),actionName=document.getElementById('actionName');
 let mode=null,manual=null,input=null,manualLabel=null;
+let stopLayoutWatch=null;
 function adopt(settings){
   latest={...settings};
   preferences={textMode:settings.textMode==='manual'||(settings.textMode!=='dynamic'&&!!settings.buttonText)?'manual':'dynamic',buttonText:String(settings.buttonText??'')};
@@ -123,8 +124,10 @@ window.connectElgatoStreamDeckSocket=function(...args){
   const original=window.buttonInspectors[info.action];
   if(!original){actionName.textContent='Unknown action inspector';return}
   frame.onload=()=>{
+    stopLayoutWatch?.();
     patchWindow(frame.contentWindow,true);
     window.WeaverInspectorLayout.fit(frame);
+    stopLayoutWatch=window.WeaverInspectorLayout.watch(frame);
     frame.contentWindow.connectElgatoStreamDeckSocket(...args);
   };
   frame.src=original;

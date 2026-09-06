@@ -86,7 +86,7 @@ test('Multi Action volume buttons apply one step without scheduling hold repeats
 function ui(){
  const nodes=new Map();function node(id){if(!nodes.has(id))nodes.set(id,{value:'',hidden:false,disabled:true,events:{},addEventListener(e,f){this.events[e]=f}});return nodes.get(id)}
  const fitted=[];
- const c=vm.createContext({document:{getElementById:node},console});c.window=c;c.WeaverInspectorLayout={fit(frame){fitted.push(frame)}};
+ const c=vm.createContext({document:{getElementById:node},console});c.window=c;c.WeaverInspectorLayout={fit(frame){fitted.push(frame)},watch(){return ()=>{}}};
  vm.runInContext(fs.readFileSync(root+'/propertyInspector/button-inspectors.js','utf8'),c);
  vm.runInContext(fs.readFileSync(root+'/propertyInspector/button-settings.js','utf8'),c);
  const sent=[];let sock;

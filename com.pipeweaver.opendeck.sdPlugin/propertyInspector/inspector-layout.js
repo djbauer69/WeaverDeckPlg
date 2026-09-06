@@ -1,6 +1,6 @@
 "use strict";
-// All editor frames expand to their content. The outer inspectorScroll element
-// owns page scrolling, including Button Text and the complete Scene editor.
+// All editor frames expand to their content. The outer document owns page
+// scrolling, including Button Text and the complete Scene editor.
 (function(root){
  const bindings=new WeakMap();
  function fit(frame){
@@ -11,8 +11,10 @@
   previous?.dispose();
   // Measure intrinsic body height, not document scrollHeight: scrollHeight is
   // floored by the old iframe viewport and would prevent a long scene shrinking.
-  Object.assign(doc.documentElement.style,{height:'auto',minHeight:'0',overflow:'hidden'});
-  Object.assign(doc.body.style,{height:'auto',minHeight:'0',margin:'0',display:'flow-root',overflow:'hidden'});
+  // Keep overflow reachable if a WebView delays sizing. Correctly sized frames
+  // need no inner scrollbar, but stale dimensions must never hide controls.
+  Object.assign(doc.documentElement.style,{height:'auto',minHeight:'0',overflow:'auto'});
+  Object.assign(doc.body.style,{height:'auto',minHeight:'0',margin:'0',display:'flow-root',overflow:'visible'});
   frame.style.minHeight='0';
   let pending=null,disposed=false;
   const update=()=>{
@@ -54,7 +56,23 @@
   win.addEventListener('pagehide',dispose);
   update();
  }
- const api={fit};
+ function refreshTree(frame){
+  const doc=frame.contentWindow?.document;if(!doc?.body)return;
+  for(const child of doc.querySelectorAll('iframe'))refreshTree(child);
+  fit(frame);
+ }
+ function watch(frame,host=root){
+  // Run from the outer inspector, not from hidden child animation queues.
+  // One low-frequency check also catches reveal/resize notifications missed
+  // by embedded WebKit. Bottom-up sizing propagates the entire Scene at once.
+  const refresh=()=>{if(!host.document?.hidden)refreshTree(frame)};
+  const timer=host.setInterval(refresh,500);
+  for(const event of ['focus','resize','pageshow'])host.addEventListener(event,refresh);
+  const dispose=()=>{host.clearInterval(timer);for(const event of ['focus','resize','pageshow'])host.removeEventListener(event,refresh);host.removeEventListener('pagehide',dispose)};
+  host.addEventListener('pagehide',dispose);
+  refresh();return dispose;
+ }
+ const api={fit,refreshTree,watch};
  if(typeof module==='object'&&module.exports)module.exports=api;
  else root.WeaverInspectorLayout=api;
 })(typeof window==='object'?window:globalThis);

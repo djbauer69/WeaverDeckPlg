@@ -32,6 +32,20 @@ function create(api,{now=()=>performance.now(),sleep=ms=>new Promise(r=>setTimeo
   let finish;const job={cancelled:false,done:new Promise(r=>finish=r)};active.set(key,job);
   function check(){if(job.cancelled)throw Error('Fade cancelled by another control or disconnect')}
   function resolve(status){const d=api.resolve(op,status);if(d.key!==key||!Number.isFinite(d.volume))throw Error('Fade device/application disappeared or changed identity');return d}
+  // Physical commands acknowledge dispatch before DeviceVolumeChanged reaches
+  // status. Confirm each accepted write before sending the next one; never
+  // retry a write or treat an old readback as a user adjustment immediately.
+  async function confirmPhysical(before,wanted){
+   const deadline=now()+1000;let reported=before;
+   for(;;){
+    check();const d=resolve(await api.refresh());check();reported=d.volume;
+    if(Math.abs(reported-wanted)<=1)return;
+    if(reported<Math.min(before,wanted)-1||reported>Math.max(before,wanted)+1)
+     throw Error('Fade cancelled: volume changed externally (requested '+wanted+'%, reported '+reported+'%)');
+    if(now()>=deadline)throw Error('Physical volume confirmation timed out (requested '+wanted+'%, reported '+reported+'%)');
+    await sleep(Math.min(50,Math.max(0,deadline-now())));
+   }
+  }
   try{
    if(previous)await previous.done;check();
    const start=resolve(await api.refresh());check();
@@ -45,7 +59,10 @@ function create(api,{now=()=>performance.now(),sleep=ms=>new Promise(r=>setTimeo
     const progress=duration?Math.min(1,(now()-began)/duration):1;
     const value=Math.round(from+(target-from)*progress);
     if(value!==expected){
-     const r=await api.command({Pipewire:d.volumeCommand(value)});if(!api.ok(r))throw Error('PipeWeaver rejected fade command: '+JSON.stringify(r));expected=value;
+     const r=await api.command({Pipewire:d.volumeCommand(value)});if(!api.ok(r))throw Error('PipeWeaver rejected fade command: '+JSON.stringify(r));
+     check();
+     if(op.kind==='input'||op.kind==='output')await confirmPhysical(d.volume,value);
+     expected=value;
     }
     check();if(progress===1)break;
    }
