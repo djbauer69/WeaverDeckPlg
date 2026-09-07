@@ -19,6 +19,8 @@ v0.23.0 reduces the action sidebar from 57 entries to **12**. Application, Physi
 
 Backups are saved under `<config>/weaverdeck-backups/<timestamp>/`, outside the active profiles and plugins directories. To roll back, quit OpenDeck, keep a copy of your current files, restore the backed-up profile files and replace the plugin folder with the backup. Do not restore only the old plugin while leaving converted profiles in place.
 
+Installer correction: OpenDeck device-selection metadata (`profiles/<device>.json`) is preserved without being treated as a button profile. Profile validation errors now identify the affected file. If the earlier installer stopped with “Unrecognized OpenDeck profile format”, replace the extracted bundle with this corrected copy and rerun the command; that validation stop did not install anything.
+
 The installer requires Python 3 on Linux and validates the bundled ZIP checksum. It refuses to run while OpenDeck is active or when the profile format is unrecognized. It converts profile JSON files already present in the selected configuration. **If importing a profile exported before v0.23.0, first import it using v0.22.0, quit OpenDeck, then run this migration.** Old exported profiles are not automatically rewritten by the plugin.
 
 For a fresh installation with no existing WeaverDeck profile entries, the inner plugin ZIP can be installed normally. For development checkouts, explicitly pass `--zip /path/to/pipeweaver-opendeck-plugin-v0.23.0.zip`; its `.sha256` file must be beside it.
@@ -35,7 +37,7 @@ For a fresh installation with no existing WeaverDeck profile entries, the inner 
 
 ## Review checks
 
-Automated checks pass: 87 Node tests and 12 Python tests, including operation dispatch, settings/text preservation, controller restrictions, icon feedback, profile conversion, byte-exact backups and rollback. Icon SVGs have been rendered for visual inspection. This build still needs the following OpenDeck/PipeWeaver checks:
+Automated checks pass: 87 Node tests and 15 Python tests, including operation dispatch, settings/text preservation, controller restrictions, icon feedback, profile conversion, byte-exact backups and rollback. Icon SVGs have been rendered for visual inspection. This build still needs the following OpenDeck/PipeWeaver checks:
 
 1. Confirm existing buttons keep their selected operations and work after migration/restart.
 2. Confirm the sidebar has 12 alphabetical entries. Drag each of the six groups onto a key and switch operations.

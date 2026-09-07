@@ -63,6 +63,34 @@ class Upgrade(unittest.TestCase):
   with patch.object(u,'opendeck_running',return_value=False),patch.object(u,'atomic_write',side_effect=fail),patch('builtins.print'):
    with self.assertRaises(OSError):u.install(config,package,apply=True)
   self.assertEqual(profile.read_bytes(),before);self.assertEqual((config/'plugins'/u.PLUGIN/'old.txt').read_text(),'old plugin')
+ def test_device_selection_metadata_is_not_a_button_profile(self):
+  config,profile,package=self.fixture()
+  metadata=config/'profiles/device.json'
+  original=b'{\n  "selected_profile": "Default"\n}\n';metadata.write_bytes(original)
+  with patch.object(u,'opendeck_running',return_value=False),patch('builtins.print'):
+   u.install(config,package);self.assertEqual(metadata.read_bytes(),original)
+   u.install(config,package,apply=True)
+  self.assertEqual(metadata.read_bytes(),original)
+  self.assertEqual(json.loads(profile.read_text())['keys'][0]['action']['uuid'],'com.pipeweaver.opendeck.physicalinput')
+  backup=next((config/'weaverdeck-backups').iterdir())
+  self.assertTrue((backup/'profiles/device/Default.json').is_file())
+ def test_invalid_profile_names_file_and_is_not_skipped_as_metadata(self):
+  config,profile,package=self.fixture()
+  for value in ({'selected_profile':'Default'}, {'keys':[], 'sliders':'bad', 'selected_profile':'Default'}):
+   profile.write_text(json.dumps(value))
+   with patch.object(u,'opendeck_running',return_value=False):
+    with self.assertRaisesRegex(ValueError,r'profiles/device/Default.json: Unrecognized'):
+     u.install(config,package,apply=True)
+   self.assertFalse((config/'weaverdeck-backups').exists())
+   self.assertTrue((config/'plugins'/u.PLUGIN/'old.txt').exists())
+ def test_invalid_json_names_file_and_unknown_root_metadata_still_stops(self):
+  config,profile,package=self.fixture();metadata=config/'profiles/device.json'
+  for value in ('{', '{"selected_profile":42}', '{"unexpected":[]}'):
+   metadata.write_text(value)
+   with patch.object(u,'opendeck_running',return_value=False):
+    with self.assertRaisesRegex(ValueError,r'profiles/device.json:'):
+     u.install(config,package,apply=True)
+   self.assertFalse((config/'weaverdeck-backups').exists())
  def test_running_host_invalid_profile_and_wrong_checksum_stop_before_install(self):
   config,profile,package=self.fixture()
   with patch.object(u,'opendeck_running',return_value=True):

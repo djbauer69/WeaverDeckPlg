@@ -117,7 +117,18 @@ def install(config, package, *, apply=False):
         for path in sorted((config / 'profiles').rglob('*.json')):
             if path.is_symlink(): raise ValueError('Symlinked profile found; review it before migration.')
             before = path.read_bytes()
-            converted, count = convert_profile(json.loads(before), catalog, manifest)
+            try:
+                document = json.loads(before)
+                # OpenDeck's DeviceStores saves profiles/<device>.json with
+                # selected_profile; actual DiskProfiles live below device/.
+                # Skip only this known metadata shape at the metadata location.
+                if (path.parent == config / 'profiles' and isinstance(document, dict)
+                        and isinstance(document.get('selected_profile'), str)
+                        and not any(key in document for key in ('keys', 'sliders', 'infobars'))):
+                    continue
+                converted, count = convert_profile(document, catalog, manifest)
+            except ValueError as error:
+                raise ValueError(f'{path.relative_to(config)}: {error}') from error
             if count: changes.append((path, before, (json.dumps(converted, ensure_ascii=False, indent=2)+'\n').encode(), count, path.stat().st_mode & 0o777))
         print(f'OpenDeck config: {config}\nConvert {sum(c[3] for c in changes)} buttons/dials across {len(changes)} profiles.\nInstall WeaverDeck v0.23.0 with 12 sidebar actions.')
         if not apply:
