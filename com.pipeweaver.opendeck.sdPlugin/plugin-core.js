@@ -240,7 +240,8 @@ function updateInstance(i){
   image=physicalArt023.artwork(st.deviceIcon,{volume:targetVolume(d),muted:targetMuted(d),mute:a.endsWith('mute')});
  }else if(!a.startsWith('app')&&!a.endsWith('volumefade')&&!holdSpec022(i)&&!a.includes('setvolume')){
   const template=legacyActions023.get(i.action);image=template?.States?.[i.visualState]?.Image||template?.States?.[0]?.Image;
-  if(image)image+='\.svg';
+  // OpenDeck resolves manifest-style stems to .svg/@2x.png/.png itself.
+  // Adding an extension here makes it look for e.g. routeOn.svg.png.
  }
  if(image&&i.groupImage!==image){i.groupImage=image;send({event:'setImage',context:i.context,payload:{image}})}
 }

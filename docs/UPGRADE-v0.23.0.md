@@ -37,7 +37,7 @@ For a fresh installation with no existing WeaverDeck profile entries, the inner 
 
 ## Review checks
 
-Automated checks pass: 87 Node tests and 15 Python tests, including operation dispatch, settings/text preservation, controller restrictions, icon feedback, profile conversion, byte-exact backups and rollback. Icon SVGs have been rendered for visual inspection. This build still needs the following OpenDeck/PipeWeaver checks:
+Automated checks pass: 89 Node tests and 15 Python tests, including operation dispatch, settings/text preservation, controller restrictions, icon feedback, profile conversion, byte-exact backups and rollback. Icon SVGs have been rendered for visual inspection. This build still needs the following OpenDeck/PipeWeaver checks:
 
 1. Confirm existing buttons keep their selected operations and work after migration/restart.
 2. Confirm the sidebar has 12 alphabetical entries. Drag each of the six groups onto a key and switch operations.

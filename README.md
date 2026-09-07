@@ -31,7 +31,7 @@ Existing action settings, Scene files and shared Scene Library/startup settings 
 
 v0.23.0 provides one draggable action per requested function group, operation selection in the header, and selectable physical input/output icons. The six utility actions stay separate. Existing hold, fade, Scene and inspector fixes are retained.
 
-**87 Node tests and 15 Python tests pass.** The [v0.23.0 review notes](releases/v0.23.0.md) describe the changes and remaining runtime checks. The prior stable [runtime test record](releases/v0.22.0-testing.md) remains available.
+**89 Node tests and 15 Python tests pass.** The [v0.23.0 review notes](releases/v0.23.0.md) describe the changes and remaining runtime checks. The prior stable [runtime test record](releases/v0.22.0-testing.md) remains available.
 
 ## Development
 

@@ -12,7 +12,7 @@ Entries below are reconstructed from repository commits, versioned READMEs, rele
 - Include an offline installer that backs up and migrates saved profile identifiers before installing the compact manifest. This is required because current OpenDeck does not hide legacy entries using `VisibleInActionsList` and can discard missing action identifiers.
 - Preserve hold repeat, millisecond fades, Scene behavior and inspector redraw fixes. Fade selections remain excluded from native Multi Actions.
 
-Validation: 87 Node tests and 15 Python tests pass. Runtime confirmation of this review build is pending; v0.22.0 remains stable.
+Validation: 89 Node tests and 15 Python tests pass. Runtime confirmation of this review build is pending; v0.22.0 remains stable.
 
 ## v0.22.0 — hold repeat, millisecond fades and inspector/storage fixes
 

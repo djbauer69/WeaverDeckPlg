@@ -58,3 +58,37 @@ test('all ten device icons are bounded authored SVGs and untrusted icon paths ar
  for(const icon of [...art.input,...art.output]){const s=art.svg(icon,{volume:0});assert(s.includes('viewBox="0 0 144 144"'));assert(s.includes('>0%</text>'));assert(!s.includes('undefined'));assert(!s.includes('http',s.indexOf('viewBox')))}
  assert(!art.valid('../webcam','input'));assert(!art.valid('airpods','input'));assert(!art.valid('microphone','output'));
 });
+// Match OpenDeck's set_image -> convert_icon resolution, not browser URL rules.
+function hostIcon(image){
+ assert.equal(typeof image,'string');
+ const stem=path.join(root,image);
+ return fs.existsSync(stem+'.svg')?stem+'.svg':fs.existsSync(stem+'@2x.png')?stem+'@2x.png':stem+'.png';
+}
+test('grouped Route, Target Mix and Target Mute send resolvable original artwork in both live states',async()=>{
+ const h=harness(),target=h.c.status.audio.profile.devices.targets.virtual_devices[0];
+ const latest=()=>h.c.sent.filter(m=>m.event==='setImage'&&m.payload.image).at(-1).payload.image;
+ const cases=[
+  ...['route','routeon','routeoff'].map(op=>['routing',op,['routeOff','routeOn'],state=>{h.c.status.audio.profile.routes={src:state?['dst']:[]}}]),
+  ...['targetmixa','targetmixb','targetmixtoggle'].map(op=>['targetcontrol',op,['mixA','mixB'],state=>{target.mix=state?'B':'A'}]),
+  ...['mute','muteon','muteoff'].map(op=>['targetcontrol',op,['muteLive','muteMuted'],state=>{target.muted=!!state}])
+ ];
+ for(const [group,operation,icons,set] of cases){
+  set(0);
+  await h.event({event:'willAppear',action:P+group,context:'key',payload:{controller:'Keypad',settings:{operation:P+operation,sourceName:'Browser',targetName:'Headphones'}}});
+  for(const state of [0,1,0]){
+   set(state);vm.runInContext('updateAll()',h.c);
+   const filename=hostIcon(latest());assert(fs.existsSync(filename),operation+' must resolve to an existing file');
+   assert.equal(fs.readFileSync(filename,'utf8'),fs.readFileSync(root+'/icons/'+icons[state]+'.svg','utf8'),operation+' state '+state);
+  }
+  await h.event({event:'willDisappear',context:'key'});
+ }
+});
+test('switching a grouped Target between volume, mix and mute replaces the previous artwork',async()=>{
+ const h=harness();
+ await h.event({event:'willAppear',action:P+'targetcontrol',context:'key',payload:{controller:'Keypad',settings:{operation:P+'volumeup',targetName:'Headphones'}}});
+ for(const [operation,icon] of [['targetmixtoggle','mixA'],['mute','muteLive'],['targetmixb','mixA']]){
+  await h.event({event:'didReceiveSettings',action:P+'targetcontrol',context:'key',payload:{settings:{operation:P+operation,targetName:'Headphones'}}});
+  const image=h.c.sent.filter(m=>m.event==='setImage'&&m.payload.image).at(-1).payload.image;
+  assert.equal(hostIcon(image),root+'/icons/'+icon+'.svg');assert(fs.existsSync(hostIcon(image)));
+ }
+});
