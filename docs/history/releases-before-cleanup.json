@@ -1,0 +1,459 @@
+{
+  "captured_at": "2026-09-07",
+  "repository": "djbauer69/WeaverDeckPlg",
+  "releases": [
+    {
+      "id": 383587973,
+      "tag": "v0.22.0",
+      "name": "WeaverDeck v0.22.0",
+      "body": "Configurable hold-repeat volume buttons, millisecond fades, persistent Scene Library, and compact action inspectors.\n\n- Volume Up/Down actions support configurable Hold ms repeat speed.\n- Standalone and Smart Scene fades use millisecond durations, with compatibility for older second-based settings.\n- Saved Presets merge into one persistent Scene Library. Existing entries migrate without overwriting different same-name Scenes; Scene Files remains available for import/export.\n- Action editors load directly in OpenDeck, fixing the recurring inspector clipping while retaining Dynamic Text, Manual Input and compact controls. Existing buttons navigate automatically from the old inspector path.\n- Physical Input/Output fades wait for device feedback before advancing, avoiding premature confirmation failures without resending commands.\n- The runtime is consolidated into plugin-core.js; historical patch files are removed while separate feature modules remain.\n\nValidation: 71 automated tests pass. Runtime checks confirm Source A/B millisecond fades, immediate changes, Smart Scene ordering, restored durations, and C922/Volt 2 physical input fades, including concurrent fades. The user also confirmed the final inspector clipping fix.\n\nPhysical-device feedback can extend nominal fade durations. Scene file export/import is not independently established by the latest logs. See [the detailed test record](https://github.com/djbauer69/WeaverDeckPlg/blob/main/releases/v0.22.0-testing.md) for evidence and limits.\n\nInstall asset: `pipeweaver-opendeck-plugin-v0.22.0.zip`\n\nSHA-256: `9b4ebc37f92f59fecd881a7f3e571286c221ca36acd8b89021756fa98ac59ba0`\n\nThis replaces the earlier v0.22.0 package; existing action settings and Scene files remain supported.\n",
+      "published_at": "2026-09-06T13:11:02Z",
+      "prerelease": false,
+      "assets": [
+        {
+          "id": 547642727,
+          "name": "pipeweaver-opendeck-plugin-v0.22.0.zip",
+          "digest": "sha256:9b4ebc37f92f59fecd881a7f3e571286c221ca36acd8b89021756fa98ac59ba0",
+          "size": 131911
+        }
+      ]
+    },
+    {
+      "id": 383451494,
+      "tag": "v0.21.0",
+      "name": "WeaverDeck v0.21.0",
+      "body": "Adds volume fade buttons and Smart Scene fade steps. Dynamic/Manual labels and live volume badges included. All 42 automated tests pass; runtime testing pending. Dial/display hardware compatibility remains unverified.",
+      "published_at": "2026-09-06T03:20:03Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 546663208,
+          "name": "pipeweaver-opendeck-plugin-v0.21.0.zip",
+          "digest": "sha256:3624f8e0f4d6ae97285a456980aa7817204bb1321fa6726bac2e5ca97eddca6a",
+          "size": 133440
+        }
+      ]
+    },
+    {
+      "id": 383400473,
+      "tag": "v0.20.0",
+      "name": "WeaverDeck v0.20.0",
+      "body": "Adds five volume dial actions with press/tap mute and live touch-strip feedback. Includes a documented compatibility test matrix. All 33 automated tests pass; physical dial/display testing remains pending.",
+      "published_at": "2026-09-05T23:09:22Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 546415124,
+          "name": "pipeweaver-opendeck-plugin-v0.20.0.zip",
+          "digest": "sha256:4bced037267a1cd3a5a56452b7b659c828a0e583640c435391dff4c0c98e3b7e",
+          "size": 124961
+        }
+      ]
+    },
+    {
+      "id": 383391934,
+      "tag": "v0.19.1",
+      "name": "WeaverDeck v0.19.1",
+      "body": "Dynamic Text or Manual Input for every action. Live bottom-right volume percentages on all Volume Down, Up, and Set actions. Automated tests passed; OpenDeck hardware testing pending.",
+      "published_at": "2026-09-05T22:26:55Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 546380093,
+          "name": "pipeweaver-opendeck-plugin-v0.19.1.zip",
+          "digest": "sha256:9cd8258cbae7bab99aba67904656b46ed987bc261b79b47205c66c7840c220a4",
+          "size": 120910
+        }
+      ]
+    },
+    {
+      "id": 383337919,
+      "tag": "v0.19.0",
+      "name": "WeaverDeck v0.19.0",
+      "body": "Adds optional startup Scene execution from a local file after PipeWeaver readiness. Includes validation, configurable delay, persistent settings and manual execution. Live startup testing pending.",
+      "published_at": "2026-09-05T18:35:19Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 546163271,
+          "name": "pipeweaver-opendeck-plugin-v0.19.0.zip",
+          "digest": "sha256:61ebdc0c6efcc748e92a1e1e3a9f72a5f304073628e3e7cd7d3f036812e9df70",
+          "size": 116302
+        }
+      ]
+    },
+    {
+      "id": 383327864,
+      "tag": "v0.18.1",
+      "name": "WeaverDeck v0.18.1",
+      "body": "Save Scene File now uses the selected Browser-local Preset name, falling back to the Scene name when none is selected.",
+      "published_at": "2026-09-05T17:58:45Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 546124690,
+          "name": "pipeweaver-opendeck-plugin-v0.18.1.zip",
+          "digest": "sha256:b676d23d7fd83314b6269708690fd90b8e4f335f5bc646c1fc8c7c46a7c778b2",
+          "size": 110291
+        }
+      ]
+    },
+    {
+      "id": 383228791,
+      "tag": "v0.18.0",
+      "name": "WeaverDeck v0.18.0",
+      "body": "# WeaverDeck v0.18.0 — runtime testing update\n\nAdds source Mute To destination controls, Audio Engine Restart and Audio Buffer Size actions for buttons and Smart Scenes. Actions are grouped alphabetically by function.\n\n## Runtime checks completed — 5 September 2026\n\nTested by djbauer using OpenDeck and PipeWeaver on Linux, with plugin logs reviewed.\n\n- Source Mute To Set, Toggle and All: Browser slot B → Headphones. User confirmed the dropdown followed the controls; every recorded action succeeded.\n- Audio Buffer Size buttons: changes to 512 and 256 samples succeeded after engine recovery.\n- Audio Engine Restart button: two successful executions.\n- Restart Scene: engine recovery completed in 4,014 ms, followed by Brave application volume changing from 91% to 40%, confirmed by status.\n- Mute To Scene: Set Browser B → Headphones, followed by Source B Mute; both runs completed with zero validation errors or warnings. These logs confirm command success; they do not independently measure destination audio.\n- Buffer Size Scene: 512 samples applied with recovery in 4,010 ms. Repeating the same setting completed in 1 ms, consistent with the intended no-op.\n\n## Playback and recovery behaviour\n\nEngine restarts and buffer changes can pause Brave playback. The user confirmed clicking Play immediately restores audio; no browser restart is needed. Engine readiness does not guarantee automatic application playback resumption.\n\nTemporary HTTP 503 responses (“PipeWire manager is not running”) occurred during engine resets, followed by recovery and successful action completion.\n\nIf an application stream is absent when a Scene application step executes, the existing missing-application behaviour can skip it even though the Scene completes. An OK/COMPLETE message alone is not proof that playback resumed.\n\nMute To configures destinations rather than activating mute. PipeWeaver may unmute the slot when destinations change; place Source Mute afterward when needed.\n\n## Remaining checks\n\n- Explicit live testing of the separate Mute To Add/Remove buttons and slot A.\n- Broader multi-source/multi-target destination cases, additional buffer settings and default restoration.\n- Extended idle stability and the previously intermittent first Mute press after recovery.\n- No claim of exhaustive regression testing or stable promotion.\n\nNine automated tests passed before packaging. This remains a prerelease with the principal new controls runtime-tested.\n\nThe plugin ZIP and its checksum are unchanged; this update records testing only.\n\nSHA-256: `a9007120acddad56a51f88443c8d8f758f7edc8e6110676a1be1d44067895827`\n",
+      "published_at": "2026-09-05T11:38:44Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545757068,
+          "name": "pipeweaver-opendeck-plugin-v0.18.0.zip",
+          "digest": "sha256:a9007120acddad56a51f88443c8d8f758f7edc8e6110676a1be1d44067895827",
+          "size": 110208
+        }
+      ]
+    },
+    {
+      "id": 383174520,
+      "tag": "v0.16.0",
+      "name": "WeaverDeck v0.16.0",
+      "body": "Adds Smart Scenes with per-step application running/not-running conditions, explicit Wait / Delay steps, per-step Stop/Continue runtime failure policy, condition-aware validation and logging, while preserving v0.15.1 Source A/B volume-link Scene capture/restore, Scene Library, Scene files, presets, Capture Scope, and the PipeWeaver-only control engine.",
+      "published_at": "2026-09-05T07:49:14Z",
+      "prerelease": false,
+      "assets": [
+        {
+          "id": 545604873,
+          "name": "pipeweaver-opendeck-plugin-v0.16.0.zip",
+          "digest": "sha256:d45d8fd156b36802785d010dc25b2cfb86e8612c86ab42af98f00767ad9db593",
+          "size": 95488
+        }
+      ]
+    },
+    {
+      "id": 383160830,
+      "tag": "v0.15.1",
+      "name": "WeaverDeck v0.15.1",
+      "body": "Adds Source Volume Link Toggle with live LINKED/UNLINKED feedback and Source A/B link-state support in Scene capture, validation, and execution. Existing Source A/B volume controls remain unchanged; PipeWeaver applies its native linked-ratio behavior.",
+      "published_at": "2026-09-05T06:49:23Z",
+      "prerelease": false,
+      "assets": [
+        {
+          "id": 545519296,
+          "name": "pipeweaver-opendeck-plugin-v0.15.1.zip",
+          "digest": "sha256:08c09702e1ba8f1213b96f3510452bdae1cab593873aabd888cd062f8cb283e2",
+          "size": 82614
+        }
+      ]
+    },
+    {
+      "id": 383149701,
+      "tag": "v0.15.0",
+      "name": "WeaverDeck v0.15.0",
+      "body": "Adds the native shared Scene Library with Load, Save As, Update, Rename, Duplicate, Delete, and Refresh management; Scene key success/failure feedback; and quieter application polling while preserving v0.14.2 Scene file I/O, Capture Scope, browser-local presets, and the stable PipeWeaver-only control engine.",
+      "published_at": "2026-09-05T05:54:40Z",
+      "prerelease": false,
+      "assets": [
+        {
+          "id": 545435010,
+          "name": "pipeweaver-opendeck-plugin-v0.15.0.zip",
+          "digest": "sha256:f49784f72d92009ab642fba3068ee33de4d7c3679053436348ecc969e72cdfce",
+          "size": 71921
+        }
+      ]
+    },
+    {
+      "id": 383144963,
+      "tag": "v0.14.2",
+      "name": "WeaverDeck v0.14.2",
+      "body": "Fixes Scene file saving on OpenDeck Linux. Scene files are now written by the native plugin process directly to the user's Downloads directory instead of relying on the embedded Property Inspector WebView's browser download mechanism. The exact saved path is reported in the Scene Property Inspector, and existing files are preserved with numbered filenames. Capture Scope, Local Scene Presets, Scene execution, and PipeWeaver-only audio control remain unchanged.",
+      "published_at": "2026-09-05T05:29:37Z",
+      "prerelease": false,
+      "assets": [
+        {
+          "id": 545413482,
+          "name": "pipeweaver-opendeck-plugin-v0.14.2.zip",
+          "digest": "sha256:c2a682fa87980df1d15c77bf567448c78da0ccfcfe5f78c5b3bc28460852571d",
+          "size": 63583
+        }
+      ]
+    },
+    {
+      "id": 383135588,
+      "tag": "v0.14.1",
+      "name": "WeaverDeck v0.14.1",
+      "body": "Fixes scoped Scene capture in v0.14.0. Capture Scope now filters the Scene Builder's actual internal operation list through the existing Scene JSON bridge, fixing routes-only captures that incorrectly produced zero steps. Also fixes Scene file and local preset handling affected by the same iframe state-access issue.",
+      "published_at": "2026-09-05T04:40:54Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545366995,
+          "name": "pipeweaver-opendeck-plugin-v0.14.1.zip",
+          "digest": "sha256:912e790169baa60b2542c25f08d40a67d7e299e0edae26f6d918a15ba3030ff4",
+          "size": 61143
+        }
+      ]
+    },
+    {
+      "id": 383132117,
+      "tag": "v0.14.0",
+      "name": "WeaverDeck v0.14.0",
+      "body": "Adds scoped Scene capture, portable Scene file download/load, and reusable local Scene presets. Capture Current State can now independently include Sources, Targets, Routes, Physical devices, Default devices, and Applications. Keeps the proven v0.13.0 Scene Builder and PipeWeaver-only execution engine intact.",
+      "published_at": "2026-09-05T04:23:16Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545349533,
+          "name": "pipeweaver-opendeck-plugin-v0.14.0.zip",
+          "digest": "sha256:b10edbf5d73859aa724a5835be04ae561e61bf473bb5751f7dbcafd371627624",
+          "size": 61151
+        }
+      ]
+    },
+    {
+      "id": 383128222,
+      "tag": "v0.13.0",
+      "name": "WeaverDeck v0.13.0",
+      "body": "Adds Scene Import / Export / Share. Structured WeaverDeck Scenes can now be exported as portable versioned JSON, copied and shared, then imported into another Scene action. Imported scenes retain existing validation/preflight behavior so they can be checked against the receiving PipeWeaver configuration before execution. Includes all v0.12.2 application artwork and custom Button Text functionality.",
+      "published_at": "2026-09-05T04:06:29Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545332634,
+          "name": "pipeweaver-opendeck-plugin-v0.13.0.zip",
+          "digest": "sha256:b2fed6c6d965ed6ceeb09e72427a37e9ad5442596bcc14dad0f038bf2e2aea0d",
+          "size": 57896
+        }
+      ]
+    },
+    {
+      "id": 383125750,
+      "tag": "v0.12.2",
+      "name": "WeaverDeck v0.12.2",
+      "body": "Keeps the larger application artwork introduced in v0.12.1 while restoring dynamic application titles. Adds an optional Button Text field to Application actions so users can replace the dynamic title with a persistent custom label. Audio control remains exclusively through PipeWeaver.",
+      "published_at": "2026-09-05T03:55:15Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545321897,
+          "name": "pipeweaver-opendeck-plugin-v0.12.2.zip",
+          "digest": "sha256:63340df6b2654a85cb074026060bb3dea5a036b1d4a8052198fd0bce0b6c31d8",
+          "size": 57311
+        }
+      ]
+    },
+    {
+      "id": 383123256,
+      "tag": "v0.12.1",
+      "name": "WeaverDeck v0.12.1",
+      "body": "Improves application button presentation by enlarging resolved application icons and suppressing the OpenDeck text overlay that could obscure them. Compact mute, route, and volume indicators remain embedded in the artwork. Audio control remains PipeWeaver-only.",
+      "published_at": "2026-09-05T03:43:39Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545311204,
+          "name": "pipeweaver-opendeck-plugin-v0.12.1.zip",
+          "digest": "sha256:565a2840b51c5695eb2a96abbf8eb600a4676900cbacd1757b44f9b329239e7a",
+          "size": 56886
+        }
+      ]
+    },
+    {
+      "id": 383119728,
+      "tag": "v0.12.0",
+      "name": "WeaverDeck v0.12.0",
+      "body": "Adds dynamic Linux application artwork for Application Mute, Volume, Set Volume, and Route actions. Local .desktop/icon-theme resolution is preferred, with bundled/common-app fallbacks and generated badges. Application Mute now shows green when live and red when muted. Audio control remains PipeWeaver-only.",
+      "published_at": "2026-09-05T03:27:36Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545296461,
+          "name": "pipeweaver-opendeck-plugin-v0.12.0.zip",
+          "digest": "sha256:85358f0b432fd161195c12e3adc86ddb15305c832c74aac5ee542217ffa655a7",
+          "size": 56670
+        }
+      ]
+    },
+    {
+      "id": 383106983,
+      "tag": "v0.11.2",
+      "name": "WeaverDeck v0.11.2",
+      "body": "Scene validation test release. Fixes idempotent Scene route execution so routes already in the requested state are treated as successful no-ops.",
+      "published_at": "2026-09-05T02:29:31Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545241231,
+          "name": "pipeweaver-opendeck-plugin-v0.11.2.zip",
+          "digest": "sha256:6f9bb2fc839063508aad2d51d75a312602f7e8bb977ba290cfe2c3404436536f",
+          "size": 48105
+        }
+      ]
+    },
+    {
+      "id": 383105672,
+      "tag": "v0.11.1",
+      "name": "WeaverDeck v0.11.1",
+      "body": "Testing release.\n\nFixes:\n- Restore configured physical PipeWeaver targets to Scene Target selections.\n- Restore configured physical PipeWeaver sources to Scene Source selections.\n- Keep raw hardware devices separate under Physical Input/Output Scene actions.\n- Fix plugin source version marker.\n- Retains v0.11.0 Scene preflight validation.",
+      "published_at": "2026-09-05T02:23:04Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545235016,
+          "name": "pipeweaver-opendeck-plugin-v0.11.1.zip",
+          "digest": "sha256:b66572fd6d8c9013fea8682398e304fd8246a139ef40a410d3b86af502b472b0",
+          "size": 48055
+        }
+      ]
+    },
+    {
+      "id": 383103784,
+      "tag": "v0.11.0",
+      "name": "WeaverDeck v0.11.0",
+      "body": "Testing release.\n\nChanges:\n- Add Scene preflight validation.\n- Add Validate Scene button.\n- Validate Sources, Targets, routes, physical devices and default devices.\n- Validate volume values before execution.\n- Validate application selections and routing destinations.\n- Treat applications that are not running as warnings.\n- Abort invalid Scenes before any PipeWeaver state is changed.\n- Add detailed validation diagnostics to the plugin log.\n- Includes all v0.10.0 physical-device Scene functionality.",
+      "published_at": "2026-09-05T02:13:53Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545226669,
+          "name": "pipeweaver-opendeck-plugin-v0.11.0.zip",
+          "digest": "sha256:9f3bd655cd6ab2c61dfda0a50e9355ff3ea80582cc8e17a225c4b9547c0a4fdb",
+          "size": 48062
+        }
+      ]
+    },
+    {
+      "id": 383099179,
+      "tag": "v0.9.2",
+      "name": "WeaverDeck v0.9.2",
+      "body": "Testing release.\n\nChanges:\n- Fix Scene Builder volume input editing.\n- Prevent automatic application refresh from interrupting active Scene editing.\n- Fix Source Set Volume spinner/input re-render issues.\n- Treat already-matching Target Mix operations as successful no-ops.\n- Retains v0.9.x application controls and live application discovery in Scenes.",
+      "published_at": "2026-09-05T01:51:23Z",
+      "prerelease": true,
+      "assets": [
+        {
+          "id": 545208489,
+          "name": "pipeweaver-opendeck-plugin-v0.9.2.zip",
+          "digest": "sha256:64a3dbf0858ded25adcee1663bbdc510d882b4872d3d7f97893ff5151791df23",
+          "size": 45424
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "ref": "refs/tags/WeaverDeckPlg_0_7_1",
+      "sha": "e3754509435f0799927218a050811512c0fbd438",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/WeaverDeckPlg_0_8_0",
+      "sha": "8e0081b5267af22fe060350b9846cc8b2f0c1317",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.11.0",
+      "sha": "e0181b70dfed85e975f0ac70191441378cd03998",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.11.1",
+      "sha": "52f3d7935f91d990f0fc056b1d673eaaeb26027b",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.11.2",
+      "sha": "09d1668617b280692604c972b00cd31e40d919eb",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.12.0",
+      "sha": "badb8de9c3f4d1582b5e2d3089ddcda8e2e0ae14",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.12.1",
+      "sha": "83e3607c8d3fe063170a82507301925ef130275a",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.12.2",
+      "sha": "386b012f7d1785e7a5c90915fd36dc34d19748f2",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.13.0",
+      "sha": "5e7e79d0f625074bba039a3c6c7fb111e3b87a1d",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.14.0",
+      "sha": "916f30ce585f2219dc2984a9cefdedcfe2586f58",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.14.1",
+      "sha": "64f27e445a474ac919f0d4301902e89cf950e831",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.14.2",
+      "sha": "e3049c335f9cbe195653a0585cf29ff4e6beed62",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.15.0",
+      "sha": "8ec5abcd79895105e7ce1256ec35f5a6d942bbaf",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.15.1",
+      "sha": "b3e15bbc4bc29c7cf1c6aeff9b24774fa2f7d560",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.16.0",
+      "sha": "22ec97479230984cba09369abe3e3120df940d2b",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.18.0",
+      "sha": "b424ba42be350d54793c449e8d534d5d69eabb20",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.18.1",
+      "sha": "6eddde19138fca0389c338664a7590c6d75d2e0c",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.19.0",
+      "sha": "712540d17301232533ed3107f43b2dd3e862be48",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.19.1",
+      "sha": "95f1099e339469d89f5becd34a69aa304bffbabc",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.20.0",
+      "sha": "af650b6a136555d866168e53155600ad9a99d256",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.21.0",
+      "sha": "d3c4df8bf9c42adc3f82d389afb9d7c15cf95773",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.22.0",
+      "sha": "60ece44e091f98faf1496face6d1893089e2c992",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/tags/v0.9.2",
+      "sha": "9ceb15c28f1826fa1bb171f193915221243c598d",
+      "type": "commit"
+    }
+  ]
+}

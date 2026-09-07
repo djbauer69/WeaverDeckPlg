@@ -1,23 +1,23 @@
 # WeaverDeck compatibility and test matrix
 
-Applies to **WeaverDeck v0.22.0 prerelease**. Updated 2026-09-06.
+Applies to **WeaverDeck v0.22.0**. Updated 2026-09-07.
 
 Rows requiring unavailable physical devices remain pending until a tester records
 the exact device, host, and runtime result.
 
 ## v0.22.0 hold-repeat and millisecond-fade coverage
 
-43 automated tests pass in the complete suite. v0.22 adds tests for keypad
+77 automated tests pass in the complete suite. v0.22 adds tests for keypad
 Volume Up/Down hold-repeat eligibility, configured repeat timing, key-release
 stop behavior, millisecond fade validation/execution, Smart Scene millisecond
 fade controls, and the compact common inspector with scrollable Button Text
 settings. Existing coverage from v0.21, v0.20, v0.19, v0.18, and v0.17 remains
 part of the suite.
 
-No additional physical hardware or Linux distribution is marked verified by this
-release. Runtime acceptance should focus on held volume repeat behavior,
-millisecond fade timing, and inspector layout in addition to the existing
-regression checklist.
+Current runtime evidence includes Source A/B millisecond fades, immediate changes,
+Smart Scene ordering, saved durations, C922/Volt 2 input fades and the user-confirmed
+inspector deletion/reselection fix. See [the runtime record](../releases/v0.22.0-testing.md).
+No additional controller model or Linux distribution is marked verified by these checks.
 
 ## v0.21.0 volume-fade coverage
 
@@ -25,7 +25,7 @@ regression checklist.
 exact endpoints, immediate/no-op fades, invalid settings, missing devices, external
 changes, identity changes, interrupted requests, manual takeover, replacement
 fades, Smart Scene execution/validation, and editor import/export for all five
-control types. Real OpenDeck/PipeWeaver fade timing and smoothness are pending.
+control types. Initial v0.21.0 testing was pending; subsequent v0.22.0 Source/physical-input fade results are recorded in [the runtime test record](../releases/v0.22.0-testing.md).
 Five new fade buttons bring the total to 52 button actions plus five dial actions.
 No new hardware or Linux distribution is marked verified.
 
@@ -38,7 +38,7 @@ runtime result has been recorded. There are no universal hardware/distro guarant
 
 | Device / integration | Buttons | Dials and touch-strip display | Evidence / remaining work |
 | --- | --- | --- | --- |
-| Elgato Stream Deck XL | User-tested on CachyOS through v0.19.1; v0.20 regression pending | No dials/strip | v0.19.1 labels and persistence confirmed; 47 existing button UUIDs retained in v0.20 |
+| Elgato Stream Deck XL | User-tested on CachyOS through v0.22.0 | No dials/strip | Labels, Scene persistence, Source/physical-input fades and inspector fixes confirmed; see the runtime record for exact coverage |
 | Elgato Mini / Original / MK.2 | Expected through OpenDeck; hardware pending | Not applicable | No fixed XL grid assumption in action handlers; verify artwork/readability on each model |
 | Elgato Stream Deck + | Hardware pending | Implemented; automated protocol pass; hardware pending | Five Volume Dial actions, feedback layout, turn/press/tap |
 | Elgato Stream Deck + XL | Hardware pending | Expected through OpenDeck 2.14.0; hardware pending | OpenDeck release adds model support; verify every encoder position and strip scaling |
@@ -54,7 +54,7 @@ communicates with PipeWeaver only; it does not directly control other mixers/app
 
 | Environment | Status | Required checks |
 | --- | --- | --- |
-| CachyOS, x86_64, user's existing installation | v0.19.1 runtime passed; v0.20 pending | Existing XL controls, labels, Scene regression |
+| CachyOS, x86_64, user's existing installation | User-tested through v0.22.0 | See runtime record; not every action combination has separate evidence |
 | Other Arch-based distributions | Pending | Native runtime, OpenDeck device access, PipeWeaver API, startup Scene path |
 | Debian / Ubuntu, x86_64 | Pending | Same checks using distribution packages; inspect Node.js version |
 | Fedora / openSUSE, x86_64 | Pending | Same checks using distribution packages |

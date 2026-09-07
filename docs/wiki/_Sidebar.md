@@ -1,0 +1,5 @@
+- [Home](https://github.com/djbauer69/WeaverDeckPlg/wiki)
+- [Actions](https://github.com/djbauer69/WeaverDeckPlg/wiki/Actions)
+- [Version History](https://github.com/djbauer69/WeaverDeckPlg/wiki/Version-History)
+- [Communication](https://github.com/djbauer69/WeaverDeckPlg/wiki/Communication)
+- [Download v0.22.0](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.22.0)
