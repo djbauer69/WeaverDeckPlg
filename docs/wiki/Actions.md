@@ -1,6 +1,10 @@
 # Actions
 
-WeaverDeck v0.22.0 provides **57 actions**, grouped by function and alphabetized below. Add a button action to a key in OpenDeck, then select its PipeWeaver channel, application or device in the Property Inspector. Dial actions belong on encoder controls.
+WeaverDeck v0.23.0 provides **12 sidebar actions** and retains all **57 operations**. Drag Application, Physical Input, Physical Output, Route, Source or Target onto a key, then choose an operation from the **Action** dropdown in the inspector header. The tables below list these selectable operations. Audio Buffer Size, Audio Engine Restart, Default Device Set, Scene, Scene Startup and Status remain separate actions. On encoders, the five audio groups select their Volume Dial operation automatically.
+
+Existing installations need the [offline profile migration](../UPGRADE-v0.23.0.md) before installing the compact manifest. The requested v0.23.0 runtime checks have passed. Already-migrated installations use the plugin ZIP directly through OpenDeck.
+
+Physical Input and Output also have an **Icon** selector beside the operation dropdown. Input choices: Default, Microphone, Electric guitar, Acoustic guitar, Drums, Keyboard and Webcam. Output choices: Default, Desktop speakers, Headphones, Soundbar and AirPods. Custom volume icons keep the live percentage badge; mute icons display live/muted state. These choices control plugin key artwork; manually assigned OpenDeck images can take precedence.
 
 ## Shared controls
 

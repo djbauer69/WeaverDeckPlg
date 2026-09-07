@@ -1,0 +1,1392 @@
+{
+  "groups": [
+    {
+      "uuid": "com.pipeweaver.opendeck.application",
+      "name": "Application",
+      "defaultAction": "com.pipeweaver.opendeck.appmute",
+      "encoderAction": "com.pipeweaver.opendeck.appvolumedial",
+      "operations": [
+        {
+          "uuid": "com.pipeweaver.opendeck.appmute",
+          "name": "Application Mute",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.approuteoff",
+          "name": "Application Route Off",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.approuteon",
+          "name": "Application Route On",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.approutetoggle",
+          "name": "Application Route Toggle",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.appsetvolume",
+          "name": "Application Set Volume",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.appvolumedial",
+          "name": "Application Volume Dial",
+          "controller": "Encoder"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.appvoldown",
+          "name": "Application Volume Down",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.appvolumefade",
+          "name": "Application Volume Fade",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.appvolup",
+          "name": "Application Volume Up",
+          "controller": "Keypad"
+        }
+      ]
+    },
+    {
+      "uuid": "com.pipeweaver.opendeck.physicalinput",
+      "name": "Physical Input",
+      "defaultAction": "com.pipeweaver.opendeck.physinmute",
+      "encoderAction": "com.pipeweaver.opendeck.physinvolumedial",
+      "operations": [
+        {
+          "uuid": "com.pipeweaver.opendeck.physinmute",
+          "name": "Physical Input Mute",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.physinvolumedial",
+          "name": "Physical Input Volume Dial",
+          "controller": "Encoder"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.physinvoldown",
+          "name": "Physical Input Volume Down",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.physinvolumefade",
+          "name": "Physical Input Volume Fade",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.physinvolup",
+          "name": "Physical Input Volume Up",
+          "controller": "Keypad"
+        }
+      ]
+    },
+    {
+      "uuid": "com.pipeweaver.opendeck.physicaloutput",
+      "name": "Physical Output",
+      "defaultAction": "com.pipeweaver.opendeck.physmute",
+      "encoderAction": "com.pipeweaver.opendeck.physvolumedial",
+      "operations": [
+        {
+          "uuid": "com.pipeweaver.opendeck.physmute",
+          "name": "Physical Output Mute",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.physvolumedial",
+          "name": "Physical Output Volume Dial",
+          "controller": "Encoder"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.physvoldown",
+          "name": "Physical Output Volume Down",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.physvolumefade",
+          "name": "Physical Output Volume Fade",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.physvolup",
+          "name": "Physical Output Volume Up",
+          "controller": "Keypad"
+        }
+      ]
+    },
+    {
+      "uuid": "com.pipeweaver.opendeck.routing",
+      "name": "Route",
+      "defaultAction": "com.pipeweaver.opendeck.route",
+      "encoderAction": null,
+      "operations": [
+        {
+          "uuid": "com.pipeweaver.opendeck.routeoff",
+          "name": "Route Off",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.routeon",
+          "name": "Route On",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.route",
+          "name": "Route Toggle",
+          "controller": "Keypad"
+        }
+      ]
+    },
+    {
+      "uuid": "com.pipeweaver.opendeck.sourcecontrol",
+      "name": "Source",
+      "defaultAction": "com.pipeweaver.opendeck.sourcemute",
+      "encoderAction": "com.pipeweaver.opendeck.sourcevolumedial",
+      "operations": [
+        {
+          "uuid": "com.pipeweaver.opendeck.sourceavoldown",
+          "name": "Source A Volume Down",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourceavolup",
+          "name": "Source A Volume Up",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcebvoldown",
+          "name": "Source B Volume Down",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcebvolup",
+          "name": "Source B Volume Up",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcemute",
+          "name": "Source Mute",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcemutea",
+          "name": "Source Mute A",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcemuteb",
+          "name": "Source Mute B",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcemutetoadd",
+          "name": "Source Mute To Add",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcemutetoall",
+          "name": "Source Mute To All",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcemutetoremove",
+          "name": "Source Mute To Remove",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcemutetoset",
+          "name": "Source Mute To Set",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcemutetotoggle",
+          "name": "Source Mute To Toggle",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcesetvolume",
+          "name": "Source Set Volume",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcevolumedial",
+          "name": "Source Volume Dial",
+          "controller": "Encoder"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcevoldown",
+          "name": "Source Volume Down",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcevolumefade",
+          "name": "Source Volume Fade",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcelinktoggle",
+          "name": "Source Volume Link Toggle",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.sourcevolup",
+          "name": "Source Volume Up",
+          "controller": "Keypad"
+        }
+      ]
+    },
+    {
+      "uuid": "com.pipeweaver.opendeck.targetcontrol",
+      "name": "Target",
+      "defaultAction": "com.pipeweaver.opendeck.mute",
+      "encoderAction": "com.pipeweaver.opendeck.targetvolumedial",
+      "operations": [
+        {
+          "uuid": "com.pipeweaver.opendeck.targetmixa",
+          "name": "Target Mix A",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.targetmixb",
+          "name": "Target Mix B",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.targetmixtoggle",
+          "name": "Target Mix Toggle",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.mute",
+          "name": "Target Mute",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.muteoff",
+          "name": "Target Mute Off",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.muteon",
+          "name": "Target Mute On",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.setvolume",
+          "name": "Target Set Volume",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.targetvolumedial",
+          "name": "Target Volume Dial",
+          "controller": "Encoder"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.volumedown",
+          "name": "Target Volume Down",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.targetvolumefade",
+          "name": "Target Volume Fade",
+          "controller": "Keypad"
+        },
+        {
+          "uuid": "com.pipeweaver.opendeck.volumeup",
+          "name": "Target Volume Up",
+          "controller": "Keypad"
+        }
+      ]
+    }
+  ],
+  "legacy": [
+    {
+      "Icon": "icons/mute",
+      "Name": "Application Mute",
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle mute on a PipeWeaver application.",
+      "UUID": "com.pipeweaver.opendeck.appmute",
+      "PropertyInspectorPath": "propertyInspector/app.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Application Route Off",
+      "States": [
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Clear the transient route for a live application.",
+      "UUID": "com.pipeweaver.opendeck.approuteoff",
+      "PropertyInspectorPath": "propertyInspector/approute.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Application Route On",
+      "States": [
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Route a live application to a compatible PipeWeaver channel.",
+      "UUID": "com.pipeweaver.opendeck.approuteon",
+      "PropertyInspectorPath": "propertyInspector/approute.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Application Route Toggle",
+      "States": [
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle a live application between a compatible PipeWeaver channel and Default.",
+      "UUID": "com.pipeweaver.opendeck.approutetoggle",
+      "PropertyInspectorPath": "propertyInspector/approute.html"
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Application Set Volume",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Set a live PipeWeaver application to an exact volume.",
+      "UUID": "com.pipeweaver.opendeck.appsetvolume",
+      "PropertyInspectorPath": "propertyInspector/appsetvolume.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.appvolumedial",
+      "Name": "Application Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/appvolume.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
+    },
+    {
+      "Icon": "icons/volumeDown",
+      "Name": "Application Volume Down",
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Decrease a PipeWeaver application volume.",
+      "UUID": "com.pipeweaver.opendeck.appvoldown",
+      "PropertyInspectorPath": "propertyInspector/appvolume.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.appvolumefade",
+      "Name": "Application Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Application Volume Up",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Increase a PipeWeaver application volume.",
+      "UUID": "com.pipeweaver.opendeck.appvolup",
+      "PropertyInspectorPath": "propertyInspector/appvolume.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.audiobuffer",
+      "Name": "Audio Buffer Size",
+      "Tooltip": "Set PipeWeaver audio buffer size and wait for engine recovery.",
+      "Icon": "icons/statusOnline",
+      "States": [
+        {
+          "Image": "icons/statusOnline"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.audiorestart",
+      "Name": "Audio Engine Restart",
+      "Tooltip": "Restart PipeWeaver audio engine and wait for recovery.",
+      "Icon": "icons/statusOnline",
+      "States": [
+        {
+          "Image": "icons/statusOnline"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Default Device Set",
+      "States": [
+        {
+          "Image": "icons/defaultIdle"
+        },
+        {
+          "Image": "icons/defaultActive"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Set PipeWeaver default input or output.",
+      "UUID": "com.pipeweaver.opendeck.default",
+      "PropertyInspectorPath": "propertyInspector/default.html"
+    },
+    {
+      "Icon": "icons/mute",
+      "Name": "Physical Input Mute",
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle mute on a physical PipeWeaver input.",
+      "UUID": "com.pipeweaver.opendeck.physinmute",
+      "PropertyInspectorPath": "propertyInspector/physical.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.physinvolumedial",
+      "Name": "Physical Input Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/physical.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
+    },
+    {
+      "Icon": "icons/volumeDown",
+      "Name": "Physical Input Volume Down",
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        },
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Decrease a physical PipeWeaver input volume.",
+      "UUID": "com.pipeweaver.opendeck.physinvoldown",
+      "PropertyInspectorPath": "propertyInspector/physical.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.physinvolumefade",
+      "Name": "Physical Input Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Physical Input Volume Up",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Increase a physical PipeWeaver input volume.",
+      "UUID": "com.pipeweaver.opendeck.physinvolup",
+      "PropertyInspectorPath": "propertyInspector/physical.html"
+    },
+    {
+      "Icon": "icons/mute",
+      "Name": "Physical Output Mute",
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle mute on a physical PipeWeaver output.",
+      "UUID": "com.pipeweaver.opendeck.physmute",
+      "PropertyInspectorPath": "propertyInspector/physical.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.physvolumedial",
+      "Name": "Physical Output Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/physical.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
+    },
+    {
+      "Icon": "icons/volumeDown",
+      "Name": "Physical Output Volume Down",
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Decrease a physical PipeWeaver output volume.",
+      "UUID": "com.pipeweaver.opendeck.physvoldown",
+      "PropertyInspectorPath": "propertyInspector/physical.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.physvolumefade",
+      "Name": "Physical Output Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Physical Output Volume Up",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Increase a physical PipeWeaver output volume.",
+      "UUID": "com.pipeweaver.opendeck.physvolup",
+      "PropertyInspectorPath": "propertyInspector/physical.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Route Off",
+      "States": [
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Disable a PipeWeaver source-to-target route.",
+      "UUID": "com.pipeweaver.opendeck.routeoff",
+      "PropertyInspectorPath": "propertyInspector/route.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Route On",
+      "States": [
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Enable a PipeWeaver source-to-target route.",
+      "UUID": "com.pipeweaver.opendeck.routeon",
+      "PropertyInspectorPath": "propertyInspector/route.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Route Toggle",
+      "States": [
+        {
+          "Image": "icons/routeOff"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle a PipeWeaver source-to-target route.",
+      "UUID": "com.pipeweaver.opendeck.route",
+      "PropertyInspectorPath": "propertyInspector/route.html"
+    },
+    {
+      "Icon": "icons/plugin",
+      "Name": "Scene",
+      "States": [
+        {
+          "Image": "icons/plugin"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Run, capture, save, load, or manage structured PipeWeaver Smart Scenes with conditions, waits, failure policy, and Source A/B link state. v0.17 adds resilient application identity across restarts and transient disappearance.",
+      "UUID": "com.pipeweaver.opendeck.scene",
+      "PropertyInspectorPath": "propertyInspector/scene-v022.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.scenestartup",
+      "Name": "Scene Startup",
+      "Tooltip": "Configure one local Scene to run after OpenDeck and PipeWeaver are ready. Press to run the saved file manually.",
+      "Icon": "icons/plugin",
+      "States": [
+        {
+          "Image": "icons/plugin"
+        },
+        {
+          "Image": "icons/statusOffline"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/startup-scene.html"
+    },
+    {
+      "Icon": "icons/volumeDown",
+      "Name": "Source A Volume Down",
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        },
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Decrease PipeWeaver source Mix A volume.",
+      "UUID": "com.pipeweaver.opendeck.sourceavoldown",
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Source A Volume Up",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Increase PipeWeaver source Mix A volume.",
+      "UUID": "com.pipeweaver.opendeck.sourceavolup",
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
+    },
+    {
+      "Icon": "icons/volumeDown",
+      "Name": "Source B Volume Down",
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        },
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Decrease PipeWeaver source Mix B volume.",
+      "UUID": "com.pipeweaver.opendeck.sourcebvoldown",
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Source B Volume Up",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Increase PipeWeaver source Mix B volume.",
+      "UUID": "com.pipeweaver.opendeck.sourcebvolup",
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
+    },
+    {
+      "Icon": "icons/mute",
+      "Name": "Source Mute",
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle mute for a PipeWeaver source A or B channel.",
+      "UUID": "com.pipeweaver.opendeck.sourcemute",
+      "PropertyInspectorPath": "propertyInspector/source.html"
+    },
+    {
+      "Icon": "icons/mute",
+      "Name": "Source Mute A",
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle PipeWeaver source Mix A mute.",
+      "UUID": "com.pipeweaver.opendeck.sourcemutea",
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
+    },
+    {
+      "Icon": "icons/mute",
+      "Name": "Source Mute B",
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle PipeWeaver source Mix B mute.",
+      "UUID": "com.pipeweaver.opendeck.sourcemuteb",
+      "PropertyInspectorPath": "propertyInspector/sourcefixed.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.sourcemutetoadd",
+      "Name": "Source Mute To Add",
+      "Tooltip": "Add a target to this mute slot\u2019s destination list.",
+      "Icon": "icons/mute",
+      "States": [
+        {
+          "Image": "icons/mute"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.sourcemutetoall",
+      "Name": "Source Mute To All",
+      "Tooltip": "Configure this mute slot to affect all destinations.",
+      "Icon": "icons/mute",
+      "States": [
+        {
+          "Image": "icons/mute"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.sourcemutetoremove",
+      "Name": "Source Mute To Remove",
+      "Tooltip": "Remove a target from this mute slot\u2019s destination list.",
+      "Icon": "icons/mute",
+      "States": [
+        {
+          "Image": "icons/mute"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.sourcemutetoset",
+      "Name": "Source Mute To Set",
+      "Tooltip": "Replace this mute slot\u2019s destinations with the selected target.",
+      "Icon": "icons/mute",
+      "States": [
+        {
+          "Image": "icons/mute"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.sourcemutetotoggle",
+      "Name": "Source Mute To Toggle",
+      "Tooltip": "Toggle a target in this mute slot\u2019s destination list.",
+      "Icon": "icons/mute",
+      "States": [
+        {
+          "Image": "icons/mute"
+        },
+        {
+          "Image": "icons/routeOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "PropertyInspectorPath": "propertyInspector/features-v018.html"
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Source Set Volume",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Set a PipeWeaver source A or B channel to an exact volume.",
+      "UUID": "com.pipeweaver.opendeck.sourcesetvolume",
+      "PropertyInspectorPath": "propertyInspector/sourcesetvolume.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.sourcevolumedial",
+      "Name": "Source Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/source.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
+    },
+    {
+      "Icon": "icons/volumeDown",
+      "Name": "Source Volume Down",
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Decrease a PipeWeaver source A or B volume.",
+      "UUID": "com.pipeweaver.opendeck.sourcevoldown",
+      "PropertyInspectorPath": "propertyInspector/source.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.sourcevolumefade",
+      "Name": "Source Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+    },
+    {
+      "Icon": "icons/link",
+      "Name": "Source Volume Link Toggle",
+      "States": [
+        {
+          "Image": "icons/linkOff"
+        },
+        {
+          "Image": "icons/linkOn"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle PipeWeaver Source A/B volume linking while preserving the current A/B ratio.",
+      "UUID": "com.pipeweaver.opendeck.sourcelinktoggle",
+      "PropertyInspectorPath": "propertyInspector/sourcelink.html"
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Source Volume Up",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Increase a PipeWeaver source A or B volume.",
+      "UUID": "com.pipeweaver.opendeck.sourcevolup",
+      "PropertyInspectorPath": "propertyInspector/source.html"
+    },
+    {
+      "Icon": "icons/plugin",
+      "Name": "Status",
+      "States": [
+        {
+          "Image": "icons/statusOnline"
+        },
+        {
+          "Image": "icons/statusOffline"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Show PipeWeaver connection status and refresh it on press.",
+      "UUID": "com.pipeweaver.opendeck.status",
+      "PropertyInspectorPath": "propertyInspector/status.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Target Mix A",
+      "States": [
+        {
+          "Image": "icons/mixA"
+        },
+        {
+          "Image": "icons/mixB"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Set a PipeWeaver target to Mix A.",
+      "UUID": "com.pipeweaver.opendeck.targetmixa",
+      "PropertyInspectorPath": "propertyInspector/mix.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Target Mix B",
+      "States": [
+        {
+          "Image": "icons/mixA"
+        },
+        {
+          "Image": "icons/mixB"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Set a PipeWeaver target to Mix B.",
+      "UUID": "com.pipeweaver.opendeck.targetmixb",
+      "PropertyInspectorPath": "propertyInspector/mix.html"
+    },
+    {
+      "Icon": "icons/route",
+      "Name": "Target Mix Toggle",
+      "States": [
+        {
+          "Image": "icons/mixA"
+        },
+        {
+          "Image": "icons/mixB"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle a PipeWeaver target between Mix A and Mix B.",
+      "UUID": "com.pipeweaver.opendeck.targetmixtoggle",
+      "PropertyInspectorPath": "propertyInspector/mix.html"
+    },
+    {
+      "Icon": "icons/mute",
+      "Name": "Target Mute",
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle mute on a PipeWeaver target.",
+      "UUID": "com.pipeweaver.opendeck.mute",
+      "PropertyInspectorPath": "propertyInspector/mute.html"
+    },
+    {
+      "Icon": "icons/mute",
+      "Name": "Target Mute Off",
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Unmute a PipeWeaver target.",
+      "UUID": "com.pipeweaver.opendeck.muteoff",
+      "PropertyInspectorPath": "propertyInspector/mute.html"
+    },
+    {
+      "Icon": "icons/mute",
+      "Name": "Target Mute On",
+      "States": [
+        {
+          "Image": "icons/muteLive"
+        },
+        {
+          "Image": "icons/muteMuted"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Mute a PipeWeaver target.",
+      "UUID": "com.pipeweaver.opendeck.muteon",
+      "PropertyInspectorPath": "propertyInspector/mute.html"
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Target Set Volume",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Set a PipeWeaver target to an exact volume.",
+      "UUID": "com.pipeweaver.opendeck.setvolume",
+      "PropertyInspectorPath": "propertyInspector/setvolume.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.targetvolumedial",
+      "Name": "Target Volume Dial",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/volume-dial.json",
+        "Icon": "icons/volumeUp",
+        "TriggerDescription": {
+          "Rotate": "Adjust volume",
+          "Push": "Toggle mute",
+          "Touch": "Toggle mute"
+        }
+      },
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/volume.html",
+      "Tooltip": "Turn to adjust volume. Press or tap to toggle mute. Live percentage and mute state on the touch strip."
+    },
+    {
+      "Icon": "icons/volumeDown",
+      "Name": "Target Volume Down",
+      "States": [
+        {
+          "Image": "icons/volumeDown"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Decrease a PipeWeaver target volume.",
+      "UUID": "com.pipeweaver.opendeck.volumedown",
+      "PropertyInspectorPath": "propertyInspector/volume.html"
+    },
+    {
+      "UUID": "com.pipeweaver.opendeck.targetvolumefade",
+      "Name": "Target Volume Fade",
+      "Icon": "icons/volumeUp",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        },
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "SupportedInMultiActions": false,
+      "PropertyInspectorPath": "propertyInspector/fade.html",
+      "Tooltip": "Fade the current volume to a chosen percentage over 0\u2013120000 milliseconds."
+    },
+    {
+      "Icon": "icons/volumeUp",
+      "Name": "Target Volume Up",
+      "States": [
+        {
+          "Image": "icons/volumeUp"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Increase a PipeWeaver target volume.",
+      "UUID": "com.pipeweaver.opendeck.volumeup",
+      "PropertyInspectorPath": "propertyInspector/volume.html"
+    }
+  ]
+}

@@ -1,8 +1,18 @@
 # Version History
 
-This is the historical change record for WeaverDeck. The release-page cleanup keeps **v0.22.0** as the sole release/tag; older changes remain documented here and in Git history. Removing download entries does not remove features from the current plugin.
+This is the historical change record for WeaverDeck. The earlier release-page cleanup retained **v0.22.0**; older changes remain documented here and in Git history. Removing download entries does not remove features from the current plugin.
 
 Entries below are reconstructed from repository commits, versioned READMEs, release notes and recorded user testing. Some early development builds were not individually committed or released. Missing numbers are not invented. The [original release metadata and notes](https://github.com/djbauer69/WeaverDeckPlg/blob/main/docs/history/releases-before-cleanup.json) preserve the published record before cleanup, including checksums and contemporary testing caveats. Those historical caveats are not the current release status.
+
+## v0.23.0 — grouped actions and device icons
+
+- Consolidate 51 sidebar entries into six grouped actions, retaining all operations and six separate utilities. The resulting sidebar has 12 alphabetical entries.
+- Replace the grouped inspector's fixed heading with an operation dropdown. Keep shared application/device choices, numeric settings and manual text across switches.
+- Add six Physical Input and four Physical Output icon choices, plus Default, with live volume/mute feedback.
+- Include an offline installer that backs up and migrates saved profile identifiers before installing the compact manifest. This is required because current OpenDeck does not hide legacy entries using `VisibleInActionsList` and can discard missing action identifiers.
+- Preserve hold repeat, millisecond fades, Scene behavior and inspector redraw fixes. Fade selections remain excluded from native Multi Actions.
+
+Validation: 89 Node tests and 15 Python tests pass. The user confirmed all requested grouped-action runtime checks on 7 September 2026. See the [test record](https://github.com/djbauer69/WeaverDeckPlg/blob/main/releases/v0.23.0-testing.md).
 
 ## v0.22.0 — hold repeat, millisecond fades and inspector/storage fixes
 

@@ -52,7 +52,7 @@ function diagKeys(value, depth=0){
 }
 function send(m){if(m.context==="weaverdeck-startup")return;if(ws&&ws.readyState===1){try{ws.send(JSON.stringify(m));}catch(e){console.error("OpenDeck send failed:",e.message);}}}
 function setTitle(c,t){send({event:"setTitle",context:c,payload:{title:String(t)}})}
-function setState(c,s){send({event:"setState",context:c,payload:{state:Number(s)}})}
+function setState(c,s){const i=instances.get(c);if(i)i.visualState=Number(s);send({event:"setState",context:c,payload:{state:Number(s)}})}
 function showAlert(c){send({event:"showAlert",context:c})}
 function showOk(c){send({event:"showOk",context:c})}
 function pipeCommand(data){const key=volumeResource021(data,lastStatus);if(key)return Promise.resolve(fades021.cancel(key)).then(()=>pipeCommand021(data));return pipeCommand021(data)}
@@ -226,9 +226,28 @@ async function runFadeButton021(i,op){
  catch(e){console.error('[Fade] Button: '+e.message);if(i.fadeRun===run)showAlert(i.context)}
  finally{if(i.fadeRun===run){delete i.fadeRun;updateInstance(i)}}
 }
+const physicalArt023=require('./physical-artwork');
+const legacyActions023=new Map(require('./action-catalog.json').legacy.map(a=>[a.UUID,a]));
 function updateInstance(i){
+ if(i.groupInvalid){setTitle(i.context,'Select action');setState(i.context,1);return}
+ updateInstance023Base(i);
+ if(!i.weaverGroup||i.controller==='Encoder')return;
+ const a=i.action.split('.').pop(),st=i.settings||{};
+ let image;
+ const physical=i.weaverGroup==='com.pipeweaver.opendeck.physicalinput'?'input':i.weaverGroup==='com.pipeweaver.opendeck.physicaloutput'?'output':null;
+ if(physical&&physicalArt023.valid(st.deviceIcon,physical)){
+  const d=physicalDevices(lastStatus,physical).find(d=>deviceId(d)===st.deviceId);
+  image=physicalArt023.artwork(st.deviceIcon,{volume:targetVolume(d),muted:targetMuted(d),mute:a.endsWith('mute')});
+ }else if(!a.startsWith('app')&&!a.endsWith('volumefade')&&!holdSpec022(i)&&!a.includes('setvolume')){
+  const template=legacyActions023.get(i.action);image=template?.States?.[i.visualState]?.Image||template?.States?.[0]?.Image;
+  // OpenDeck resolves manifest-style stems to .svg/@2x.png/.png itself.
+  // Adding an extension here makes it look for e.g. routeOn.svg.png.
+ }
+ if(image&&i.groupImage!==image){i.groupImage=image;send({event:'setImage',context:i.context,payload:{image}})}
+}
+function updateInstance023Base(i){
  const fade=fadeButton021(i);
- if(fade){const d=resolveFade021(fade,lastStatus);setTitle(i.context,(d.name||'Fade')+'\n'+(i.fadeRun?'Fading…':String(fade.volume??0)+'% / '+fadeDurationLabel022(fade)));setState(i.context,Number.isFinite(d.volume)?0:1);const image=volumeArt0191(d.volume);if(i.fadeImage!==image){i.fadeImage=image;send({event:'setImage',context:i.context,payload:{image}})}return;}
+ if(fade){const d=resolveFade021(fade,lastStatus);setTitle(i.context,(d.name||'Fade')+'\n'+(i.fadeRun?'Fading…':String(fade.volume??0)+'% / '+fadeDurationLabel022(fade)));setState(i.context,Number.isFinite(d.volume)?0:1);const image=physicalArt023.valid(i.settings?.deviceIcon,fade.kind)?physicalArt023.artwork(i.settings.deviceIcon,{volume:d.volume}):volumeArt0191(d.volume);if(i.fadeImage!==image){i.fadeImage=image;send({event:'setImage',context:i.context,payload:{image}})}return;}
  if(dials020.render(i,lastStatus))return;
   updateInstance0191(i);
   const a=i.action.split('.').pop(),st=i.settings||{};
@@ -242,7 +261,8 @@ function updateInstance(i){
     volume=targetVolume(physicalDevices(lastStatus,a.startsWith('physin')?'input':'output').find(d=>deviceId(d)===st.deviceId));
   }else owned=false;
   if(owned){
-    const image=volumeArt0191(volume,a.endsWith('down'));
+    const physicalKind=a.startsWith('physin')?'input':a.startsWith('phys')?'output':null;
+    const image=physicalKind&&physicalArt023.valid(st.deviceIcon,physicalKind)?physicalArt023.artwork(st.deviceIcon,{volume}):volumeArt0191(volume,a.endsWith('down'));
     if(i.volumeImage0191!==image){i.volumeImage0191=image;send({event:'setImage',context:i.context,payload:{image}})}
   }
 }
@@ -675,18 +695,28 @@ async function handleMessage(m) {
   if(e==="sendToPlugin"&&m.action===STARTUP_ACTION&&await startupMessage019(m))return;
   if(e==="sendToPlugin" || e==="willAppear" || e==="didReceiveSettings") diag("OpenDeck event",m);
   if (e === "willAppear") {
-    instances.set(m.context, { context:m.context, action:m.action, settings:{...(m.payload?.settings||{})} });
+    instances.set(m.context, { context:m.context, action:m.action, weaverGroup:m.weaverGroup, controller:m.weaverController||m.payload?.controller, groupInvalid:m.weaverGroupInvalid, settings:{...(m.payload?.settings||{})} });
     updateInstance(instances.get(m.context));
     return;
   }
   if (e === "willDisappear") { instances.delete(m.context); return; }
   if (e === "didReceiveSettings") {
     const i=instances.get(m.context);
-    if(i){i.settings={...(m.payload?.settings||{})};updateInstance(i);}
+    if(i){
+      if(m.weaverGroup){
+        // Detach the old run's completion feedback before changing operation.
+        if(i.fadeRun){const op=fadeButton021(i),d=op&&resolveFade021(op,lastStatus);if(d?.key)void fades021.cancel(d.key);delete i.fadeRun}
+        i.action=m.action;i.weaverGroup=m.weaverGroup;i.controller=m.weaverController;i.groupInvalid=m.weaverGroupInvalid;
+        delete i.volumeImage0191;delete i.fadeImage;delete i.groupImage;delete i.dialFeedback;
+        send({event:'setImage',context:i.context,payload:{image:null}});
+      }
+      i.settings={...(m.payload?.settings||{})};updateInstance(i);
+    }
     return;
   }
   if (e === "keyDown") {
     const i=instances.get(m.context); if(!i) return;
+    if(i.groupInvalid||(i.weaverGroup&&m.payload?.isInMultiAction&&fadeButton021(i))){showAlert(i.context);return;}
     if(features018.buttonOperation(i))return featureButton018(i);
     if(i.action===STARTUP_ACTION){try{await startup019.runNow(i.context);showOk(i.context)}catch(e){console.error("[Startup Scene] Manual run failed: "+e.message);showAlert(i.context)}return}
     if(holdStart022(i,!m.payload?.isInMultiAction))return;

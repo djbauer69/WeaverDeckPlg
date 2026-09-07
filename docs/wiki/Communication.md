@@ -13,6 +13,14 @@ flowchart TD
   P -->|"Native engine operations"| A["PipeWire audio engine"]
 ```
 
+## Grouped action dispatch (v0.23.0)
+
+OpenDeck stores a group action UUID and a `settings.operation` identifier. `action-groups.js` validates that operation against `action-catalog.json` and adapts incoming events to the existing operation handler, retaining the original context for feedback. Invalid or cross-group selections are rejected. Encoder events resolve to the group's dial operation. Changing settings stops held controls and cancels an active grouped fade before reclassifying the instance and refreshing artwork.
+
+The grouped Property Inspector uses the same registered WebSocket and shared text/layout code as direct inspectors. It saves operation, device/application identity and optional `deviceIcon` fields with the action settings. Scene operations continue to use the Scene engine's existing schema.
+
+Because compact sidebar entries require new UUIDs, `tools/install-grouped-actions.py` runs with OpenDeck closed. It backs up profiles and the installed plugin, maps the 51 old operation UUIDs to six groups (including nested Multi Actions), and installs the verified ZIP. Profile writes and plugin replacement have rollback handling. This migration is performed before OpenDeck loads the new manifest; the runtime itself does not edit profiles.
+
 ## OpenDeck connection
 
 OpenDeck starts `com.pipeweaver.opendeck.sdPlugin/plugin.js` with a port and plugin UUID. The plugin connects to `ws://127.0.0.1:<port>` and registers with `registerPlugin`. This port belongs to OpenDeck; it is separate from PipeWeaver's HTTP port.

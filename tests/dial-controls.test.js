@@ -63,10 +63,10 @@ test('real core routes dial lifecycle and feedback, cancels vanished controls, a
  await f.c.handleMessage({event:'dialRotate',context,payload:{controller:'Encoder',ticks:1}});await f.c.handleMessage({event:'willDisappear',context});f.timers.shift()();await new Promise(setImmediate);assert.equal(commands.length,1);
  assert.equal(require(root+'/dial-controls').kind({action:'com.pipeweaver.opendeck.volumeup'}),undefined);
 });
-test('five Encoder-only actions have a complete bounded feedback layout and retain all button UUIDs',()=>{
+test('five grouped actions retain a complete bounded Encoder feedback layout',()=>{
  const m=require(root+'/manifest.json'),dials=m.Actions.filter(a=>a.Controllers.includes('Encoder'));assert.equal(dials.length,5);
- for(const a of dials){assert.deepEqual(a.Controllers,['Encoder']);assert.equal(a.SupportedInMultiActions,false);const layout=JSON.parse(fs.readFileSync(root+'/'+a.Encoder.layout));assert.deepEqual(layout.items.map(i=>i.key),['label','value','status','indicator']);for(const i of layout.items){const [x,y,w,h]=i.rect;assert(x>=0&&y>=0&&x+w<=200&&y+h<=100)}}
- assert.equal(m.Actions.filter(a=>a.Controllers.includes('Keypad')).length,52);
+ for(const a of dials){assert.deepEqual(a.Controllers,['Keypad','Encoder']);assert.equal(a.SupportedInMultiActions,true);const layout=JSON.parse(fs.readFileSync(root+'/'+a.Encoder.layout));assert.deepEqual(layout.items.map(i=>i.key),['label','value','status','indicator']);for(const i of layout.items){const [x,y,w,h]=i.rect;assert(x>=0&&y>=0&&x+w<=200&&y+h<=100)}}
+ assert.equal(m.Actions.filter(a=>a.Controllers.includes('Keypad')).length,12);
 });
 test('disconnect cancels a gesture even while its readiness request is in flight',async()=>{
  const f=fixture();let release;f.api.refresh=()=>new Promise(r=>release=r);f.event('dialRotate',{ticks:2});const pending=f.flush();await new Promise(setImmediate);f.dial.clear();release({});await pending;assert.equal(f.commands.length,0);

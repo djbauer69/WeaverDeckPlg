@@ -1,15 +1,15 @@
-# WeaverDeck v0.22.0
+# WeaverDeck v0.23.0
 
 Control **PipeWeaver** from **OpenDeck on Linux**: application and channel volume/mute, routing, Source A/B mixes, audio engine controls, Smart Scenes, startup Scenes and volume dials.
 
-[**Download v0.22.0**](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.22.0) · [Wiki](https://github.com/djbauer69/WeaverDeckPlg/wiki)
+v0.23.0 has passed the requested runtime checks. See the [test record](releases/v0.23.0-testing.md) and [release notes](releases/v0.23.0.md). GitHub release publication is pending; published downloads are listed on the [Releases page](https://github.com/djbauer69/WeaverDeckPlg/releases).
 
 ## Documentation
 
 | Guide | Contents |
 | --- | --- |
-| [Actions](docs/wiki/Actions.md) | All 57 actions, settings, hold controls, fades, Scene Library, Scene Files and startup. |
-| [Version History](docs/wiki/Version-History.md) | Recorded changes from the first repository baseline through v0.22.0. |
+| [Actions](docs/wiki/Actions.md) | 12 sidebar actions and all 57 operations, settings, hold controls, fades, Scene Library, Scene Files and startup. |
+| [Version History](docs/wiki/Version-History.md) | Recorded changes from the first repository baseline through v0.23.0. |
 | [Communication](docs/wiki/Communication.md) | How the plugin exchanges OpenDeck events and PipeWeaver API commands. |
 | [Compatibility](docs/COMPATIBILITY.md) | Requirements and hardware/distribution test matrix. |
 
@@ -17,25 +17,25 @@ The three main guides are also prepared for the GitHub wiki. Their repository co
 
 ## Install or update
 
-1. Fully quit OpenDeck and back up your profile and existing plugin folder.
-2. Move the old `com.pipeweaver.opendeck.sdPlugin` folder outside OpenDeck's plugins directory.
-3. Extract the release ZIP so `com.pipeweaver.opendeck.sdPlugin` sits directly inside that directory. On the tested installation it is `~/.config/opendeck/plugins/`.
-4. Start PipeWeaver and OpenDeck. Add a PipeWeaver action and select its application, channel or device.
+Install `pipeweaver-opendeck-plugin-v0.23.0.zip` directly through OpenDeck for fresh installations or installations already using the v0.23.0 grouped actions. No installer bundle is needed for subsequent updates on that setup.
+
+For profiles still using v0.22.0 or older individual action identifiers, consult the [one-time migration guide](docs/UPGRADE-v0.23.0.md) before replacing the plugin; OpenDeck can discard unrecognized action identifiers.
 
 The package requires an OpenDeck-compatible Node runtime with global `WebSocket` available (`node -p 'typeof WebSocket'` should print `function`) and PipeWeaver's HTTP API, normally at `http://127.0.0.1:14565/api/command`. See Compatibility for installation differences.
 
 Existing action settings, Scene files and shared Scene Library/startup settings remain supported. The plugin performs audio changes through PipeWeaver only.
 
-## Latest fixes
+## Current changes
 
-v0.22.0 adds configurable hold-repeat volume buttons, millisecond fades, persistent unified Scene Library and compact inspectors. Follow-up fixes address physical-device fade feedback and inspector clipping, including after deleting a button and selecting another. The final deletion/reselection fix has been confirmed by the user and merged.
+v0.23.0 provides one draggable action per requested function group, operation selection in the header, and selectable physical input/output icons. The six utility actions stay separate. Existing hold, fade, Scene and inspector fixes are retained.
 
-**77 automated tests pass.** The [runtime test record](releases/v0.22.0-testing.md) records the tested behavior and remaining evidence limits. Current package notes and checksum are in [v0.22.0 release notes](releases/v0.22.0.md).
+**89 Node tests and 15 Python tests pass.** The [v0.23.0 release notes](releases/v0.23.0.md) describe the changes; the [runtime test record](releases/v0.23.0-testing.md) records successful user testing. The prior stable [runtime test record](releases/v0.22.0-testing.md) remains available.
 
 ## Development
 
 ```bash
 node --test tests/*.test.js
+python3 -m unittest discover -s tests -p 'test_*.py'
 python3 tools/build-release.py
 ```
 
