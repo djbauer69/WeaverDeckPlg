@@ -1,5 +1,21 @@
 # PipeWeaver Control for OpenDeck — WeaverDeck v0.22.0
 
+## Inspector reactivation fix (review build)
+
+Clipping can recur after deleting a button and selecting another inspector. The
+review build forwards OpenDeck's inspector selected/hidden events to the editor,
+including a ready handshake for events that arrive before its socket opens.
+On selection, a brief scroll redraw restores the WebView's painted area. Short
+editors get a temporary one-pixel scroll range; the original scroll position and
+styles are restored, with no permanent extra scrollbar. Deselection/unloading
+cancels pending redraws. Diagnostic `[Inspector]` lines record selection and
+redraw dimensions so further reports can be traced.
+
+77 automated tests pass, including delete/select/empty/select lifecycle handling,
+short and long page redraws, scroll restoration, cancellation and actual socket
+adapter routing. OpenDeck visual confirmation remains pending. This review build
+does not replace the stable v0.22.0 release.
+
 ## Unified Scene Library
 
 **Scene Library** is the single shared collection for reusable Scenes, with

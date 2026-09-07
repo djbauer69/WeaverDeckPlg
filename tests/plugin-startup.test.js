@@ -30,6 +30,10 @@ test('the real entry point loads the consolidated core and registers once throug
    assert(requests.includes('GetStatus'),'startup must query PipeWeaver status');
    assert(!Object.keys(require.cache).some(p=>/\/core-v[^/]*\.js$/.test(p)));
    assert(require.cache[root+'/plugin-core.js']);
+   sockets[0].onmessage({data:JSON.stringify({event:'propertyInspectorDidAppear',context:'key'})});
+   assert.deepEqual(sent.at(-1),{event:'sendToPropertyInspector',context:'key',payload:{command:'inspectorVisibility',visible:true}});
+   sockets[0].onmessage({data:JSON.stringify({event:'sendToPlugin',context:'key',payload:{command:'inspectorReady'}})});
+   assert.equal(sent.at(-1).payload.visible,true,'lifecycle handshake must pass through the actual runtime socket adapter');
    console.log('startup-ok');
   });
  `,root],{encoding:'utf8',timeout:5000,stdio:['ignore','pipe','pipe']});

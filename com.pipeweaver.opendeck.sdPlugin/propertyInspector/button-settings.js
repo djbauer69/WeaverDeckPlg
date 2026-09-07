@@ -9,6 +9,8 @@ const frame=direct?null:document.getElementById('inspector');
 let actionName=direct?null:document.getElementById('actionName');
 let mode=null,manual=null,input=null,manualLabel=null;
 let stopLayoutWatch=null;
+let redraw=null;
+function inspectorMessage(payload){if(socket?.readyState===1)rawSend.call(socket,JSON.stringify({event:'sendToPlugin',context,payload}))}
 function adopt(settings){
   latest={...settings};
   preferences={textMode:settings.textMode==='manual'||(settings.textMode!=='dynamic'&&!!settings.buttonText)?'manual':'dynamic',buttonText:String(settings.buttonText??'')};
@@ -106,7 +108,7 @@ function patchWindow(win,withTextControls=false){
     proto.send=function(data){
       if(socket!==this){
         socket=this;rawSend=original;setTextControlsEnabled(true);
-        this.addEventListener('message',ev=>{try{const m=JSON.parse(ev.data);if(m.event==='didReceiveSettings'&&m.context===context)adopt(m.payload?.settings||{})}catch(_){}});
+        this.addEventListener('message',ev=>{try{const m=JSON.parse(ev.data);if(m.context!==context)return;if(m.event==='didReceiveSettings')adopt(m.payload?.settings||{});if(m.event==='sendToPropertyInspector'&&m.payload?.command==='inspectorVisibility')redraw?.setVisible(m.payload.visible===true)}catch(_){}});
       }
       try{
         const m=JSON.parse(data);
@@ -114,7 +116,9 @@ function patchWindow(win,withTextControls=false){
           latest={...latest,...m.payload,...preferences};m.payload=latest;data=JSON.stringify(m);
         }
       }catch(_){}
-      return original.call(this,data);
+      const result=original.call(this,data);
+      try{const m=JSON.parse(data);if(m.event==='registerPropertyInspector')inspectorMessage({command:'inspectorReady'})}catch(_){}
+      return result;
     };
   }
   const old=win.document.getElementById('buttonText');if(old?.closest('.row'))old.closest('.row').hidden=true;
@@ -129,6 +133,7 @@ function patchWindow(win,withTextControls=false){
 }
 window.connectElgatoStreamDeckSocket=function(...args){
   const info=JSON.parse(args[4]);context=info.context;adopt(info.payload?.settings||{});
+  if(!redraw)redraw=window.WeaverInspectorLayout.createRedraw?.(window,payload=>inspectorMessage({command:'inspectorRedraw',...payload}));
   if(direct){
     patchWindow(window,true);
     document.body.classList.add('weaver-direct');
