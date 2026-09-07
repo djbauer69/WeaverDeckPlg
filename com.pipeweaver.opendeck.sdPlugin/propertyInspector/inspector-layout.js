@@ -78,7 +78,46 @@
   host.addEventListener('pagehide',dispose);
   refresh();return dispose;
  }
- const api={fit,refreshTree,watch};
+ function createRedraw(host=root,report=()=>{}){
+  const timers=new Set();let visible=false,restore=null,disposed=false;
+  const later=(fn,delay)=>{const id=host.setTimeout(()=>{timers.delete(id);fn()},delay);timers.add(id)};
+  function cancel(){for(const id of timers)host.clearTimeout(id);timers.clear();if(restore){const done=restore;restore=null;done()}}
+  function paint(){
+   if(!visible||disposed)return;
+   if(restore){const done=restore;restore=null;done()}
+   const doc=host.document,body=doc.body,element=doc.documentElement,scroll=doc.scrollingElement||element;
+   if(!body||!scroll)return;
+   const box=body.getBoundingClientRect();if(box.width<=0||host.innerHeight<=0)return;
+   // A real scroll clears the stale WebView paint clip reported after deleting
+   // a key. Give even short pages a temporary one-pixel scroll range, conceal
+   // that temporary scrollbar, then restore styles and the user's position.
+   const styles=[[element.style,'overflow-y'],[element.style,'scroll-behavior'],[element.style,'scroll-snap-type'],[body.style,'min-height']].map(([style,key])=>({style,key,value:style.getPropertyValue(key),priority:style.getPropertyPriority(key)}));
+   const from=scroll.scrollTop;
+   element.style.setProperty('overflow-y','hidden','important');
+   element.style.setProperty('scroll-behavior','auto','important');
+   element.style.setProperty('scroll-snap-type','none','important');
+   body.style.setProperty('min-height',Math.max(box.height,host.innerHeight+1)+'px','important');
+   void body.offsetHeight;
+   scroll.scrollTop=from>0?from-1:1;
+   const to=scroll.scrollTop;
+   const finish=()=>{
+    const position=scroll.scrollTop===to?from:scroll.scrollTop;
+    for(const {style,key,value,priority} of styles){if(value)style.setProperty(key,value,priority);else style.removeProperty(key)}
+    scroll.scrollTop=position;
+   };
+   restore=finish;
+   later(()=>{if(restore!==finish)return;restore=null;finish();report({viewport:host.innerHeight,content:box.height,from,to})},40);
+  }
+  function setVisible(value){
+   if(disposed)return;cancel();visible=value;
+   if(visible)for(const delay of [0,120,350])later(paint,delay);
+  }
+  const refresh=()=>{if(visible)setVisible(true)};
+  const dispose=()=>{cancel();visible=false;disposed=true;host.removeEventListener('resize',refresh);host.removeEventListener('pagehide',dispose)};
+  host.addEventListener('resize',refresh);host.addEventListener('pagehide',dispose);
+  return {setVisible,dispose};
+ }
+ const api={fit,refreshTree,watch,createRedraw};
  if(typeof module==='object'&&module.exports)module.exports=api;
  else root.WeaverInspectorLayout=api;
 })(typeof window==='object'?window:globalThis);

@@ -85,8 +85,8 @@ test('Multi Action volume buttons apply one step without scheduling hold repeats
 });
 function ui({direct=false,nested=true,actualFade=false,legacyOpenDeck=false}={}){
  const nodes=new Map();function node(id){if(!nodes.has(id))nodes.set(id,{value:'',hidden:false,disabled:true,events:{},addEventListener(e,f){this.events[e]=f}});return nodes.get(id)}
- const fitted=[];
- const c=vm.createContext({document:{getElementById:node},console});c.window=c;c.WeaverInspectorLayout={fit(frame){fitted.push(frame)},watch(){return ()=>{}}};
+ const fitted=[],visibility=[];
+ const c=vm.createContext({document:{getElementById:node},console});c.window=c;c.WeaverInspectorLayout={fit(frame){fitted.push(frame)},watch(){return ()=>{}},createRedraw(){return {setVisible:value=>visibility.push(value)}}};
  vm.runInContext(fs.readFileSync(root+'/propertyInspector/button-inspectors.js','utf8'),c);
  const sent=[];let sock;
  class WS{constructor(){this.readyState=1;this.listeners=[];sock=this}send(s){sent.push(JSON.parse(s))}addEventListener(e,f){this.listeners.push(f)}}
@@ -114,7 +114,7 @@ function ui({direct=false,nested=true,actualFade=false,legacyOpenDeck=false}={})
  node('inspector').contentWindow=outer;
  c.connectElgatoStreamDeckSocket(1234,'pi','registerPropertyInspector','{}',JSON.stringify({action:actualFade?'com.pipeweaver.opendeck.physinvolumefade':'com.pipeweaver.opendeck.scene',context:'key',payload:{settings:{name:'Scene',operations:[{type:'wait',milliseconds:200}],buttonText:'Legacy'}}}));
  if(actualFade)sock.onopen();
- if(!direct&&!legacyOpenDeck)node('inspector').onload();return {c,node,sent,socket:sock,legacyRow,fitted,controls:{mode:outer.document.getElementById('weaverTextMode'),input:outer.document.getElementById('weaverManualText')}};
+ if(!direct&&!legacyOpenDeck)node('inspector').onload();return {c,node,sent,socket:sock,legacyRow,fitted,visibility,controls:{mode:outer.document.getElementById('weaverTextMode'),input:outer.document.getElementById('weaverManualText')}};
 }
 test('nested inspectors share one socket; manual edits survive old Scene saves and receive-settings',()=>{
  const u=ui();assert.equal(u.node('inspector').src,'scene-v022.html');assert.equal(u.controls.mode.value,'manual');assert(u.legacyRow.hidden);assert.equal(u.sent.filter(m=>m.event==='registerPropertyInspector').length,1);
@@ -165,4 +165,12 @@ test('existing OpenDeck profiles navigate from the old inspector path without ed
  assert.equal(decodeURI(u.c.location.destination),'http://localhost:1234/plugins/weaver/propertyInspector/scene-v022.html|opendeck_property_inspector');
  assert.equal(u.sent.length,0,'let OpenDeck reconnect the destination document; do not register or mutate settings in the old wrapper');
  assert.equal(u.fitted.length,0);
+});
+test('direct inspector ready handshake and visibility replies reach only its own redraw controller',()=>{
+ const u=ui({direct:true,nested:false,actualFade:true});
+ assert.equal(u.sent.filter(m=>m.payload?.command==='inspectorReady').length,1);
+ const reply=(context,visible)=>{for(const fn of u.socket.listeners)fn({data:JSON.stringify({event:'sendToPropertyInspector',context,payload:{command:'inspectorVisibility',visible}})})};
+ reply('other',true);assert.equal(u.visibility.length,0);
+ reply('key',true);reply('key',false);reply('key',true);assert.deepEqual(u.visibility,[true,false,true]);
+ assert.equal(u.sent.filter(m=>m.event==='setSettings').length,0,'selection/redraw must not save or change settings');
 });

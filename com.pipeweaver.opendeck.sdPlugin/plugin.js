@@ -31,6 +31,7 @@ const visualLayer=installApplicationVisuals();
 const sceneFileLayer=installSceneFileIO();
 const sceneLibraryLayer=installSceneLibrary();
 const sceneVisualLayer=installSceneVisuals();
+const inspectorLayer=require('./inspector-lifecycle').installInspectorLifecycle();
 
 class WeaverVisualWebSocket {
   constructor(...args){
@@ -41,6 +42,7 @@ class WeaverVisualWebSocket {
       if(this._onopen)this._onopen(ev);
     };
     this._ws.onmessage=(ev)=>{
+      if(inspectorLayer.handleIncoming(this,ev))return;
       presentationLayer.handleIncoming(this,ev);
       try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.22.0] application visuals inbound error:",e?.stack||e)}
       try{sceneVisualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.22.0] Scene visuals inbound error:",e?.stack||e)}
@@ -50,6 +52,7 @@ class WeaverVisualWebSocket {
     };
     this._ws.onerror=(ev)=>{if(this._onerror)this._onerror(ev)};
     this._ws.onclose=(ev)=>{
+      inspectorLayer.clear();
       visualLayer.detachSocket(this);
       if(this._onclose)this._onclose(ev);
     };
