@@ -1,8 +1,10 @@
-# Upgrade to v0.23.0 grouped actions (review build)
+# Upgrade to v0.23.0 grouped actions
 
 v0.23.0 reduces the action sidebar from 57 entries to **12**. Application, Physical Input, Physical Output, Route, Source and Target each become one draggable action. Choose the operation in the inspector's **Action** dropdown. All 51 operations from those six groups remain available; the six utility actions remain separate.
 
-## Existing OpenDeck installations
+For a fresh installation or a setup already using the v0.23.0 grouped actions, install the plugin ZIP directly through OpenDeck. The one-time procedure below is only for older individual action identifiers.
+
+## Migrating from v0.22.0 or earlier
 
 **Use the upgrade bundle before opening OpenDeck with the new plugin.** OpenDeck's current action list does not honor `VisibleInActionsList`, and missing action UUIDs can cause it to discard saved buttons. The included offline installer converts old button/dial UUIDs and preserves their operation, selections, numeric settings, manual text, user artwork and nested Multi Actions. It also creates a backup and installs the matching plugin ZIP.
 
@@ -35,9 +37,9 @@ For a fresh installation with no existing WeaverDeck profile entries, the inner 
 - On an encoder, the same grouped action uses its Volume Dial operation; Route remains a key action. Icon choices apply to key artwork, not the encoder strip layout.
 - Native Multi Actions exclude fade operations because they cannot wait for completion. Smart Scene fades continue to wait for completion and use their existing Scene operation settings.
 
-## Review checks
+## Completed runtime checks
 
-Automated checks pass: 89 Node tests and 15 Python tests, including operation dispatch, settings/text preservation, controller restrictions, icon feedback, profile conversion, byte-exact backups and rollback. Icon SVGs have been rendered for visual inspection. This build still needs the following OpenDeck/PipeWeaver checks:
+Automated checks pass: 89 Node tests and 15 Python tests, including operation dispatch, settings/text preservation, controller restrictions, icon feedback, profile conversion, byte-exact backups and rollback. Icon SVGs have been rendered for visual inspection. The user confirmed the following OpenDeck/PipeWeaver checks passed on 7 September 2026:
 
 1. Confirm existing buttons keep their selected operations and work after migration/restart.
 2. Confirm the sidebar has 12 alphabetical entries. Drag each of the six groups onto a key and switch operations.
@@ -45,4 +47,4 @@ Automated checks pass: 89 Node tests and 15 Python tests, including operation di
 4. Check hold Step/Hold ms and a short Fade. Switch operations and confirm the selected device and settings remain.
 5. Delete a button, select an empty button, then return to a grouped action and Scene; confirm the inspector is fully visible.
 
-The stable v0.22.0 release remains available while this build is reviewed.
+See [the runtime test record](../releases/v0.23.0-testing.md) for logged evidence and user confirmation.

@@ -1,17 +1,15 @@
-# WeaverDeck v0.23.0 — review build
+# WeaverDeck v0.23.0
 
 Control **PipeWeaver** from **OpenDeck on Linux**: application and channel volume/mute, routing, Source A/B mixes, audio engine controls, Smart Scenes, startup Scenes and volume dials.
 
-[**Download v0.22.0**](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.22.0) · [Wiki](https://github.com/djbauer69/WeaverDeckPlg/wiki)
-
-**Upgrading existing buttons? Use the [v0.23.0 migration guide](docs/UPGRADE-v0.23.0.md) before installing.** This branch consolidates the sidebar into 12 actions, adds operation selectors and physical-device icon choices. v0.22.0 remains the stable download while this build is tested.
+v0.23.0 has passed the requested runtime checks. See the [test record](releases/v0.23.0-testing.md) and [release notes](releases/v0.23.0.md). GitHub release publication is pending; published downloads are listed on the [Releases page](https://github.com/djbauer69/WeaverDeckPlg/releases).
 
 ## Documentation
 
 | Guide | Contents |
 | --- | --- |
 | [Actions](docs/wiki/Actions.md) | 12 sidebar actions and all 57 operations, settings, hold controls, fades, Scene Library, Scene Files and startup. |
-| [Version History](docs/wiki/Version-History.md) | Recorded changes from the first repository baseline through the v0.23.0 review build. |
+| [Version History](docs/wiki/Version-History.md) | Recorded changes from the first repository baseline through v0.23.0. |
 | [Communication](docs/wiki/Communication.md) | How the plugin exchanges OpenDeck events and PipeWeaver API commands. |
 | [Compatibility](docs/COMPATIBILITY.md) | Requirements and hardware/distribution test matrix. |
 
@@ -19,9 +17,9 @@ The three main guides are also prepared for the GitHub wiki. Their repository co
 
 ## Install or update
 
-For this v0.23.0 branch, follow the [upgrade guide](docs/UPGRADE-v0.23.0.md). The offline installer backs up and converts existing profiles before replacing the plugin. Simply replacing the plugin folder can make OpenDeck discard buttons that use old action identifiers.
+Install `pipeweaver-opendeck-plugin-v0.23.0.zip` directly through OpenDeck for fresh installations or installations already using the v0.23.0 grouped actions. No installer bundle is needed for subsequent updates on that setup.
 
-For the stable v0.22.0 package, follow its [release notes](releases/v0.22.0.md).
+For profiles still using v0.22.0 or older individual action identifiers, consult the [one-time migration guide](docs/UPGRADE-v0.23.0.md) before replacing the plugin; OpenDeck can discard unrecognized action identifiers.
 
 The package requires an OpenDeck-compatible Node runtime with global `WebSocket` available (`node -p 'typeof WebSocket'` should print `function`) and PipeWeaver's HTTP API, normally at `http://127.0.0.1:14565/api/command`. See Compatibility for installation differences.
 
@@ -31,7 +29,7 @@ Existing action settings, Scene files and shared Scene Library/startup settings 
 
 v0.23.0 provides one draggable action per requested function group, operation selection in the header, and selectable physical input/output icons. The six utility actions stay separate. Existing hold, fade, Scene and inspector fixes are retained.
 
-**89 Node tests and 15 Python tests pass.** The [v0.23.0 review notes](releases/v0.23.0.md) describe the changes and remaining runtime checks. The prior stable [runtime test record](releases/v0.22.0-testing.md) remains available.
+**89 Node tests and 15 Python tests pass.** The [v0.23.0 release notes](releases/v0.23.0.md) describe the changes; the [runtime test record](releases/v0.23.0-testing.md) records successful user testing. The prior stable [runtime test record](releases/v0.22.0-testing.md) remains available.
 
 ## Development
 

@@ -13,7 +13,7 @@ flowchart TD
   P -->|"Native engine operations"| A["PipeWire audio engine"]
 ```
 
-## Grouped action dispatch (v0.23.0 review build)
+## Grouped action dispatch (v0.23.0)
 
 OpenDeck stores a group action UUID and a `settings.operation` identifier. `action-groups.js` validates that operation against `action-catalog.json` and adapts incoming events to the existing operation handler, retaining the original context for feedback. Invalid or cross-group selections are rejected. Encoder events resolve to the group's dial operation. Changing settings stops held controls and cancels an active grouped fade before reclassifying the instance and refreshing artwork.
 
