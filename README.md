@@ -1,4 +1,4 @@
-# PipeWeaver Control for OpenDeck — WeaverDeck v0.22.0 prerelease
+# PipeWeaver Control for OpenDeck — WeaverDeck v0.22.0
 
 ## Unified Scene Library
 
