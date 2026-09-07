@@ -213,8 +213,10 @@ function installApplicationVisuals(){
   function detachSocket(ws){sockets.delete(ws)}
   function handleIncoming(ws,ev){
     let m;try{m=JSON.parse(typeof ev.data==="string"?ev.data:ev.data.toString())}catch(_){return}
-    if(m.event==="willAppear"&&APP_ACTIONS.has(m.action)){contexts.set(m.context,{action:m.action,settings:{...(m.payload?.settings||{})}});setTimeout(()=>refresh(ws),20)}
-    else if(m.event==="didReceiveSettings"&&contexts.has(m.context)){const c=contexts.get(m.context);c.settings={...(m.payload?.settings||{})};imageKeys.delete(m.context);setTimeout(()=>refresh(ws),20)}
+    if(m.event==="willAppear"||m.event==="didReceiveSettings"){
+      if(APP_ACTIONS.has(m.action)){contexts.set(m.context,{action:m.action,settings:{...(m.payload?.settings||{})}});imageKeys.delete(m.context);setTimeout(()=>refresh(ws),20)}
+      else if(contexts.has(m.context)){contexts.delete(m.context);imageKeys.delete(m.context)}
+    }
     else if(m.event==="willDisappear"&&contexts.has(m.context)){contexts.delete(m.context);imageKeys.delete(m.context)}
     else if(m.event==="keyDown"&&contexts.has(m.context)){setTimeout(()=>refresh(ws),180)}
   }

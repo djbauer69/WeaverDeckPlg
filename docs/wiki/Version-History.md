@@ -4,6 +4,16 @@ This is the historical change record for WeaverDeck. The release-page cleanup ke
 
 Entries below are reconstructed from repository commits, versioned READMEs, release notes and recorded user testing. Some early development builds were not individually committed or released. Missing numbers are not invented. The [original release metadata and notes](https://github.com/djbauer69/WeaverDeckPlg/blob/main/docs/history/releases-before-cleanup.json) preserve the published record before cleanup, including checksums and contemporary testing caveats. Those historical caveats are not the current release status.
 
+## v0.23.0 — grouped actions and device icons (review build)
+
+- Consolidate 51 sidebar entries into six grouped actions, retaining all operations and six separate utilities. The resulting sidebar has 12 alphabetical entries.
+- Replace the grouped inspector's fixed heading with an operation dropdown. Keep shared application/device choices, numeric settings and manual text across switches.
+- Add six Physical Input and four Physical Output icon choices, plus Default, with live volume/mute feedback.
+- Include an offline installer that backs up and migrates saved profile identifiers before installing the compact manifest. This is required because current OpenDeck does not hide legacy entries using `VisibleInActionsList` and can discard missing action identifiers.
+- Preserve hold repeat, millisecond fades, Scene behavior and inspector redraw fixes. Fade selections remain excluded from native Multi Actions.
+
+Validation: 87 Node tests and 12 Python tests pass. Runtime confirmation of this review build is pending; v0.22.0 remains stable.
+
 ## v0.22.0 — hold repeat, millisecond fades and inspector/storage fixes
 
 - Configurable Hold ms (50–2000, default 200) on all button Volume Up/Down actions, retaining Step % and one-step taps. Release, reassignment/removal and disconnect stop repeat; native Multi Actions remain one-shot.

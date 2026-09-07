@@ -116,3 +116,6 @@ window.buttonInspectorNames={
   "com.pipeweaver.opendeck.targetvolumefade": "Target Volume Fade",
   "com.pipeweaver.opendeck.volumeup": "Target Volume Up"
 };
+
+Object.assign(window.buttonInspectors,{"com.pipeweaver.opendeck.application": "grouped.html", "com.pipeweaver.opendeck.physicalinput": "grouped.html", "com.pipeweaver.opendeck.physicaloutput": "grouped.html", "com.pipeweaver.opendeck.routing": "grouped.html", "com.pipeweaver.opendeck.sourcecontrol": "grouped.html", "com.pipeweaver.opendeck.targetcontrol": "grouped.html"});
+Object.assign(window.buttonInspectorNames,{"com.pipeweaver.opendeck.application": "Application", "com.pipeweaver.opendeck.physicalinput": "Physical Input", "com.pipeweaver.opendeck.physicaloutput": "Physical Output", "com.pipeweaver.opendeck.routing": "Route", "com.pipeweaver.opendeck.sourcecontrol": "Source", "com.pipeweaver.opendeck.targetcontrol": "Target"});
