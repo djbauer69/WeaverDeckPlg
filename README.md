@@ -1,8 +1,10 @@
-# WeaverDeck v0.23.0
+# WeaverDeck v0.24.0 — review build
 
 Control **PipeWeaver** from **OpenDeck on Linux**: application and channel volume/mute, routing, Source A/B mixes, audio engine controls, Smart Scenes, startup Scenes and volume dials.
 
-v0.23.0 has passed the requested runtime checks. See the [test record](releases/v0.23.0-testing.md) and [release notes](releases/v0.23.0.md). GitHub release publication is pending; published downloads are listed on the [Releases page](https://github.com/djbauer69/WeaverDeckPlg/releases).
+v0.24.0 adds **Preview Scene**: a read-only, step-by-step view of current and proposed audio settings, skipped conditions, missing selections and provisional results. It uses the current PipeWeaver status and does not send audio-control commands. See [the preview guide](docs/SCENE-PREVIEW.md).
+
+[WeaverDeck v0.23.0](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.23.0) is the published stable release. This v0.24.0 branch is awaiting runtime review.
 
 ## Documentation
 
@@ -17,7 +19,7 @@ The three main guides are also prepared for the GitHub wiki. Their repository co
 
 ## Install or update
 
-Install `pipeweaver-opendeck-plugin-v0.23.0.zip` directly through OpenDeck for fresh installations or installations already using the v0.23.0 grouped actions. No installer bundle is needed for subsequent updates on that setup.
+Install `pipeweaver-opendeck-plugin-v0.24.0.zip` directly through OpenDeck for fresh installations or installations already using the v0.23.0 grouped actions. No installer bundle is needed for subsequent updates on that setup.
 
 For profiles still using v0.22.0 or older individual action identifiers, consult the [one-time migration guide](docs/UPGRADE-v0.23.0.md) before replacing the plugin; OpenDeck can discard unrecognized action identifiers.
 
@@ -29,7 +31,7 @@ Existing action settings, Scene files and shared Scene Library/startup settings 
 
 v0.23.0 provides one draggable action per requested function group, operation selection in the header, and selectable physical input/output icons. The six utility actions stay separate. Existing hold, fade, Scene and inspector fixes are retained.
 
-**89 Node tests and 15 Python tests pass.** The [v0.23.0 release notes](releases/v0.23.0.md) describe the changes; the [runtime test record](releases/v0.23.0-testing.md) records successful user testing. The prior stable [runtime test record](releases/v0.22.0-testing.md) remains available.
+**98 Node tests pass**, including read-only preview, the 38-step Default Scene, state projection, conditions and stale inspector response tests. The 15 Python installer/publishing tests also pass. The [v0.23.0 release notes](releases/v0.23.0.md) describe the changes; the [runtime test record](releases/v0.23.0-testing.md) records successful user testing. The prior stable [runtime test record](releases/v0.22.0-testing.md) remains available.
 
 ## Development
 
