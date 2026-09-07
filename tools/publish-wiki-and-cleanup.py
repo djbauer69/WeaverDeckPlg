@@ -27,7 +27,8 @@ def run(args, *, cwd=None, data=None):
 
 
 def api(repo, path, *, method='GET', payload=None, pages=False):
-    args = ['gh', 'api', '--hostname', 'github.com', f'repos/{repo}/{path}', '--method', method]
+    endpoint = f'repos/{repo}' + (f'/{path}' if path else '')
+    args = ['gh', 'api', '--hostname', 'github.com', endpoint, '--method', method]
     if pages:
         args += ['--paginate', '--slurp']
     if payload is not None:

@@ -22,6 +22,14 @@ def inventory():
 
 
 class CleanupGuards(unittest.TestCase):
+    def test_repository_endpoint_has_no_trailing_slash(self):
+        with patch.object(publisher, 'run', return_value='{"has_wiki": true}') as run:
+            self.assertTrue(publisher.api(PLAN['repository'], '')['has_wiki'])
+        self.assertEqual(run.call_args.args[0][4], 'repos/djbauer69/WeaverDeckPlg')
+        with patch.object(publisher, 'run', return_value='[]') as run:
+            publisher.api(PLAN['repository'], 'git/matching-refs/tags/')
+        self.assertEqual(run.call_args.args[0][4], 'repos/djbauer69/WeaverDeckPlg/git/matching-refs/tags/')
+
     def test_rejects_deleting_retained_release_or_tag(self):
         for field, value in [('delete_releases', {'id': 383587973, 'tag': 'v0.22.0'}),
                              ('delete_tags', {'ref': 'refs/tags/v0.22.0', 'sha': PLAN['target_sha'], 'type': 'commit'})]:
