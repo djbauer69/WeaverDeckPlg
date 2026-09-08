@@ -34,7 +34,9 @@ let ws=null,lastStatus=null,lastStatusAt=0,statusRefreshInFlight=false,statusTim
 const APPLICATION_CACHE_MAX_AGE_MS=3500;
 const instances=new Map();
 const DIAG_PREFIX="[v0.11.2]";
+const diagnostics=require('./diagnostics');
 function diag(label, value){
+  if(!diagnostics.debugEnabled&&!['startup','previewScene reply','validateScene reply'].includes(label))return;
   try {
     const text = typeof value === "string" ? value : JSON.stringify(value);
     console.error(`${DIAG_PREFIX} ${label}: ${text}`);
@@ -269,8 +271,15 @@ function updateInstance023Base(i){
 function updateInstance0191(i){
  if(i.action===STARTUP_ACTION){const s=startup019.snapshot();setState(i.context,s.phase==="Failed"?1:0);setTitle(i.context,"Startup Scene\n"+s.phase);return}
   const op018=features018.buttonOperation(i);
-  if(op018){const v=features018.visual(op018,lastStatus);setState(i.context,v.state);setTitle(i.context,v.title);return}
-  if(!lastStatus){setState(i.context,1);setTitle(i.context,"PW\nOFF");return}
+  if(op018){
+    const v=features018.visual(op018,lastStatus);setState(i.context,v.state);setTitle(i.context,v.title);
+    // Refresh existing Audio buttons whose saved states still refer to older artwork.
+    if((op018.type==="audioRestart"||op018.type==="audioBuffer")&&i.audioLogoState!==v.state){
+      i.audioLogoState=v.state;send({event:'setImage',context:i.context,payload:{image:'icons/plugin'}});
+    }
+    return;
+  }
+  if(!lastStatus){setState(i.context,1);setTitle(i.context,"Offline");return}
   const a=i.action,st=i.settings||{};
   const sourceActions=[ACTIONS.sourceVolUp,ACTIONS.sourceVolDown,ACTIONS.sourceSetVol,ACTIONS.sourceAVolUp,ACTIONS.sourceAVolDown,ACTIONS.sourceBVolUp,ACTIONS.sourceBVolDown,ACTIONS.sourceMute,ACTIONS.sourceMuteA,ACTIONS.sourceMuteB];
   if(a===ACTIONS.sourceLinkToggle){
@@ -285,11 +294,11 @@ function updateInstance0191(i){
   } else if([ACTIONS.targetMixA,ACTIONS.targetMixB,ACTIONS.targetMixToggle].includes(a)){
     const n=st.targetName,t=findNamedTarget(lastStatus,n),mix=targetMix(t);setState(i.context,mix===null?0:(mix==="B"?1:0));setTitle(i.context,`${n||"Target"}\n${mix?"MIX "+mix:"?"}`);
   } else if([ACTIONS.volUp,ACTIONS.volDown,ACTIONS.setVol].includes(a)){
-    const n=st.targetName,t=findNamedTarget(lastStatus,n),v=targetVolume(t);setState(i.context,v==null?1:0);setTitle(i.context,v==null?(n?`PW\n${n}`:"PW\nSET"):`${n||"Target"}\n${a===ACTIONS.setVol?st.volume+"%":v+"%"}`);
+    const n=st.targetName,t=findNamedTarget(lastStatus,n),v=targetVolume(t);setState(i.context,v==null?1:0);setTitle(i.context,v==null?(n?`${n}\n?`:"Select target"):`${n||"Target"}\n${a===ACTIONS.setVol?st.volume+"%":v+"%"}`);
   } else if([ACTIONS.targetMute,ACTIONS.muteOn,ACTIONS.muteOff].includes(a)){
-    const n=st.targetName,m=targetMuted(findNamedTarget(lastStatus,n));setState(i.context,m==null?1:(m?1:0));setTitle(i.context,m==null?(n?`${n}\n?`:"PW\nMUTE"):`${n||"Target"}\n${m?"MUTED":"LIVE"}`);
+    const n=st.targetName,m=targetMuted(findNamedTarget(lastStatus,n));setState(i.context,m==null?1:(m?1:0));setTitle(i.context,m==null?(n?`${n}\n?`:"Select target"):`${n||"Target"}\n${m?"MUTED":"LIVE"}`);
   } else if([ACTIONS.appMute,ACTIONS.appVolUp,ACTIONS.appVolDown,ACTIONS.appSetVol,ACTIONS.appRouteOn,ACTIONS.appRouteOff,ACTIONS.appRouteToggle].includes(a)){
-    const x=appForSettings(lastStatus,st);if(!x){setState(i.context,1);setTitle(i.context,st.name?`${st.name}\n?`:"PW\nAPP");return}
+    const x=appForSettings(lastStatus,st);if(!x){setState(i.context,1);setTitle(i.context,st.name?`${st.name}\n?`:"Select application");return}
     if(a===ACTIONS.appMute){setState(i.context,x.muted?1:0);setTitle(i.context,`${x.name}\n${x.muted?"MUTED":"LIVE"}`)}
     else if([ACTIONS.appVolUp,ACTIONS.appVolDown,ACTIONS.appSetVol].includes(a)){setState(i.context,x.volume!=null?0:1);setTitle(i.context,`${x.name}\n${x.volume==null?"?":x.volume+"%"}`)}
     else {const t=appDestination(lastStatus,x,st.targetName),on=!!(t&&x.targetId&&x.targetId===deviceId(t));setState(i.context,on?1:0);setTitle(i.context,`${x.name}\n${on?"→ "+(st.targetName||"ON"):"ROUTE OFF"}`)}
@@ -304,7 +313,7 @@ function updateInstance0191(i){
 function updateAll(){for(const i of instances.values())updateInstance(i)}
 let statusPromise018=null;
 function refreshStatus(){if(statusPromise018)return statusPromise018;statusPromise018=refreshStatus018().finally(()=>{statusPromise018=null});return statusPromise018}
-async function refreshStatus018(){statusRefreshInFlight=true;try{const r=await getStatus();const s=unwrapStatus(r);if(!s)throw new Error("PipeWeaver status response not recognised");lastStatus=s;lastStatusAt=Date.now();updateAll();return s}catch(e){console.error("PipeWeaver status refresh failed:",e?.stack||e?.message||e);diag("refreshStatus failure",e?.stack||e?.message||String(e));if(lastStatus!==null){lastStatus=null;updateAll()}return null}finally{statusRefreshInFlight=false;}}
+async function refreshStatus018(){statusRefreshInFlight=true;try{const r=await getStatus();const s=unwrapStatus(r);if(!s)throw new Error("PipeWeaver status response not recognised");lastStatus=s;lastStatusAt=Date.now();updateAll();return s}catch(e){console.error("PipeWeaver status refresh failed:",e?.stack||e?.message||e);if(lastStatus!==null){lastStatus=null;updateAll()}return null}finally{statusRefreshInFlight=false;}}
 function scheduleStatusRefresh(){if(statusTimer)clearTimeout(statusTimer);statusTimer=setTimeout(async()=>{await refreshStatus();scheduleStatusRefresh()},STATUS_INTERVAL_MS)}
 async function sourceVolumeStep(i,delta){const s=await refreshStatus(),n=i.settings.sourceName,mix=i.settings.mix||"A",cur=sourceVolume(findNamedSourceByName(s,n),mix);if(cur==null){showAlert(i.context);return}const raw=Number(i.settings.step),step=Number.isFinite(raw)&&raw>0?Math.round(raw):DEFAULT_STEP;const next=Math.max(0,Math.min(100,cur+delta*step));try{const r=await pipeCommand({Pipewire:{SetSourceVolume:[findNamedSourceByName(s,n)?.description?.id||findNamedSourceByName(s,n)?.id,mix,next]}});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Source volume failed:",e.message);showAlert(i.context)}}
 async function toggleSourceMute(i){const s=await refreshStatus(),n=i.settings.sourceName,mix=i.settings.mix||"A",src=findNamedSourceByName(s,n),id=src?.description?.id||src?.id;if(!src||!id){showAlert(i.context);return}const target="Target"+mix,muted=sourceMuted(src,mix);const cmd=muted?{DelSourceMuteTarget:[id,target]}:{AddSourceMuteTarget:[id,target]};try{const r=await pipeCommand({Pipewire:cmd});if(!isOk(r))throw new Error(JSON.stringify(r));await refreshStatus();showOk(i.context)}catch(e){console.error("Source mute failed:",e.message);showAlert(i.context)}}
@@ -594,12 +603,12 @@ async function runScene(i){
     try{
       let status=await refreshStatus();
       if(!status)throw new Error("PipeWeaver status unavailable");
-      console.log(`[Scene] VALIDATION START name=${JSON.stringify(sceneName)} operations=${ops.length}`);
+      diagnostics.debug(`[Scene] VALIDATION START name=${JSON.stringify(sceneName)} operations=${ops.length}`);
       const validation=validateSceneOperations(ops,status);
       for(const v of validation.errors)console.error(`[Scene] VALIDATION ERROR step=${v.step} type=${v.type} reason=${JSON.stringify(v.message)}`);
       for(const v of validation.warnings)console.warn(`[Scene] VALIDATION WARNING step=${v.step} type=${v.type} reason=${JSON.stringify(v.message)}`);
       if(!validation.ok){console.error(`[Scene] VALIDATION FAILED errors=${validation.errors.length} warnings=${validation.warnings.length}`);throw new Error(`Scene validation failed with ${validation.errors.length} error(s)`)}
-      console.log(`[Scene] VALIDATION OK errors=0 warnings=${validation.warnings.length}`);
+      diagnostics.debug(`[Scene] VALIDATION OK errors=0 warnings=${validation.warnings.length}`);
       for(let idx=0;idx<ops.length;idx++){
         activeStep=idx+1;
         const op=ops[idx],desc=sceneSmartDescription(op),condition=sceneConditionEvaluation(op,status);
@@ -608,11 +617,11 @@ async function runScene(i){
           status=await refreshStatus()||status;
           continue;
         }
-        console.log(`[Scene] STEP ${activeStep}/${ops.length} START ${desc}`);
+        diagnostics.debug(`[Scene] STEP ${activeStep}/${ops.length} START ${desc}`);
         const stepStarted=Date.now();
         try{
           await executeSceneOperation(op,status);
-          console.log(`[Scene] STEP ${activeStep}/${ops.length} OK ${desc} (${Date.now()-stepStarted}ms)`);
+          diagnostics.debug(`[Scene] STEP ${activeStep}/${ops.length} OK ${desc} (${Date.now()-stepStarted}ms)`);
         }catch(e){
           const policy=sceneFailurePolicy(op);
           console.error(`[Scene] STEP ${activeStep}/${ops.length} FAILED ${desc}: ${e.message}`);

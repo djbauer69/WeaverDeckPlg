@@ -127,7 +127,7 @@ function installApplicationVisuals(){
       }
     }
     desktopEntries=out;
-    console.error(`[v0.12.2] application icon desktop entries: ${out.length}`);
+    require('./diagnostics').debug(`[v0.12.2] application icon desktop entries: ${out.length}`);
     return out;
   }
   function builtinFor(app){
@@ -170,7 +170,7 @@ function installApplicationVisuals(){
     const key=`${app?.process||""}|${app?.name||""}|${app?.title||""}`;if(iconCache.has(key))return iconCache.get(key);
     const desktop=desktopFor(app),local=desktop?fileData(findIconFile(desktop.icon)):null,builtin=builtinFor(app),bundled=builtin?.asset?fileData(path.join(__dirname,builtin.asset)):null;
     const result={data:local||bundled||null,builtin,source:local?"desktop":bundled?"builtin":"generated",desktop:desktop?.file||null};iconCache.set(key,result);
-    console.error(`[v0.12.2] application icon resolved: ${app?.name||app?.process||"Application"} source=${result.source}${result.desktop?` desktop=${result.desktop}`:""}${builtin?` builtin=${builtin.id}`:""}`);
+    require('./diagnostics').debug(`[v0.12.2] application icon resolved: ${app?.name||app?.process||"Application"} source=${result.source}${result.desktop?` desktop=${result.desktop}`:""}${builtin?` builtin=${builtin.id}`:""}`);
     return result;
   }
   function badge(app,builtin){

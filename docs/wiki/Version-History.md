@@ -4,6 +4,10 @@ This is the historical change record for WeaverDeck. The earlier release-page cl
 
 Entries below are reconstructed from repository commits, versioned READMEs, release notes and recorded user testing. Some early development builds were not individually committed or released. Missing numbers are not invented. The [original release metadata and notes](https://github.com/djbauer69/WeaverDeckPlg/blob/main/docs/history/releases-before-cleanup.json) preserve the published record before cleanup, including checksums and contemporary testing caveats. Those historical caveats are not the current release status.
 
+## v0.24.1 — icon, Scene text and diagnostic cleanup
+
+Use the upstream PipeWeaver icon for shared PW artwork, the plugin/category header, Audio Buffer Size and Audio Engine Restart. Refresh artwork on existing Audio buttons as well as new ones. Replace PW fallback titles with short selection/offline labels. Include upstream attribution and the MIT license notice. Remove Scene explanatory paragraphs and ready text while retaining controls and action results. Full discovery/settings dumps, inspector redraw logging and successful per-step Scene detail become opt-in with WEAVERDECK_DEBUG=1; errors and concise result summaries remain enabled. Normal logging avoids unnecessary object serialization. 103 Node tests pass, including existing Audio button artwork and quiet logging. The earlier v0.24.0 preview runtime checks remain recorded separately; new artwork and logging changes have automated/source checks, not a new user runtime confirmation.
+
 ## v0.24.0 — Scene preview
 
 Adds read-only Preview Scene beside Validate Scene, with per-step before/after values, condition outcomes, missing/ambiguous selections and provisional results after timed/engine steps. Earlier direct state changes are projected forward. No audio commands or engine operations are executed by preview. Request correlation and invalidation prevent stale Scene results.
@@ -33,7 +37,7 @@ Validation: 89 Node tests and 15 Python tests pass. The user confirmed all reque
 
 **Validation:** 77 automated tests pass. User/log checks confirm Source A/B fades, 0 ms changes, Scene fade ordering and restored durations; C922 and Volt 2 physical input fades pass after the feedback fix, including concurrent fades. On 7 September 2026 the user confirmed the inspector deletion/reselection fix works. The [runtime test record](https://github.com/djbauer69/WeaverDeckPlg/blob/main/releases/v0.22.0-testing.md) distinguishes logged evidence from visual confirmation.
 
-Current tested plugin SHA-256:
+Final v0.22.0 plugin SHA-256:
 
 ```text
 c60ab275f60ee400ca5ab1fbcc30ac9a549409872c178550a81dbb9edf377ae3

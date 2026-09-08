@@ -46,7 +46,7 @@ The manifest opens the actual action HTML pages directly. Shared scripts apply t
 
 Scene retains nested editor layers. Their frames are sized from content, with resize/mutation observations and a periodic check to keep settings reachable as steps grow or shrink.
 
-The deletion/reselection fix forwards `propertyInspectorDidAppear` and `propertyInspectorDidDisappear` to the matching editor as `inspectorVisibility`. An `inspectorReady` handshake handles registration after the original appearance event. On selection, short temporary scrolls request a repaint, including on pages with no normal scroll range. Styles and scroll positions are restored; deselection/unloading cancels pending work. `[Inspector]` logs record selection and redraw dimensions. This workaround was visually confirmed by the user after testing the reported deletion/empty-button sequence.
+The deletion/reselection fix forwards `propertyInspectorDidAppear` and `propertyInspectorDidDisappear` to the matching editor as `inspectorVisibility`. An `inspectorReady` handshake handles registration after the original appearance event. On selection, short temporary scrolls request a repaint, including on pages with no normal scroll range. Styles and scroll positions are restored; deselection/unloading cancels pending work. With `WEAVERDECK_DEBUG=1`, `[Inspector]` logs record selection and redraw dimensions. This workaround was visually confirmed by the user after testing the reported deletion/empty-button sequence.
 
 ## PipeWeaver connection
 
@@ -121,14 +121,15 @@ Tests run with `node --test tests/*.test.js`. The deterministic ZIP builder is `
 
 ## Diagnostics and references
 
-OpenDeck collects plugin stdout/stderr, normally under `~/.local/share/opendeck/logs/plugins/` on the tested installation. Logs include `[Scene]`, `[Startup Scene]`, fade errors and `[Inspector]` records. Some historical internal version labels are retained in the consolidated runtime; the manifest and package checksum identify the installed build. A plugin log does not contain Brave's internal media logs or prove audible output.
+OpenDeck collects plugin stdout/stderr, normally under `~/.local/share/opendeck/logs/plugins/` on the tested installation. Normal logs retain startup, preview/validation summaries, Scene start/end, skips, warnings, failures and fade results. Starting OpenDeck with `WEAVERDECK_DEBUG=1` in its environment also enables full event/settings/discovery dumps, application icon discovery, `[Inspector]` redraw records and successful Scene step detail. `diagnostics.js` gates verbose output, and the core skips serializing large diagnostic objects when debug mode is off. Disabling verbose logging does not disable inspector visibility replies, repaint requests or audio behavior. See [diagnostic logging](https://github.com/djbauer69/WeaverDeckPlg/blob/main/docs/DIAGNOSTICS.md). Some historical internal version labels are retained in the consolidated runtime; the manifest and package checksum identify the installed build. A plugin log does not contain Brave's internal media logs or prove audible output.
 
 - [Current plugin source](https://github.com/djbauer69/WeaverDeckPlg/tree/main/com.pipeweaver.opendeck.sdPlugin)
-- [Runtime test record](https://github.com/djbauer69/WeaverDeckPlg/blob/main/releases/v0.22.0-testing.md)
+- [Scene preview runtime test record](https://github.com/djbauer69/WeaverDeckPlg/blob/main/releases/v0.24.0-testing.md)
+- [Grouped actions runtime test record](https://github.com/djbauer69/WeaverDeckPlg/blob/main/releases/v0.23.0-testing.md)
 - [PipeWeaver command schema at inspected revision](https://github.com/pipeweaver/pipeweaver/blob/23e90c3c0d5d2dd3f761c259a8a16ad106009361/ipc/src/commands/mod.rs)
 - [OpenDeck inspector lifecycle implementation](https://github.com/nekename/OpenDeck/blob/b2d09ca60089cea38ffea7eef191270ffefdf851/src-tauri/src/events/frontend/property_inspector.rs)
 - [OpenDeck encoder events](https://github.com/nekename/OpenDeck/blob/v2.14.0/src-tauri/src/events/outbound/encoder.rs)
 
 ## Read-only Scene preview (v0.24.0)
 
-The Scene inspector sends `previewScene` with an operation array and request identifier. The runtime refreshes PipeWeaver status and invokes `scene-preview.js`, which receives only validation, identity and status-read helpers. It has no command executor. The `scenePreview` reply contains the timestamp, per-step changes, notes, validation errors and summary. The editor correlates the request identifier, rejects edited/stale snapshots and renders all names as text. No Scene operation, delay or restart is executed.
+The Scene inspector sends `previewScene` with an operation array and request identifier. The runtime refreshes PipeWeaver status and invokes `scene-preview.js`, which receives only validation, identity and status-read helpers. It has no command executor. Edits immediately mark the displayed preview out of date and ask for another preview; this is a review notice, not an execution lock. The `scenePreview` reply contains the timestamp, per-step changes, notes, validation errors and summary. The editor correlates the request identifier, rejects edited/stale snapshots and renders all names as text. No Scene operation, delay or restart is executed.

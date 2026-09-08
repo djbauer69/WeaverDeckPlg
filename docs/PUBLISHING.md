@@ -1,4 +1,22 @@
-# Wiki and v0.22.0 release cleanup
+# Publishing v0.24.1 and the wiki
+
+Use `tools/publish-v0.24.1.py` with Python 3.9+, Git and an authenticated GitHub CLI (`gh`). The wiki must already have an initial page. The plugin ZIP itself is installed directly through OpenDeck; this publisher only handles GitHub.
+
+```bash
+python3 tools/publish-v0.24.1.py --zip ~/Downloads/pipeweaver-opendeck-plugin-v0.24.1.zip --ref FULL_MERGED_COMMIT_SHA --apply
+```
+
+Use the full merged commit supplied with the build. Omit `--apply` for a local checksum check and plan. The script can run by itself: it fetches documentation from that exact commit using `gh`.
+
+It checks the final ZIP checksum, Git source bytes/modes and main-branch ancestry; prepares the five wiki pages while preserving other pages; uploads the ZIP to a draft release; downloads and checks the asset; pushes the wiki without force; then publishes **WeaverDeck v0.24.1** as latest and stable. Existing identical uploads can be reused. An unexpected existing asset/tag stops publication rather than replacing it. No other releases, tags, branches or history are removed. A network failure can leave a draft or an updated wiki; rerun the same command to complete it.
+
+The GitHub connection used to prepare this version supports source changes and merges, but does not expose release uploads or wiki pushes. Those final operations use the maintainer's `gh` login. See the CLI documentation for [release creation](https://cli.github.com/manual/gh_release_create), [asset download](https://cli.github.com/manual/gh_release_download) and [release editing](https://cli.github.com/manual/gh_release_edit).
+
+## Historical v0.22.0 cleanup — do not run for current publishing
+
+The following records the earlier maintenance operation. Its deletion plan is pinned to v0.22.0 and is not part of current publication.
+
+### Archived cleanup procedure
 
 The inspector fix is merged and the documentation sources are in this repository. The GitHub connector used for preparation cannot push wiki repositories, replace release assets or delete tags/releases. The prepared Python script completes those operations using the maintainer's authenticated GitHub CLI.
 

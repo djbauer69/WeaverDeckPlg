@@ -2,4 +2,4 @@
 - [Actions](https://github.com/djbauer69/WeaverDeckPlg/wiki/Actions)
 - [Version History](https://github.com/djbauer69/WeaverDeckPlg/wiki/Version-History)
 - [Communication](https://github.com/djbauer69/WeaverDeckPlg/wiki/Communication)
-- [Download v0.22.0](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.22.0)
+- [Download v0.24.1](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.24.1)
