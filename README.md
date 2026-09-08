@@ -6,7 +6,7 @@ v0.24.1 cleans up PipeWeaver icon branding, Scene explanatory text and routine d
 
 v0.24.0 adds **Preview Scene**: a read-only, step-by-step view of current and proposed audio settings, skipped conditions, missing selections and provisional results. It uses the current PipeWeaver status and does not send audio-control commands. See [the preview guide](docs/SCENE-PREVIEW.md).
 
-[WeaverDeck v0.23.0](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.23.0) is the published stable release. The requested v0.24.0 preview and edit-notice runtime checks have passed; see the [test record](releases/v0.24.0-testing.md). v0.24.0 release publication is pending.
+[WeaverDeck v0.24.0](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.24.0) is the published stable release. The requested v0.24.0 preview and edit-notice runtime checks have passed; see the [test record](releases/v0.24.0-testing.md). v0.24.1 cleanup runtime review is pending.
 
 ## Documentation
 
