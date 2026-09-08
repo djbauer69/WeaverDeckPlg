@@ -1,5 +1,9 @@
 # WeaverDeck v0.24.1
 
+ENTIRELY VIBECODED WITH CHATGPT! - I'm not a coder, but I wanted to control Pipeweaver with my Streamdeck.
+Coming to Linux from Windows has been a little rough in trying to find an audio routing software close to Voicemeeter, qpwgraph is a nightmare for my brain, so discovering Pipeweaver was like a dream come true! 
+The plugin should give you full functionality of Pipeweaver, I have only tested on the Streamdeck XL, so if you have any other model of Streamdeck, especially Streamdeck+, please test the dial functionality, and upload your WeaverDeck plugin log file, along with your system specs so that I can get it checked. Thanks!
+
 Control **PipeWeaver** from **OpenDeck on Linux**: application and channel volume/mute, routing, Source A/B mixes, audio engine controls, Smart Scenes, startup Scenes and volume dials.
 
 v0.24.1 uses the official PipeWeaver logo for shared artwork, the plugin header and both Audio actions, removes Scene explanatory text, and makes verbose diagnostic logging optional. See [cleanup notes](releases/v0.24.1.md) and [debug logging](docs/DIAGNOSTICS.md).
