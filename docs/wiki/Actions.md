@@ -1,10 +1,12 @@
 # Actions
 
-WeaverDeck v0.23.0 provides **12 sidebar actions** and retains all **57 operations**. Drag Application, Physical Input, Physical Output, Route, Source or Target onto a key, then choose an operation from the **Action** dropdown in the inspector header. The tables below list these selectable operations. Audio Buffer Size, Audio Engine Restart, Default Device Set, Scene, Scene Startup and Status remain separate actions. On encoders, the five audio groups select their Volume Dial operation automatically.
+WeaverDeck v0.24.1 provides **12 sidebar actions** and retains all **57 operations**. Drag Application, Physical Input, Physical Output, Route, Source or Target onto a key, then choose an operation from the **Action** dropdown in the inspector header. The tables below list these selectable operations. Audio Buffer Size, Audio Engine Restart, Default Device Set, Scene, Scene Startup and Status remain separate actions. On encoders, the five audio groups select their Volume Dial operation automatically.
 
-Existing installations need the [offline profile migration](../UPGRADE-v0.23.0.md) before installing the compact manifest. The requested v0.23.0 runtime checks have passed. Already-migrated installations use the plugin ZIP directly through OpenDeck.
+Installations still using v0.22.0 or older individual action identifiers need the [one-time profile migration](https://github.com/djbauer69/WeaverDeckPlg/blob/main/docs/UPGRADE-v0.23.0.md) before installing the compact manifest. The requested v0.23.0 runtime checks have passed. Already-migrated installations use the plugin ZIP directly through OpenDeck.
 
 Physical Input and Output also have an **Icon** selector beside the operation dropdown. Input choices: Default, Microphone, Electric guitar, Acoustic guitar, Drums, Keyboard and Webcam. Output choices: Default, Desktop speakers, Headphones, Soundbar and AirPods. Custom volume icons keep the live percentage badge; mute icons display live/muted state. These choices control plugin key artwork; manually assigned OpenDeck images can take precedence.
+
+The plugin header, shared PipeWeaver artwork, **Audio Buffer Size** and **Audio Engine Restart** use the official PipeWeaver logo. Existing Audio buttons receive the updated artwork when they appear. Route and Target Mix/Mute operations retain their operation-specific state icons.
 
 ## Shared controls
 
@@ -94,7 +96,9 @@ There are no separate physical Set Volume buttons in this version. Use a physica
 2. Use the arrows to reorder steps. A multiple-source/multiple-target route step affects every selected source–target pair.
 3. Choose **Always**, **Application running**, or **Application not running** for each step. These conditions use PipeWeaver stream discovery, not an OS process list.
 4. Choose **Stop Scene** or **Continue Scene** on runtime failure. Continue applies to execution errors; invalid preflight validation still prevents execution.
-5. Click **Validate Scene** to check it without changing audio. Press the deck key to run it from top to bottom.
+5. Click **Validate Scene** to check selections, or **Preview Scene** to inspect per-step before/after values without changing audio. Editing a Scene marks the preview out of date immediately; preview again to inspect the new values. Preview is optional and does not block execution. Press the deck key to run the saved Scene from top to bottom.
+
+The Scene inspector keeps section headings, controls, validation and preview results, and operation/error feedback. Static explanatory paragraphs and ready/loading descriptions were removed in v0.24.1.
 
 | Scene operation | Configuration and behavior |
 | --- | --- |
@@ -211,10 +215,10 @@ Each volume dial shows its label, live percentage, volume bar and Live/MUTED/Una
 
 If a list is empty, confirm PipeWeaver is running and exposing the desired object. Start application playback/capture before initial application selection. A yellow exclamation means an action failed; inspect the plugin log for the relevant command, fade or Scene error. It is not an application playback log.
 
-For inspector clipping, use the current v0.22.0 package including the deletion/reselection fix. If it recurs, describe the selection sequence and attach a fresh plugin log; `[Inspector]` records visibility and redraw dimensions.
+The current package retains the inspector deletion/reselection repaint fix. If clipping recurs, describe the selection sequence. To collect visibility and redraw dimensions, start OpenDeck with `WEAVERDECK_DEBUG=1` in its environment and attach a fresh plugin log. Normal logging omits this verbose detail; warnings, errors and concise results remain available. See [diagnostic logging](https://github.com/djbauer69/WeaverDeckPlg/blob/main/docs/DIAGNOSTICS.md).
 
 This guide is checked against the [manifest](https://github.com/djbauer69/WeaverDeckPlg/blob/main/com.pipeweaver.opendeck.sdPlugin/manifest.json) and current runtime. See [Communication](https://github.com/djbauer69/WeaverDeckPlg/wiki/Communication) and [Version History](https://github.com/djbauer69/WeaverDeckPlg/wiki/Version-History).
 
 ## Scene preview (v0.24.0)
 
-Preview Scene sits beside Validate Scene. It reads current status and shows each structured step's proposed changes, conditions and unavailable selections without changing audio. Expand a step for before/after values. Later values after waits, fades or engine changes are provisional; editing the Scene invalidates the snapshot. See [the preview guide](../SCENE-PREVIEW.md).
+Preview Scene sits beside Validate Scene. It reads current status and shows each structured step's proposed changes, conditions and unavailable selections without changing audio. Expand a step for before/after values. Later values after waits, fades or engine changes are provisional; editing the Scene invalidates the snapshot. See [the preview guide](https://github.com/djbauer69/WeaverDeckPlg/blob/main/docs/SCENE-PREVIEW.md).

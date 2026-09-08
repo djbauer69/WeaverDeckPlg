@@ -92,3 +92,16 @@ test('switching a grouped Target between volume, mix and mute replaces the previ
   assert.equal(hostIcon(image),root+'/icons/'+icon+'.svg');assert(fs.existsSync(hostIcon(image)));
  }
 });
+test('Audio utilities refresh old saved artwork with the PipeWeaver logo without sending audio commands',async()=>{
+ const h=harness(),m=require(root+'/manifest.json');
+ for(const suffix of ['audiobuffer','audiorestart']){
+  const action=m.Actions.find(a=>a.UUID===P+suffix);
+  assert.equal(action.Icon,'icons/plugin');assert(action.States.every(s=>s.Image==='icons/plugin'));
+  await h.event({event:'willAppear',action:action.UUID,context:suffix,payload:{settings:{bufferSize:'512'},states:[{image:'icons/statusOnline'},{image:'icons/routeOn'}]}});
+  assert(h.c.sent.some(e=>e.event==='setImage'&&e.context===suffix&&e.payload.image==='icons/plugin'));
+  const n=h.c.sent.filter(e=>e.event==='setImage').length;
+  vm.runInContext('updateAll()',h.c);
+  assert.equal(h.c.sent.filter(e=>e.event==='setImage').length,n);
+ }
+ assert.equal(h.c.commands.length,0);
+});

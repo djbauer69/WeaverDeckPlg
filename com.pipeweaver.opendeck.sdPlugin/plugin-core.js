@@ -271,7 +271,14 @@ function updateInstance023Base(i){
 function updateInstance0191(i){
  if(i.action===STARTUP_ACTION){const s=startup019.snapshot();setState(i.context,s.phase==="Failed"?1:0);setTitle(i.context,"Startup Scene\n"+s.phase);return}
   const op018=features018.buttonOperation(i);
-  if(op018){const v=features018.visual(op018,lastStatus);setState(i.context,v.state);setTitle(i.context,v.title);return}
+  if(op018){
+    const v=features018.visual(op018,lastStatus);setState(i.context,v.state);setTitle(i.context,v.title);
+    // Refresh existing Audio buttons whose saved states still refer to older artwork.
+    if((op018.type==="audioRestart"||op018.type==="audioBuffer")&&i.audioLogoState!==v.state){
+      i.audioLogoState=v.state;send({event:'setImage',context:i.context,payload:{image:'icons/plugin'}});
+    }
+    return;
+  }
   if(!lastStatus){setState(i.context,1);setTitle(i.context,"Offline");return}
   const a=i.action,st=i.settings||{};
   const sourceActions=[ACTIONS.sourceVolUp,ACTIONS.sourceVolDown,ACTIONS.sourceSetVol,ACTIONS.sourceAVolUp,ACTIONS.sourceAVolDown,ACTIONS.sourceBVolUp,ACTIONS.sourceBVolDown,ACTIONS.sourceMute,ACTIONS.sourceMuteA,ACTIONS.sourceMuteB];

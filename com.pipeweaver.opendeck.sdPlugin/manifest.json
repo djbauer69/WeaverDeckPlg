@@ -50,13 +50,13 @@
       "UUID": "com.pipeweaver.opendeck.audiobuffer",
       "Name": "Audio Buffer Size",
       "Tooltip": "Set PipeWeaver audio buffer size and wait for engine recovery.",
-      "Icon": "icons/statusOnline",
+      "Icon": "icons/plugin",
       "States": [
         {
-          "Image": "icons/statusOnline"
+          "Image": "icons/plugin"
         },
         {
-          "Image": "icons/routeOn"
+          "Image": "icons/plugin"
         }
       ],
       "Controllers": [
@@ -69,13 +69,13 @@
       "UUID": "com.pipeweaver.opendeck.audiorestart",
       "Name": "Audio Engine Restart",
       "Tooltip": "Restart PipeWeaver audio engine and wait for recovery.",
-      "Icon": "icons/statusOnline",
+      "Icon": "icons/plugin",
       "States": [
         {
-          "Image": "icons/statusOnline"
+          "Image": "icons/plugin"
         },
         {
-          "Image": "icons/routeOn"
+          "Image": "icons/plugin"
         }
       ],
       "Controllers": [
