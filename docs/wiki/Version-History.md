@@ -4,6 +4,10 @@ This is the historical change record for WeaverDeck. The earlier release-page cl
 
 Entries below are reconstructed from repository commits, versioned READMEs, release notes and recorded user testing. Some early development builds were not individually committed or released. Missing numbers are not invented. The [original release metadata and notes](https://github.com/djbauer69/WeaverDeckPlg/blob/main/docs/history/releases-before-cleanup.json) preserve the published record before cleanup, including checksums and contemporary testing caveats. Those historical caveats are not the current release status.
 
+## v0.24.1 — icon, Scene text and diagnostic cleanup (review build)
+
+Use the upstream PipeWeaver icon for shared PW artwork and the plugin/category header. Remove Scene explanatory paragraphs and ready text while retaining controls and action results. Full discovery/settings dumps, inspector redraw logging and successful per-step Scene detail become opt-in with WEAVERDECK_DEBUG=1; errors and concise result summaries remain enabled. Normal logging avoids unnecessary object serialization. 102 Node tests pass; runtime cleanup confirmation is pending.
+
 ## v0.24.0 — Scene preview
 
 Adds read-only Preview Scene beside Validate Scene, with per-step before/after values, condition outcomes, missing/ambiguous selections and provisional results after timed/engine steps. Earlier direct state changes are projected forward. No audio commands or engine operations are executed by preview. Request correlation and invalidation prevent stale Scene results.

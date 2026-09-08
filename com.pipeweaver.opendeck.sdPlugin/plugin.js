@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-/* PipeWeaver Control for OpenDeck v0.24.0
+/* PipeWeaver Control for OpenDeck v0.24.1
  * Adds read-only Scene preview, hold-repeat volume buttons, millisecond volume fades, compact action
  * inspectors, resilient application identity, Source Link, Scene Library,
  * capture, startup Scenes and portable Scene files.
@@ -23,7 +23,7 @@ if(!NativeWebSocket){
 // plugin-core.js contains the complete consolidated runtime.
 for(const method of ["log","error","warn"]){
   const original=console[method].bind(console);
-  console[method]=(...args)=>original(...args.map(v=>typeof v==="string"?v.replace(/\[v0\.(?:11\.2|12\.2|15\.0|15\.1|16\.0|18\.1|21\.0)\]/g,"[v0.24.0]"):v));
+  console[method]=(...args)=>original(...args.map(v=>typeof v==="string"?v.replace(/\[v0\.(?:11\.2|12\.2|15\.0|15\.1|16\.0|18\.1|21\.0)\]/g,"[v0.24.1]"):v));
 }
 
 const presentationLayer=require("./button-presentation").installButtonPresentation();
@@ -46,10 +46,10 @@ class WeaverVisualWebSocket {
       ev=groupLayer.adapt(ev);
       if(inspectorLayer.handleIncoming(this,ev))return;
       presentationLayer.handleIncoming(this,ev);
-      try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.24.0] application visuals inbound error:",e?.stack||e)}
-      try{sceneVisualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.24.0] Scene visuals inbound error:",e?.stack||e)}
-      try{if(sceneFileLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.24.0] Scene file I/O inbound error:",e?.stack||e)}
-      try{if(sceneLibraryLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.24.0] Scene Library inbound error:",e?.stack||e)}
+      try{visualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.24.1] application visuals inbound error:",e?.stack||e)}
+      try{sceneVisualLayer.handleIncoming(this,ev)}catch(e){console.error("[v0.24.1] Scene visuals inbound error:",e?.stack||e)}
+      try{if(sceneFileLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.24.1] Scene file I/O inbound error:",e?.stack||e)}
+      try{if(sceneLibraryLayer.handleIncoming(this,ev))return}catch(e){console.error("[v0.24.1] Scene Library inbound error:",e?.stack||e)}
       if(this._onmessage)return this._onmessage(ev);
     };
     this._ws.onerror=(ev)=>{if(this._onerror)this._onerror(ev)};
@@ -68,7 +68,7 @@ class WeaverVisualWebSocket {
   set binaryType(v){this._ws.binaryType=v}
   get bufferedAmount(){return this._ws.bufferedAmount}
   send(data){
-    try{data=sceneVisualLayer.handleOutgoing(this,data)}catch(e){console.error("[v0.24.0] Scene visuals outbound error:",e?.stack||e)}
+    try{data=sceneVisualLayer.handleOutgoing(this,data)}catch(e){console.error("[v0.24.1] Scene visuals outbound error:",e?.stack||e)}
     return this._ws.send(presentationLayer.handleOutgoing(data))
   }
   close(...args){return this._ws.close(...args)}
@@ -85,5 +85,5 @@ for(const key of ["CONNECTING","OPEN","CLOSING","CLOSED"]){
 }
 
 globalThis.WebSocket=WeaverVisualWebSocket;
-console.error("[v0.24.0] artwork, resilient application identity, cached app discovery, Scene visuals, Scene Library, Source volume-link, Smart Scenes, millisecond fades, and hold-repeat volume controls enabled");
+console.error("[v0.24.1] artwork, resilient application identity, cached app discovery, Scene visuals, Scene Library, Source volume-link, Smart Scenes, millisecond fades, and hold-repeat volume controls enabled");
 require("./plugin-core");

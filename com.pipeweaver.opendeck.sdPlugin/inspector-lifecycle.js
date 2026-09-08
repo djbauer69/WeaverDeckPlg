@@ -1,6 +1,6 @@
 "use strict";
 // Selection is a separate lifecycle from button appearance and socket loading.
-function installInspectorLifecycle({log=message=>console.log('[Inspector] '+message)}={}){
+function installInspectorLifecycle({log=message=>require('./diagnostics').debug('[Inspector] '+message)}={}){
  const visible=new Set();
  function reply(socket,context){socket.send(JSON.stringify({event:'sendToPropertyInspector',context,payload:{command:'inspectorVisibility',visible:visible.has(context)}}))}
  return {

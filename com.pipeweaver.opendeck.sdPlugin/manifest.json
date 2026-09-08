@@ -2,7 +2,7 @@
   "Name": "PipeWeaver Control",
   "Description": "Grouped PipeWeaver actions with operation selectors and physical-device icons, Smart Scenes, volume fades and hold controls.",
   "Author": "OpenAI",
-  "Version": "0.24.0",
+  "Version": "0.24.1",
   "CodePathLin": "plugin.js",
   "CodePaths": {
     "x86_64-unknown-linux-gnu": "plugin.js",
@@ -297,5 +297,6 @@
         }
       }
     }
-  ]
+  ],
+  "CategoryIcon": "icons/plugin"
 }

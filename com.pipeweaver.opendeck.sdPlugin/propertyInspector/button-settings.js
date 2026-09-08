@@ -43,7 +43,8 @@ body.weaver-direct{margin:0!important;min-width:0}
 body.weaver-compact [hidden]{display:none!important}
 body.weaver-compact small,
 body.weaver-compact .appnote,
-body.weaver-compact .weaver-description{display:none!important}
+body.weaver-compact .weaver-description,
+body.weaver-scene .hint{display:none!important}
 body.weaver-compact .row{gap:6px!important;margin-bottom:7px!important;box-sizing:border-box}
 body.weaver-compact .row>label{flex:0 0 78px;width:78px}
 body.weaver-compact input,body.weaver-compact textarea{padding:5px 6px!important;color-scheme:dark}
