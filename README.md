@@ -1,17 +1,17 @@
-# WeaverDeck v0.24.0 — review build
+# WeaverDeck v0.24.0
 
 Control **PipeWeaver** from **OpenDeck on Linux**: application and channel volume/mute, routing, Source A/B mixes, audio engine controls, Smart Scenes, startup Scenes and volume dials.
 
 v0.24.0 adds **Preview Scene**: a read-only, step-by-step view of current and proposed audio settings, skipped conditions, missing selections and provisional results. It uses the current PipeWeaver status and does not send audio-control commands. See [the preview guide](docs/SCENE-PREVIEW.md).
 
-[WeaverDeck v0.23.0](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.23.0) is the published stable release. This v0.24.0 branch is awaiting runtime review.
+[WeaverDeck v0.23.0](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.23.0) is the published stable release. The requested v0.24.0 preview and edit-notice runtime checks have passed; see the [test record](releases/v0.24.0-testing.md). v0.24.0 release publication is pending.
 
 ## Documentation
 
 | Guide | Contents |
 | --- | --- |
 | [Actions](docs/wiki/Actions.md) | 12 sidebar actions and all 57 operations, settings, hold controls, fades, Scene Library, Scene Files and startup. |
-| [Version History](docs/wiki/Version-History.md) | Recorded changes from the first repository baseline through v0.23.0. |
+| [Version History](docs/wiki/Version-History.md) | Recorded changes from the first repository baseline through v0.24.0. |
 | [Communication](docs/wiki/Communication.md) | How the plugin exchanges OpenDeck events and PipeWeaver API commands. |
 | [Compatibility](docs/COMPATIBILITY.md) | Requirements and hardware/distribution test matrix. |
 

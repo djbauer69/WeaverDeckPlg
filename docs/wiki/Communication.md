@@ -129,6 +129,6 @@ OpenDeck collects plugin stdout/stderr, normally under `~/.local/share/opendeck/
 - [OpenDeck inspector lifecycle implementation](https://github.com/nekename/OpenDeck/blob/b2d09ca60089cea38ffea7eef191270ffefdf851/src-tauri/src/events/frontend/property_inspector.rs)
 - [OpenDeck encoder events](https://github.com/nekename/OpenDeck/blob/v2.14.0/src-tauri/src/events/outbound/encoder.rs)
 
-## Read-only Scene preview (v0.24.0 review build)
+## Read-only Scene preview (v0.24.0)
 
 The Scene inspector sends `previewScene` with an operation array and request identifier. The runtime refreshes PipeWeaver status and invokes `scene-preview.js`, which receives only validation, identity and status-read helpers. It has no command executor. The `scenePreview` reply contains the timestamp, per-step changes, notes, validation errors and summary. The editor correlates the request identifier, rejects edited/stale snapshots and renders all names as text. No Scene operation, delay or restart is executed.

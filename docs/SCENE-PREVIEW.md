@@ -1,4 +1,4 @@
-# Scene preview — v0.24.0 review build
+# Scene preview — v0.24.0
 
 Open the Scene action inspector and click **Preview Scene**, beside Validate Scene. It reads a fresh PipeWeaver status snapshot and shows all structured steps without performing any Scene operation. Expand a step to see selections, before/after values, conditions, failure policy and notes. The panel uses the existing inspector scrolling and does not add an inner scrollbar.
 
@@ -22,6 +22,8 @@ Editing or importing a Scene invalidates its displayed preview. Input and dropdo
 100 Node tests pass. A 38-step fixture reproduces the user's Default Scene structure, with anonymized physical device identifiers. Tests cover all operation families, step projection, no status/Scene mutation, status-only request dispatch, conditions, offline/ambiguous matches, linked mix uncertainty, engine/timing boundaries, safe text rendering, stale replies and timeout handling.
 
 ## Runtime checks
+
+The user confirmed the 38-step preview, unchanged audio and the corrected stale-preview notice. The remaining scenarios below have automated coverage; separate runtime confirmation is not recorded. See [the test record](../releases/v0.24.0-testing.md).
 
 1. Import or select Default Scene and click Preview Scene. Confirm 38 steps, including Music B at 70%, muted Headphones, controller input/output at 0%, the default devices and Spotify → Music.
 2. Confirm preview makes no audible or visible audio-setting changes in PipeWeaver.

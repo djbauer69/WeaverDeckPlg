@@ -215,6 +215,6 @@ For inspector clipping, use the current v0.22.0 package including the deletion/r
 
 This guide is checked against the [manifest](https://github.com/djbauer69/WeaverDeckPlg/blob/main/com.pipeweaver.opendeck.sdPlugin/manifest.json) and current runtime. See [Communication](https://github.com/djbauer69/WeaverDeckPlg/wiki/Communication) and [Version History](https://github.com/djbauer69/WeaverDeckPlg/wiki/Version-History).
 
-## Scene preview (v0.24.0 review build)
+## Scene preview (v0.24.0)
 
 Preview Scene sits beside Validate Scene. It reads current status and shows each structured step's proposed changes, conditions and unavailable selections without changing audio. Expand a step for before/after values. Later values after waits, fades or engine changes are provisional; editing the Scene invalidates the snapshot. See [the preview guide](../SCENE-PREVIEW.md).
