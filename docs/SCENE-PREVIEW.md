@@ -15,11 +15,11 @@ The preview is a snapshot, not a guarantee of execution success. Projected value
 
 Audio Engine Restart and Audio Buffer Size are displayed but never executed by preview. Default-device changes are planned without applying them. Source Mute To shows its destination selection; an empty destination list means All targets and does not itself change mute state.
 
-Editing or importing a Scene invalidates its displayed preview. Replies are correlated with requests and stale replies are discarded. Preview has a ten-second UI timeout; it does not change stored Scene settings. Legacy raw command Scenes are not previewed.
+Editing or importing a Scene invalidates its displayed preview. Input and dropdown edits show a notice beside the changed field immediately, even before leaving a number/text input, and label the preview button as out of date. Replies are correlated with requests and stale replies are discarded. Preview has a ten-second UI timeout; it does not change stored Scene settings. Legacy raw command Scenes are not previewed.
 
 ## Verification
 
-98 Node tests pass. A 38-step fixture reproduces the user's Default Scene structure, with anonymized physical device identifiers. Tests cover all operation families, step projection, no status/Scene mutation, status-only request dispatch, conditions, offline/ambiguous matches, linked mix uncertainty, engine/timing boundaries, safe text rendering, stale replies and timeout handling.
+100 Node tests pass. A 38-step fixture reproduces the user's Default Scene structure, with anonymized physical device identifiers. Tests cover all operation families, step projection, no status/Scene mutation, status-only request dispatch, conditions, offline/ambiguous matches, linked mix uncertainty, engine/timing boundaries, safe text rendering, stale replies and timeout handling.
 
 ## Runtime checks
 

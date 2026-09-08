@@ -8,7 +8,7 @@ Entries below are reconstructed from repository commits, versioned READMEs, rele
 
 Adds read-only Preview Scene beside Validate Scene, with per-step before/after values, condition outcomes, missing/ambiguous selections and provisional results after timed/engine steps. Earlier direct state changes are projected forward. No audio commands or engine operations are executed by preview. Request correlation and invalidation prevent stale Scene results.
 
-Validation: 98 Node tests and 15 Python tests pass, including a fixture derived from the user's 38-step Default Scene. Runtime confirmation is pending.
+Validation: 100 Node tests and 15 Python tests pass, including a fixture derived from the user's 38-step Default Scene. Runtime confirmation is pending.
 
 ## v0.23.0 — grouped actions and device icons
 
