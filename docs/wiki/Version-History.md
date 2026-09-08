@@ -4,6 +4,12 @@ This is the historical change record for WeaverDeck. The earlier release-page cl
 
 Entries below are reconstructed from repository commits, versioned READMEs, release notes and recorded user testing. Some early development builds were not individually committed or released. Missing numbers are not invented. The [original release metadata and notes](https://github.com/djbauer69/WeaverDeckPlg/blob/main/docs/history/releases-before-cleanup.json) preserve the published record before cleanup, including checksums and contemporary testing caveats. Those historical caveats are not the current release status.
 
+## v0.24.0 — Scene preview
+
+Adds read-only Preview Scene beside Validate Scene, with per-step before/after values, condition outcomes, missing/ambiguous selections and provisional results after timed/engine steps. Earlier direct state changes are projected forward. No audio commands or engine operations are executed by preview. Request correlation and invalidation prevent stale Scene results.
+
+Validation: 100 Node tests and 15 Python tests pass, including a fixture derived from the user's 38-step Default Scene. The user confirmed all 38 preview steps, unchanged audio and the immediate stale-preview notice after the follow-up fix. See the [test record](https://github.com/djbauer69/WeaverDeckPlg/blob/main/releases/v0.24.0-testing.md).
+
 ## v0.23.0 — grouped actions and device icons
 
 - Consolidate 51 sidebar entries into six grouped actions, retaining all operations and six separate utilities. The resulting sidebar has 12 alphabetical entries.

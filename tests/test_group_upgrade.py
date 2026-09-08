@@ -43,7 +43,7 @@ class Upgrade(unittest.TestCase):
   profile=config/'profiles/device/Default.json';profile.write_text(json.dumps({'keys':[instance('com.pipeweaver.opendeck.physinmute')],'sliders':[]}))
   package=base/'plugin.zip'
   with zipfile.ZipFile(package,'w') as z:
-   z.writestr(u.PLUGIN+'/manifest.json',json.dumps(manifest));z.writestr(u.PLUGIN+'/action-catalog.json',json.dumps(catalog));z.writestr(u.PLUGIN+'/plugin.js','new plugin')
+   z.writestr(u.PLUGIN+'/manifest.json',json.dumps({**manifest,'Version':'0.23.0'}));z.writestr(u.PLUGIN+'/action-catalog.json',json.dumps(catalog));z.writestr(u.PLUGIN+'/plugin.js','new plugin')
   package.with_suffix('.sha256').write_text(hashlib.sha256(package.read_bytes()).hexdigest())
   return config,profile,package
  def test_preview_does_not_write_and_apply_keeps_byte_exact_backups(self):

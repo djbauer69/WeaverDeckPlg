@@ -428,6 +428,14 @@ function validateSceneOperations(ops,status){
   }
   return {ok:errors.length===0,errors,warnings};
 }
+const previewScene024=require('./scene-preview').create({
+ validate:validateSceneOperations,describe:sceneOperationDescription,condition:sceneConditionSpec,
+ configured:sceneConfiguredDevices,physical:physicalDevices,id:deviceId,name:deviceName,
+ sourceVolume,sourceMuted,sourceLinked,targetVolume,targetMuted,targetMix,
+ applications,resolveApps:appResolveMany,appScore:appIdentityScore,appLabel:sceneAppLabel,
+ names:sceneNames,sceneApps,route:routeEnabled,defaultId:defaultDeviceId,
+ duration:fadeDurationMs022,quantum:require('./features-v018').quantum
+});
 async function executeSceneOperation(op,status){
   if(!op||typeof op!=="object")throw new Error("Invalid scene operation");
   const type=String(op.type||"");
@@ -776,7 +784,7 @@ async function handleMessage(m) {
     diag("sendToPlugin instance found",String(!!i));
     if(!i) return;
     let s=lastStatus;
-    if(["getSceneData","getTargets","getDevices","validateScene"].includes(p.command)) s=await refreshStatus();
+    if(["getSceneData","getTargets","getDevices","validateScene","previewScene"].includes(p.command)) s=await refreshStatus();
     else if(p.command==="getApplications"&&(!s||Date.now()-lastStatusAt>APPLICATION_CACHE_MAX_AGE_MS)) s=await refreshStatus();
     if(p.command==="getTargets"){
       const payload={
@@ -801,6 +809,12 @@ async function handleMessage(m) {
       const payload={command:"devices",outputs:physicalDevices(s,"output").map(d=>({id:deviceId(d),name:deviceName(d),volume:d.volume,muted:targetMuted(d)})),inputs:physicalDevices(s,"input").map(d=>({id:deviceId(d),name:deviceName(d),volume:d.volume,muted:targetMuted(d)}))};
       diag("getDevices reply",payload);
       send({event:"sendToPropertyInspector",context:m.context,payload});
+    }
+    else if(p.command==="previewScene"){
+      const ops=Array.isArray(p.operations)?p.operations:[];
+      const result=previewScene024(ops,s);
+      diag("previewScene reply",{ok:result.ok,steps:result.steps.length,errors:result.errors.length});
+      send({event:"sendToPropertyInspector",context:m.context,payload:{command:"scenePreview",requestId:p.requestId,...result}});
     }
     else if(p.command==="validateScene"){
       const ops=Array.isArray(p.operations)?p.operations:(Array.isArray(i.settings.operations)?i.settings.operations:[]);
