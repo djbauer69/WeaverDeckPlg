@@ -23,15 +23,26 @@ SHA256 = '9c9adc5c6c0fa29c5b674aa1b4e34832ce4e2ffe49e04c38a94895a870cb4734'
 PAGES = ('Home.md', 'Actions.md', 'Version-History.md', 'Communication.md', '_Sidebar.md')
 
 
-def run(args, cwd=None):
-    r = subprocess.run(args, cwd=cwd, text=True, capture_output=True)
+def run(args, cwd=None, data=None):
+    r = subprocess.run(args, cwd=cwd, input=data, text=True, capture_output=True)
     if r.returncode:
         raise RuntimeError('Command failed: ' + ' '.join(map(str, args)) + '\n' + r.stderr.strip())
     return r.stdout
 
 
-def api(path):
-    return json.loads(run(['gh', 'api', '--hostname', 'github.com', f'repos/{REPO}/{path}']))
+def api(path, *, method='GET', payload=None):
+    args = ['gh', 'api', '--hostname', 'github.com', f'repos/{REPO}/{path}',
+            '--method', method, '-H', 'Cache-Control: no-cache']
+    if payload is not None:
+        args += ['--input', '-']
+    return json.loads(run(args, data=json.dumps(payload) if payload is not None else None))
+
+
+def validate_release(release, ref, tagged):
+    if not isinstance(release, dict) or not isinstance(release.get('id'), int) or release['id'] <= 0 or release.get('tag_name') != TAG:
+        raise ValueError('Unexpected release identity; stopped without editing it.')
+    if not tagged and (not release.get('draft') or release.get('target_commitish') != ref):
+        raise ValueError('Existing release target is unexpected; stopped without editing it.')
 
 
 def content(path, ref):
@@ -84,7 +95,7 @@ def git(*args, cwd=None):
     return run(['git', '-c', 'credential.helper=', '-c', 'credential.helper=!gh auth git-credential', *args], cwd)
 
 
-def publish(zip_path, ref):
+def publish(zip_path, ref, release_id=None):
     verify_zip(zip_path, api(f'git/trees/{ref}?recursive=1'))
     ancestry = api(f'compare/{ref}...main')
     if ancestry['status'] not in ('identical', 'ahead'):
@@ -92,10 +103,19 @@ def publish(zip_path, ref):
     tagged = check_tag(ref)
     pages = {name: content('docs/wiki/' + name, ref) for name in PAGES}
     notes = content('releases/' + TAG + '.md', ref)
-    releases = json.loads(run(['gh', 'api', '--hostname', 'github.com', f'repos/{REPO}/releases', '--paginate', '--slurp']))
-    release = next((r for page in releases for r in page if r['tag_name'] == TAG), None)
-    if release and not tagged and (not release['draft'] or release['target_commitish'] != ref):
-        raise ValueError('Existing release target is unexpected; stopped without editing it.')
+    if release_id is not None:
+        release = api(f'releases/{release_id}')
+        if release.get('id') != release_id:
+            raise ValueError('GitHub returned a different release ID.')
+    else:
+        releases = json.loads(run(['gh', 'api', '--hostname', 'github.com', f'repos/{REPO}/releases',
+                                  '-H', 'Cache-Control: no-cache', '--paginate', '--slurp']))
+        matches = [r for page in releases for r in page if r.get('tag_name') == TAG]
+        if len(matches) > 1:
+            raise ValueError('Multiple v0.24.1 releases found; use --release-id for the intended draft.')
+        release = matches[0] if matches else None
+    if release is not None:
+        validate_release(release, ref, tagged)
     with tempfile.TemporaryDirectory(prefix='weaverdeck-publish-') as temp:
         work = Path(temp)
         wiki = work / 'wiki'
@@ -113,10 +133,13 @@ def publish(zip_path, ref):
         upload = work / ASSET
         shutil.copyfile(zip_path, upload)
         if not release:
-            run(['gh', 'release', 'create', TAG, '--repo', REPO, '--draft', '--target', ref,
-                 '--title', 'WeaverDeck v0.24.1', '--notes-file', str(note_path)])
-            pages_of_releases = json.loads(run(['gh', 'api', '--hostname', 'github.com', f'repos/{REPO}/releases', '--paginate', '--slurp']))
-            release = next(r for page in pages_of_releases for r in page if r['tag_name'] == TAG)
+            # Use the creation response itself. The releases collection can lag
+            # behind a successful write and must not be used to rediscover it.
+            release = api('releases', method='POST', payload={
+                'tag_name': TAG, 'target_commitish': ref, 'draft': True, 'prerelease': False,
+                'name': 'WeaverDeck v0.24.1', 'body': notes.decode('utf-8')})
+            validate_release(release, ref, tagged)
+        print(f"Using release ID {release['id']}. If interrupted, rerun with --release-id {release['id']}.", flush=True)
         # Reruns reuse the identical asset; never clobber an unexpected upload.
         assets = api(f"releases/{release['id']}/assets?per_page=100")
         if not any(a['name'] == ASSET for a in assets):
@@ -144,15 +167,18 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--zip', required=True, type=Path)
     parser.add_argument('--ref', required=True, help='Full merged commit SHA supplied with this build')
+    parser.add_argument('--release-id', type=int, help='Resume a known draft by its GitHub release ID')
     parser.add_argument('--apply', action='store_true')
     args = parser.parse_args()
     if not re.fullmatch('[0-9a-f]{40}', args.ref):
         raise ValueError('--ref must be a full 40-character commit SHA.')
+    if args.release_id is not None and args.release_id <= 0:
+        raise ValueError('--release-id must be a positive integer.')
     path = args.zip.expanduser().resolve()
     verify_zip(path)
     print(f'{REPO}: publish five wiki pages and {TAG} as latest stable. Preserve other releases/tags.', flush=True)
     if args.apply:
-        publish(path, args.ref)
+        publish(path, args.ref, args.release_id)
     else:
         print('ZIP verified. Add --apply to publish using your gh login.')
 

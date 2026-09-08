@@ -58,20 +58,27 @@ class PublisherTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'points elsewhere'):
                 p.check_tag('a' * 40)
 
-    def simulate(self, bad_download=False):
+    def simulate(self, bad_download=False, resume=False):
         events = []
-        def api(path):
+        def api(path, *, method='GET', payload=None):
+            if path == 'releases' and method == 'POST':
+                events.append(['api', 'POST', 'releases'])
+                self.assertTrue(payload['draft'])
+                self.assertEqual(payload['target_commitish'], 'a' * 40)
+                return {'id': 241, 'tag_name': p.TAG, 'draft': True, 'target_commitish': 'a' * 40}
+            if path == 'releases/241':
+                events.append(['api', 'GET', path])
+                return {'id': 241, 'tag_name': p.TAG, 'draft': True, 'target_commitish': 'a' * 40}
             if path.startswith('git/trees/'): return source_tree()
             if path.startswith('compare/'): return {'status': 'identical'}
-            if path == 'releases/tags/v0.24.1': return {'id': 241}
             if path.startswith('releases/241/assets'): return []
             if path == 'releases/latest': return {'tag_name': p.TAG, 'draft': False, 'prerelease': False, 'html_url': 'release-url'}
             raise AssertionError(path)
         def run(args, cwd=None):
             events.append(args)
             if args[1] == 'api':
-                created = any(e[:3] == ['gh', 'release', 'create'] for e in events)
-                return json.dumps([[{'id': 241, 'tag_name': p.TAG}]] if created else [[]])
+                # Reproduce the reported failure: the collection stays stale even after POST.
+                return '[[]]'
             if args[1:3] == ['release', 'download']:
                 out = Path(args[args.index('--dir') + 1]) / p.ASSET
                 if bad_download: out.write_bytes(b'incomplete download')
@@ -87,9 +94,9 @@ class PublisherTests(unittest.TestCase):
              patch.object(p, 'check_tag', side_effect=[False, False, True]):
             if bad_download:
                 with self.assertRaisesRegex(ValueError, 'checksum'):
-                    p.publish(self.zip, 'a' * 40)
+                    p.publish(self.zip, 'a' * 40, 241 if resume else None)
             else:
-                p.publish(self.zip, 'a' * 40)
+                p.publish(self.zip, 'a' * 40, 241 if resume else None)
         return events
 
     def test_publish_verifies_download_before_wiki_push_and_latest(self):
@@ -106,3 +113,30 @@ class PublisherTests(unittest.TestCase):
     def test_corrupt_upload_never_publishes_wiki_or_release(self):
         events = self.simulate(bad_download=True)
         self.assertFalse(any(e[:2] == ['git', 'push'] or e[:3] == ['gh', 'release', 'edit'] for e in events))
+
+    def test_new_draft_uses_creation_response_when_release_list_stays_empty(self):
+        events = self.simulate()
+        self.assertEqual(events.count(['api', 'POST', 'releases']), 1)
+        self.assertEqual(sum(e[:2] == ['gh', 'api'] for e in events), 1)
+
+    def test_known_draft_resumes_without_listing_or_creating_releases(self):
+        events = self.simulate(resume=True)
+        self.assertIn(['api', 'GET', 'releases/241'], events)
+        self.assertNotIn(['api', 'POST', 'releases'], events)
+        self.assertFalse(any(e[:2] == ['gh', 'api'] for e in events))
+
+    def test_wrong_resumed_release_is_rejected_before_wiki_or_upload(self):
+        for field, value in [('tag_name', 'v0.24.0'), ('target_commitish', 'b' * 40), ('id', None)]:
+            release = {'id': 241, 'tag_name': p.TAG, 'draft': True, 'target_commitish': 'a' * 40}
+            release[field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'unexpected|Unexpected'):
+                p.validate_release(release, 'a' * 40, False)
+
+    def test_create_api_passes_exact_json_and_returns_release_id(self):
+        payload = {'tag_name': p.TAG, 'draft': True, 'body': 'first line\nsecond line'}
+        with patch.object(p, 'run', return_value='{"id":241}') as run:
+            self.assertEqual(p.api('releases', method='POST', payload=payload), {'id': 241})
+            args = run.call_args.args[0]
+            self.assertIn('POST', args)
+            self.assertEqual(args[-2:], ['--input', '-'])
+            self.assertEqual(json.loads(run.call_args.kwargs['data']), payload)
