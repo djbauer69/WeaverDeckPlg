@@ -10,7 +10,7 @@ v0.24.1 uses the official PipeWeaver logo for shared artwork, the plugin header 
 
 v0.24.0 adds **Preview Scene**: a read-only, step-by-step view of current and proposed audio settings, skipped conditions, missing selections and provisional results. It uses the current PipeWeaver status and does not send audio-control commands. See [the preview guide](docs/SCENE-PREVIEW.md).
 
-[Download WeaverDeck v0.24.1](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.24.1). The v0.24.0 preview and edit-notice runtime checks passed; see the [test record](releases/v0.24.0-testing.md). Validation of the v0.24.1 artwork and logging changes is recorded in the [release notes](releases/v0.24.1.md).
+[Download WeaverDeck v0.24.1](https://github.com/djbauer69/WeaverDeckPlg/releases/tag/v0.24.1). The v0.24.0 preview and edit-notice runtime checks passed; see the [test record](releases/v0.24.0-testing.md). The user subsequently confirmed the v0.24.1 icon update, removal of Scene descriptive text and continued operation of the controls on Stream Deck XL; see the [runtime test record](releases/v0.24.1-testing.md). Automated artwork/logging validation is recorded in the [release notes](releases/v0.24.1.md). Non-XL hardware testing is intentionally outstanding and does not block the finished XL scope.
 
 ## Documentation
 
@@ -21,7 +21,7 @@ v0.24.0 adds **Preview Scene**: a read-only, step-by-step view of current and pr
 | [Communication](docs/wiki/Communication.md) | How the plugin exchanges OpenDeck events and PipeWeaver API commands. |
 | [Compatibility](docs/COMPATIBILITY.md) | Requirements and hardware/distribution test matrix. |
 
-The three main guides are also prepared for the GitHub wiki. Their repository copies remain available here.
+The three main guides were published to the [GitHub wiki](https://github.com/djbauer69/WeaverDeckPlg/wiki), as confirmed by the maintainer. Their repository copies remain available here; subsequent source edits require a separate wiki sync.
 
 ## Install or update
 

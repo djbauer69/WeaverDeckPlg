@@ -1,9 +1,30 @@
 # WeaverDeck compatibility and test matrix
 
-Applies to **WeaverDeck v0.22.0**. Updated 2026-09-07.
+Applies to **WeaverDeck v0.24.1**. Documentation updated 2026-09-22.
 
 Rows requiring unavailable physical devices remain pending until a tester records
-the exact device, host, and runtime result.
+the exact device, host, and runtime result. Non-XL hardware testing is intentionally
+outstanding and does not block the finished Stream Deck XL scope.
+
+## Current XL validation and grouped controls
+
+The existing CachyOS / Stream Deck XL installation has user runtime confirmation
+through v0.24.1. The [v0.23.0 record](../releases/v0.23.0-testing.md) covers the
+requested grouped-action checks; the [v0.24.0 record](../releases/v0.24.0-testing.md)
+covers the 38-step Scene preview and stale-preview notice. The
+[v0.24.1 record](../releases/v0.24.1-testing.md) records the user's confirmation of
+the icon update, removed Scene descriptive text and continued control operation.
+These are the recorded checks, not an exhaustive claim for every combination.
+
+Release validation records 103 Node tests and 20 Python tests passing for v0.24.1.
+These counts are historical validation evidence, not a new test run for this
+documentation update. Older coverage sections below retain their version-specific
+counts and results.
+
+The current sidebar contains 12 actions and retains 57 operations. Application,
+Physical Input, Physical Output, Source and Target automatically select their
+Volume Dial operation when assigned to an encoder. There are no separate Volume
+Dial sidebar entries; Route remains keypad-only.
 
 ## v0.22.0 hold-repeat and millisecond-fade coverage
 
@@ -26,7 +47,7 @@ exact endpoints, immediate/no-op fades, invalid settings, missing devices, exter
 changes, identity changes, interrupted requests, manual takeover, replacement
 fades, Smart Scene execution/validation, and editor import/export for all five
 control types. Initial v0.21.0 testing was pending; subsequent v0.22.0 Source/physical-input fade results are recorded in [the runtime test record](../releases/v0.22.0-testing.md).
-Five new fade buttons bring the total to 52 button actions plus five dial actions.
+At v0.21.0, five new fade buttons brought the total to 52 button actions plus five dial actions. v0.23.0 subsequently grouped these into the current 12 sidebar entries.
 No new hardware or Linux distribution is marked verified.
 
 
@@ -38,9 +59,9 @@ runtime result has been recorded. There are no universal hardware/distro guarant
 
 | Device / integration | Buttons | Dials and touch-strip display | Evidence / remaining work |
 | --- | --- | --- | --- |
-| Elgato Stream Deck XL | User-tested on CachyOS through v0.22.0 | No dials/strip | Labels, Scene persistence, Source/physical-input fades and inspector fixes confirmed; see the runtime record for exact coverage |
+| Elgato Stream Deck XL | User-tested on CachyOS through v0.24.1 | No dials/strip | Earlier labels, persistence, fades and inspector checks; grouped-action, preview and final artwork/Scene-text confirmations linked above |
 | Elgato Mini / Original / MK.2 | Expected through OpenDeck; hardware pending | Not applicable | No fixed XL grid assumption in action handlers; verify artwork/readability on each model |
-| Elgato Stream Deck + | Hardware pending | Implemented; automated protocol pass; hardware pending | Five Volume Dial actions, feedback layout, turn/press/tap |
+| Elgato Stream Deck + | Hardware pending | Implemented; automated protocol pass; hardware pending | Five grouped encoder controls, feedback layout, turn/press/tap |
 | Elgato Stream Deck + XL | Hardware pending | Expected through OpenDeck 2.14.0; hardware pending | OpenDeck release adds model support; verify every encoder position and strip scaling |
 | Elgato Stream Deck Neo | Button hardware pending | Dedicated infobar action **not implemented** | Infobar is distinct from the encoder touch-strip layout; no Neo display compatibility claim |
 | Elgato Stream Deck Pedal | Expected button-event controls; hardware pending | No display/dial support claimed | Test mute/Scene activation; no physical artwork expected |
@@ -54,7 +75,7 @@ communicates with PipeWeaver only; it does not directly control other mixers/app
 
 | Environment | Status | Required checks |
 | --- | --- | --- |
-| CachyOS, x86_64, user's existing installation | User-tested through v0.22.0 | See runtime record; not every action combination has separate evidence |
+| CachyOS, x86_64, user's existing installation | User-tested through v0.24.1 | See the versioned runtime records above; not every action combination has separate evidence |
 | Other Arch-based distributions | Pending | Native runtime, OpenDeck device access, PipeWeaver API, startup Scene path |
 | Debian / Ubuntu, x86_64 | Pending | Same checks using distribution packages; inspect Node.js version |
 | Fedora / openSUSE, x86_64 | Pending | Same checks using distribution packages |
@@ -92,21 +113,24 @@ Runtime prerequisites:
 | Encoder layout references, item bounds, all button UUIDs, alphabetical grouping | Pass | Pending host rendering |
 | Existing application identity, Scene, startup, and text-mode regressions | Pass | Pending v0.20 user regression |
 
-## Hardware acceptance sequence
+## Hardware acceptance sequence for future testers
 
 Record device model, Linux distribution, CPU architecture, OpenDeck/PipeWeaver/
 Node.js versions, installation format, and plugin version with each result.
+This sequence is available for future testing; it is not a request to repeat the
+completed XL checks or to test unavailable hardware now.
 
 1. On the existing XL, confirm old buttons, Dynamic/Manual labels and live
    percentage badges work. Run a representative Smart Scene. Restart OpenDeck
    and verify persistence. Check Startup Scene only if configured/enabled.
-2. On a Stream Deck +, assign **Target Volume Dial** to an encoder. Select a
+2. On a Stream Deck +, assign the **Target** grouped action to an encoder; its
+   Volume Dial operation is selected automatically. Select a
    target and Step % (default 5). Turn one tick each way; compare PipeWeaver and
    the displayed percentage. Turn quickly both ways and test 0%/100% boundaries.
 3. Press and release once: mute must toggle exactly once. Tap the strip once:
    mute must toggle once. Long touch intentionally does nothing.
-4. Repeat for Application, Source, Physical Input and Physical Output Volume
-   Dial. Check Source A/B independently (or expect both to follow if linked in
+4. Repeat by assigning the Application, Source, Physical Input and Physical Output
+   grouped actions to encoders. Check Source A/B independently (or expect both to follow if linked in
    PipeWeaver). Restart Brave and verify its configured dial reconnects safely.
 5. Change volumes/mute externally in PipeWeaver. Feedback should follow the
    normal status refresh (approximately three seconds), including 0% and MUTED.
